@@ -1,0 +1,192 @@
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
+  Badge,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Skeleton,
+  Text,
+  HStack,
+  Select,
+} from '@chakra-ui/react'
+import { FiMoreVertical, FiEye, FiEdit } from 'react-icons/fi'
+import { Member } from '@/types/database.types'
+import { useUpdateMemberStatus } from '../hooks/useMembers'
+import { usePermission } from '@/hooks/usePermission'
+
+interface MemberTableProps {
+  members: Member[]
+  isLoading: boolean
+  onViewDetails: (member: Member) => void
+}
+
+const getStatusBadgeColor = (status: string) => {
+  switch (status) {
+    case 'active':
+      return 'green'
+    case 'inactive':
+      return 'gray'
+    case 'suspended':
+      return 'red'
+    case 'pending':
+      return 'yellow'
+    default:
+      return 'gray'
+  }
+}
+
+const getStatusLabel = (status: string) => {
+  switch (status) {
+    case 'active':
+      return '활성'
+    case 'inactive':
+      return '비활성'
+    case 'suspended':
+      return '정지'
+    case 'pending':
+      return '대기'
+    default:
+      return status
+  }
+}
+
+const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) => {
+  const { canUpdate } = usePermission()
+  const updateMemberStatus = useUpdateMemberStatus()
+
+  const handleStatusChange = async (memberId: string, newStatus: string) => {
+    await updateMemberStatus.mutateAsync({ id: memberId, status: newStatus })
+  }
+
+  if (isLoading) {
+    return (
+      <TableContainer>
+        <Table variant="simple">
+          <Thead>
+            <Tr>
+              <Th>이름</Th>
+              <Th>이메일</Th>
+              <Th>전화번호</Th>
+              <Th>상태</Th>
+              <Th>가입일</Th>
+              <Th width="100px">작업</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {[...Array(5)].map((_, index) => (
+              <Tr key={index}>
+                <Td><Skeleton height="20px" /></Td>
+                <Td><Skeleton height="20px" /></Td>
+                <Td><Skeleton height="20px" /></Td>
+                <Td><Skeleton height="20px" width="80px" /></Td>
+                <Td><Skeleton height="20px" width="100px" /></Td>
+                <Td><Skeleton height="20px" width="40px" /></Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      </TableContainer>
+    )
+  }
+
+  if (members.length === 0) {
+    return (
+      <TableContainer>
+        <Table variant="simple">
+          <Thead>
+            <Tr>
+              <Th>이름</Th>
+              <Th>이메일</Th>
+              <Th>전화번호</Th>
+              <Th>상태</Th>
+              <Th>가입일</Th>
+              <Th width="100px">작업</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            <Tr>
+              <Td colSpan={6}>
+                <Text textAlign="center" color="gray.500" py="8">
+                  등록된 회원이 없습니다.
+                </Text>
+              </Td>
+            </Tr>
+          </Tbody>
+        </Table>
+      </TableContainer>
+    )
+  }
+
+  return (
+    <TableContainer>
+      <Table variant="simple">
+        <Thead>
+          <Tr>
+            <Th>이름</Th>
+            <Th>이메일</Th>
+            <Th>전화번호</Th>
+            <Th>상태</Th>
+            <Th>가입일</Th>
+            <Th width="100px">작업</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          {members.map((member) => (
+            <Tr key={member.id}>
+              <Td fontWeight="medium">{member.name}</Td>
+              <Td>{member.email}</Td>
+              <Td>{member.phone || '-'}</Td>
+              <Td>
+                {canUpdate('members') ? (
+                  <Select
+                    value={member.status}
+                    onChange={(e) => handleStatusChange(member.id, e.target.value)}
+                    size="sm"
+                    width="120px"
+                    isDisabled={updateMemberStatus.isPending}
+                  >
+                    <option value="active">활성</option>
+                    <option value="inactive">비활성</option>
+                    <option value="suspended">정지</option>
+                    <option value="pending">대기</option>
+                  </Select>
+                ) : (
+                  <Badge colorScheme={getStatusBadgeColor(member.status)}>
+                    {getStatusLabel(member.status)}
+                  </Badge>
+                )}
+              </Td>
+              <Td>{new Date(member.created_at).toLocaleDateString('ko-KR')}</Td>
+              <Td>
+                <Menu>
+                  <MenuButton
+                    as={IconButton}
+                    icon={<FiMoreVertical />}
+                    variant="ghost"
+                    size="sm"
+                    aria-label="작업 메뉴"
+                  />
+                  <MenuList>
+                    <MenuItem icon={<FiEye />} onClick={() => onViewDetails(member)}>
+                      상세 보기
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+              </Td>
+            </Tr>
+          ))}
+        </Tbody>
+      </Table>
+    </TableContainer>
+  )
+}
+
+export default MemberTable
