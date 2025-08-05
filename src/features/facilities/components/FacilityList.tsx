@@ -1,7 +1,7 @@
 import { Box, Grid, GridItem, Skeleton } from '@chakra-ui/react'
 import { Facility } from '@/types/database.types'
-import FacilityCard from './FacilityCard.refactored'
-import FacilityTable from './FacilityTable.refactored'
+import FacilityCard from './FacilityCard'
+import FacilityTable from './FacilityTable'
 
 interface FacilityListProps {
   facilities: Facility[]

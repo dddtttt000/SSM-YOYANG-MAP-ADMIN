@@ -121,6 +121,14 @@ export const useFacilityStats = () => {
   })
 }
 
+export const useFacilityTypes = () => {
+  return useQuery({
+    queryKey: ['facilityTypes'],
+    queryFn: () => facilityService.getFacilityTypes(),
+    staleTime: 30 * 60 * 1000, // 30분
+  })
+}
+
 export const useSidoList = () => {
   return useQuery({
     queryKey: ['sidoList'],
@@ -174,7 +182,7 @@ export const useUpdateNonBenefit = () => {
   const toast = useToast()
 
   return useMutation({
-    mutationFn: ({ id, nonbenefit, adminCode }: { 
+    mutationFn: ({ id, nonbenefit, adminCode: _adminCode }: { 
       id: number; 
       nonbenefit: Partial<Omit<FacilityNonBenefit, 'id' | 'admin_code' | 'created_at' | 'updated_at'>>;
       adminCode: string;
@@ -205,7 +213,7 @@ export const useDeleteNonBenefit = () => {
   const toast = useToast()
 
   return useMutation({
-    mutationFn: ({ id, adminCode }: { id: number; adminCode: string }) => 
+    mutationFn: ({ id, adminCode: _adminCode }: { id: number; adminCode: string }) => 
       facilityService.deleteNonBenefit(id),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['facility', variables.adminCode] })
@@ -264,7 +272,7 @@ export const useUpdateProgram = () => {
   const toast = useToast()
 
   return useMutation({
-    mutationFn: ({ id, program, adminCode }: { 
+    mutationFn: ({ id, program, adminCode: _adminCode }: { 
       id: number; 
       program: Partial<Omit<FacilityProgram, 'id' | 'admin_code' | 'created_at' | 'updated_at'>>;
       adminCode: string;
@@ -295,7 +303,7 @@ export const useDeleteProgram = () => {
   const toast = useToast()
 
   return useMutation({
-    mutationFn: ({ id, adminCode }: { id: number; adminCode: string }) => 
+    mutationFn: ({ id, adminCode: _adminCode }: { id: number; adminCode: string }) => 
       facilityService.deleteProgram(id),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['facility', variables.adminCode] })

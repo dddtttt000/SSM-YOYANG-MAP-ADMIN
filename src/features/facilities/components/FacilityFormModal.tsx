@@ -22,15 +22,10 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
-  Tag,
-  TagLabel,
-  TagCloseButton,
-  Box,
 } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
 import { Facility } from '@/types/database.types'
 import { useCreateFacility, useUpdateFacility, useFacilityTypes } from '../hooks/useFacilities'
-import { getContactInfo, getOperatingHours } from '@/types/json-utils'
 
 interface FacilityFormModalProps {
   isOpen: boolean
@@ -39,25 +34,19 @@ interface FacilityFormModalProps {
 }
 
 interface FormData {
-  facility_name: string
-  facility_type: string
+  admin_name: string
+  admin_type_code: string
   address: string
-  phone: string
-  email: string
-  website: string
-  weekday: string
-  weekend: string
-  holiday: string
+  phone_number: string
+  homepage_url: string
+  admin_introduce: string
   capacity: number | string
-  amenities: string[]
-  status: string
 }
 
 interface FormErrors {
-  facility_name?: string
-  facility_type?: string
-  email?: string
-  website?: string
+  admin_name?: string
+  admin_type_code?: string
+  homepage_url?: string
   capacity?: string
 }
 
@@ -68,78 +57,57 @@ const FacilityFormModal = ({ isOpen, onClose, facility }: FacilityFormModalProps
   const isEditMode = !!facility
 
   const [formData, setFormData] = useState<FormData>({
-    facility_name: '',
-    facility_type: '',
+    admin_name: '',
+    admin_type_code: '',
     address: '',
-    phone: '',
-    email: '',
-    website: '',
-    weekday: '',
-    weekend: '',
-    holiday: '',
+    phone_number: '',
+    homepage_url: '',
+    admin_introduce: '',
     capacity: '',
-    amenities: [],
-    status: 'active',
   })
 
   const [errors, setErrors] = useState<FormErrors>({})
-  const [newAmenity, setNewAmenity] = useState('')
   const [customType, setCustomType] = useState(false)
 
   useEffect(() => {
     if (facility) {
       setFormData({
-        facility_name: facility.facility_name,
-        facility_type: facility.facility_type || '',
+        admin_name: facility.admin_name || '',
+        admin_type_code: facility.admin_type_code || '',
         address: facility.address || '',
-        phone: facility.phone || getContactInfo(facility.contact_info).phone || '',
-        email: getContactInfo(facility.contact_info).email || '',
-        website: getContactInfo(facility.contact_info).website || '',
-        weekday: getOperatingHours(facility.operating_hours).weekday || '',
-        weekend: getOperatingHours(facility.operating_hours).weekend || '',
-        holiday: getOperatingHours(facility.operating_hours).holiday || '',
+        phone_number: facility.phone_number || '',
+        homepage_url: facility.homepage_url || '',
+        admin_introduce: facility.admin_introduce || '',
         capacity: facility.capacity || '',
-        amenities: facility.amenities || [],
-        status: facility.status,
       })
     } else {
       setFormData({
-        facility_name: '',
-        facility_type: '',
+        admin_name: '',
+        admin_type_code: '',
         address: '',
-        phone: '',
-        email: '',
-        website: '',
-        weekday: '',
-        weekend: '',
-        holiday: '',
+        phone_number: '',
+        homepage_url: '',
+        admin_introduce: '',
         capacity: '',
-        amenities: [],
-        status: 'active',
       })
     }
     setErrors({})
-    setNewAmenity('')
     setCustomType(false)
   }, [facility])
 
   const validateForm = () => {
     const newErrors: FormErrors = {}
 
-    if (!formData.facility_name) {
-      newErrors.facility_name = '시설명을 입력해주세요.'
+    if (!formData.admin_name) {
+      newErrors.admin_name = '시설명을 입력해주세요.'
     }
 
-    if (!formData.facility_type) {
-      newErrors.facility_type = '시설 유형을 선택해주세요.'
+    if (!formData.admin_type_code) {
+      newErrors.admin_type_code = '시설 유형을 선택해주세요.'
     }
 
-    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = '유효한 이메일 주소를 입력해주세요.'
-    }
-
-    if (formData.website && !/^https?:\/\/.+/.test(formData.website)) {
-      newErrors.website = '유효한 웹사이트 주소를 입력해주세요. (http:// 또는 https://로 시작)'
+    if (formData.homepage_url && !/^https?:\/\/.+/.test(formData.homepage_url)) {
+      newErrors.homepage_url = '유효한 웹사이트 주소를 입력해주세요. (http:// 또는 https://로 시작)'
     }
 
     if (formData.capacity && (Number(formData.capacity) < 0 || !Number.isInteger(Number(formData.capacity)))) {
@@ -150,43 +118,19 @@ const FacilityFormModal = ({ isOpen, onClose, facility }: FacilityFormModalProps
     return Object.keys(newErrors).length === 0
   }
 
-  const handleAddAmenity = () => {
-    if (newAmenity.trim() && !formData.amenities.includes(newAmenity.trim())) {
-      setFormData({
-        ...formData,
-        amenities: [...formData.amenities, newAmenity.trim()],
-      })
-      setNewAmenity('')
-    }
-  }
-
-  const handleRemoveAmenity = (amenity: string) => {
-    setFormData({
-      ...formData,
-      amenities: formData.amenities.filter(a => a !== amenity),
-    })
-  }
+  // Amenity functions removed as they're not in the current schema
 
   const handleSubmit = async () => {
     if (!validateForm()) return
 
     const dto = {
-      facility_name: formData.facility_name,
-      facility_type: formData.facility_type || undefined,
+      admin_name: formData.admin_name,
+      admin_type_code: formData.admin_type_code || undefined,
       address: formData.address || undefined,
-      contact_info: (formData.phone || formData.email || formData.website) ? {
-        phone: formData.phone || undefined,
-        email: formData.email || undefined,
-        website: formData.website || undefined,
-      } : undefined,
-      operating_hours: (formData.weekday || formData.weekend || formData.holiday) ? {
-        weekday: formData.weekday || undefined,
-        weekend: formData.weekend || undefined,
-        holiday: formData.holiday || undefined,
-      } : undefined,
+      phone_number: formData.phone_number || undefined,
+      homepage_url: formData.homepage_url || undefined,
+      admin_introduce: formData.admin_introduce || undefined,
       capacity: formData.capacity ? Number(formData.capacity) : undefined,
-      amenities: formData.amenities.length > 0 ? formData.amenities : undefined,
-      status: formData.status,
     }
 
     try {
@@ -203,21 +147,15 @@ const FacilityFormModal = ({ isOpen, onClose, facility }: FacilityFormModalProps
 
   const handleClose = () => {
     setFormData({
-      facility_name: '',
-      facility_type: '',
+      admin_name: '',
+      admin_type_code: '',
       address: '',
-      phone: '',
-      email: '',
-      website: '',
-      weekday: '',
-      weekend: '',
-      holiday: '',
+      phone_number: '',
+      homepage_url: '',
+      admin_introduce: '',
       capacity: '',
-      amenities: [],
-      status: 'active',
     })
     setErrors({})
-    setNewAmenity('')
     setCustomType(false)
     onClose()
   }
@@ -242,27 +180,27 @@ const FacilityFormModal = ({ isOpen, onClose, facility }: FacilityFormModalProps
             <TabPanels>
               <TabPanel>
                 <VStack spacing="4">
-                  <FormControl isInvalid={!!errors.facility_name} isRequired>
+                  <FormControl isInvalid={!!errors.admin_name} isRequired>
                     <FormLabel>시설명</FormLabel>
                     <Input
-                      value={formData.facility_name}
-                      onChange={(e) => setFormData({ ...formData, facility_name: e.target.value })}
+                      value={formData.admin_name}
+                      onChange={(e) => setFormData({ ...formData, admin_name: e.target.value })}
                       placeholder="시설명을 입력하세요"
                     />
-                    <FormErrorMessage>{errors.facility_name}</FormErrorMessage>
+                    <FormErrorMessage>{errors.admin_name}</FormErrorMessage>
                   </FormControl>
 
-                  <FormControl isInvalid={!!errors.facility_type} isRequired>
+                  <FormControl isInvalid={!!errors.admin_type_code} isRequired>
                     <FormLabel>시설 유형</FormLabel>
                     {!customType ? (
                       <Select
-                        value={formData.facility_type}
+                        value={formData.admin_type_code}
                         onChange={(e) => {
                           if (e.target.value === 'custom') {
                             setCustomType(true)
-                            setFormData({ ...formData, facility_type: '' })
+                            setFormData({ ...formData, admin_type_code: '' })
                           } else {
-                            setFormData({ ...formData, facility_type: e.target.value })
+                            setFormData({ ...formData, admin_type_code: e.target.value })
                           }
                         }}
                         placeholder="시설 유형을 선택하세요"
@@ -277,8 +215,8 @@ const FacilityFormModal = ({ isOpen, onClose, facility }: FacilityFormModalProps
                     ) : (
                       <HStack>
                         <Input
-                          value={formData.facility_type}
-                          onChange={(e) => setFormData({ ...formData, facility_type: e.target.value })}
+                          value={formData.admin_type_code}
+                          onChange={(e) => setFormData({ ...formData, admin_type_code: e.target.value })}
                           placeholder="시설 유형을 입력하세요"
                         />
                         <Button size="sm" onClick={() => setCustomType(false)}>
@@ -286,7 +224,7 @@ const FacilityFormModal = ({ isOpen, onClose, facility }: FacilityFormModalProps
                         </Button>
                       </HStack>
                     )}
-                    <FormErrorMessage>{errors.facility_type}</FormErrorMessage>
+                    <FormErrorMessage>{errors.admin_type_code}</FormErrorMessage>
                   </FormControl>
 
                   <FormControl>
@@ -312,15 +250,13 @@ const FacilityFormModal = ({ isOpen, onClose, facility }: FacilityFormModalProps
                   </FormControl>
 
                   <FormControl>
-                    <FormLabel>상태</FormLabel>
-                    <Select
-                      value={formData.status}
-                      onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    >
-                      <option value="active">운영중</option>
-                      <option value="inactive">미운영</option>
-                      <option value="maintenance">점검중</option>
-                    </Select>
+                    <FormLabel>시설 소개</FormLabel>
+                    <Textarea
+                      value={formData.admin_introduce}
+                      onChange={(e) => setFormData({ ...formData, admin_introduce: e.target.value })}
+                      placeholder="시설 소개를 입력하세요"
+                      rows={3}
+                    />
                   </FormControl>
                 </VStack>
               </TabPanel>
@@ -330,90 +266,20 @@ const FacilityFormModal = ({ isOpen, onClose, facility }: FacilityFormModalProps
                   <FormControl>
                     <FormLabel>전화번호</FormLabel>
                     <Input
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      value={formData.phone_number}
+                      onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
                       placeholder="02-1234-5678"
                     />
                   </FormControl>
 
-                  <FormControl isInvalid={!!errors.email}>
-                    <FormLabel>이메일</FormLabel>
+                  <FormControl isInvalid={!!errors.homepage_url}>
+                    <FormLabel>홈페이지</FormLabel>
                     <Input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="facility@example.com"
-                    />
-                    <FormErrorMessage>{errors.email}</FormErrorMessage>
-                  </FormControl>
-
-                  <FormControl isInvalid={!!errors.website}>
-                    <FormLabel>웹사이트</FormLabel>
-                    <Input
-                      value={formData.website}
-                      onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                      value={formData.homepage_url}
+                      onChange={(e) => setFormData({ ...formData, homepage_url: e.target.value })}
                       placeholder="https://example.com"
                     />
-                    <FormErrorMessage>{errors.website}</FormErrorMessage>
-                  </FormControl>
-                </VStack>
-              </TabPanel>
-
-              <TabPanel>
-                <VStack spacing="4">
-                  <FormControl>
-                    <FormLabel>평일 운영시간</FormLabel>
-                    <Input
-                      value={formData.weekday}
-                      onChange={(e) => setFormData({ ...formData, weekday: e.target.value })}
-                      placeholder="09:00 - 18:00"
-                    />
-                  </FormControl>
-
-                  <FormControl>
-                    <FormLabel>주말 운영시간</FormLabel>
-                    <Input
-                      value={formData.weekend}
-                      onChange={(e) => setFormData({ ...formData, weekend: e.target.value })}
-                      placeholder="10:00 - 17:00"
-                    />
-                  </FormControl>
-
-                  <FormControl>
-                    <FormLabel>공휴일 운영시간</FormLabel>
-                    <Input
-                      value={formData.holiday}
-                      onChange={(e) => setFormData({ ...formData, holiday: e.target.value })}
-                      placeholder="휴무"
-                    />
-                  </FormControl>
-
-                  <FormControl>
-                    <FormLabel>편의시설</FormLabel>
-                    <HStack mb="2">
-                      <Input
-                        value={newAmenity}
-                        onChange={(e) => setNewAmenity(e.target.value)}
-                        placeholder="편의시설 입력"
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault()
-                            handleAddAmenity()
-                          }
-                        }}
-                      />
-                      <Button onClick={handleAddAmenity} size="sm">
-                        추가
-                      </Button>
-                    </HStack>
-                    <Box>
-                      {formData.amenities.map((amenity, index) => (
-                        <Tag key={index} size="sm" m="1" variant="subtle" colorScheme="gray">
-                          <TagLabel>{amenity}</TagLabel>
-                          <TagCloseButton onClick={() => handleRemoveAmenity(amenity)} />
-                        </Tag>
-                      ))}
-                    </Box>
+                    <FormErrorMessage>{errors.homepage_url}</FormErrorMessage>
                   </FormControl>
                 </VStack>
               </TabPanel>

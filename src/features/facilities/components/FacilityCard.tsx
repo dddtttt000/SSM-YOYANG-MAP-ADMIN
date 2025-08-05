@@ -12,7 +12,6 @@ import {
   MenuList,
   MenuItem,
   Box,
-  Tooltip,
   Progress,
   Image,
 } from '@chakra-ui/react'

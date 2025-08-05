@@ -29,8 +29,6 @@ import {
   Th,
   Td,
   TableContainer,
-  useDisclosure,
-  IconButton,
   Link,
   Image,
   Stat,
@@ -44,9 +42,6 @@ import {
   FiGlobe, 
   FiCalendar, 
   FiAward,
-  FiEdit2,
-  FiTrash2,
-  FiPlus,
   FiExternalLink
 } from 'react-icons/fi'
 import { useFacility } from '../hooks/useFacilities'
@@ -92,7 +87,7 @@ const getRatingBadgeColor = (rating: string | null) => {
 
 const FacilityDetailModal = ({ isOpen, onClose, facilityId, onEdit }: FacilityDetailModalProps) => {
   const { data: facility, isLoading } = useFacility(facilityId)
-  const { canUpdate, canDelete } = usePermission()
+  const { canUpdate } = usePermission()
 
   // 총 직원 수 계산
   const getTotalStaff = () => {

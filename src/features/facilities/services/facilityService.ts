@@ -302,6 +302,25 @@ class FacilityService {
     }
   }
 
+  async getFacilityTypes() {
+    const { data, error } = await supabase
+      .from('facilities_ssmn_basic_full')
+      .select('admin_type_code')
+      .not('admin_type_code', 'is', null)
+
+    if (error) throw error
+
+    // 중복 제거
+    const uniqueTypes = new Set<string>()
+    data?.forEach(item => {
+      if (item.admin_type_code) {
+        uniqueTypes.add(item.admin_type_code)
+      }
+    })
+
+    return Array.from(uniqueTypes).sort()
+  }
+
   async getSidoList() {
     const { data, error } = await supabase
       .from('facilities_ssmn_basic_full')
