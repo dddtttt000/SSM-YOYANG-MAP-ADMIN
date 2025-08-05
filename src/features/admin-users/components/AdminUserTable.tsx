@@ -8,13 +8,11 @@ import {
   TableContainer,
   Badge,
   IconButton,
-  HStack,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
   Skeleton,
-  SkeletonText,
   Text,
   useDisclosure,
   AlertDialog,
@@ -74,7 +72,7 @@ const AdminUserTable = ({ adminUsers, isLoading, onEdit, onEditPermissions }: Ad
 
   const confirmDelete = async () => {
     if (selectedUser) {
-      await deleteAdminUser.mutateAsync(selectedUser.id)
+      await deleteAdminUser.mutateAsync(String(selectedUser.id))
       onClose()
     }
   }

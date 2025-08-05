@@ -65,7 +65,7 @@ const FacilityList = ({
   return (
     <Grid templateColumns="repeat(auto-fill, minmax(350px, 1fr))" gap="6">
       {facilities.map((facility) => (
-        <GridItem key={facility.id}>
+        <GridItem key={facility.admin_code}>
           <FacilityCard
             facility={facility}
             onView={onView}

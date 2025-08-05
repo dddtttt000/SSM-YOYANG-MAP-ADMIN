@@ -14,10 +14,9 @@ import {
   MenuItem,
   Skeleton,
   Text,
-  HStack,
   Select,
 } from '@chakra-ui/react'
-import { FiMoreVertical, FiEye, FiEdit } from 'react-icons/fi'
+import { FiMoreVertical, FiEye } from 'react-icons/fi'
 import { Member } from '@/types/database.types'
 import { useUpdateMemberStatus } from '../hooks/useMembers'
 import { usePermission } from '@/hooks/usePermission'

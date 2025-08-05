@@ -13,8 +13,6 @@ import {
   Text,
   Box,
   Divider,
-  useCheckboxGroup,
-  Badge,
 } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
 import { AdminUser, Permission } from '@/types/database.types'
@@ -77,11 +75,8 @@ const PermissionModal = ({ isOpen, onClose, user }: PermissionModalProps) => {
   const [permissions, setPermissions] = useState<Permission[]>([])
 
   useEffect(() => {
-    if (user?.permissions) {
-      setPermissions(user.permissions)
-    } else {
-      setPermissions([])
-    }
+    // TODO: permissions will be stored in a separate table or JSON field
+    setPermissions([])
   }, [user])
 
   const isActionChecked = (resource: string, action: string) => {
@@ -138,7 +133,7 @@ const PermissionModal = ({ isOpen, onClose, user }: PermissionModalProps) => {
 
     try {
       await updatePermissions.mutateAsync({
-        id: user.id,
+        id: String(user.id),
         permissions,
       })
       onClose()

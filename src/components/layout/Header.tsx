@@ -21,7 +21,7 @@ interface HeaderProps {
   isSidebarOpen: boolean
 }
 
-const Header = ({ onMenuClick, isSidebarOpen }: HeaderProps) => {
+const Header = ({ onMenuClick }: HeaderProps) => {
   const { user, logout } = useAuth()
   const toast = useToast()
 

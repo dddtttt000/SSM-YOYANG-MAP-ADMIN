@@ -17,6 +17,7 @@ import {
 import { FiMoreVertical, FiEye, FiEdit2, FiTrash2, FiMapPin, FiPhone, FiUsers } from 'react-icons/fi'
 import { Facility } from '@/types/database.types'
 import { usePermission } from '@/hooks/usePermission'
+import { getContactInfo } from '@/types/json-utils'
 
 interface FacilityCardProps {
   facility: Facility
@@ -107,10 +108,10 @@ const FacilityCard = ({ facility, onView, onEdit, onDelete }: FacilityCardProps)
               </HStack>
             )}
             
-            {(facility.phone || facility.contact_info?.phone) && (
+            {(facility.phone || getContactInfo(facility.contact_info).phone) && (
               <HStack>
                 <FiPhone size="14" />
-                <Text>{facility.phone || facility.contact_info?.phone}</Text>
+                <Text>{facility.phone || getContactInfo(facility.contact_info).phone}</Text>
               </HStack>
             )}
 

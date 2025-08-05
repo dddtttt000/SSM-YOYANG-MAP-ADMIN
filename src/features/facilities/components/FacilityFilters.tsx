@@ -6,7 +6,6 @@ import {
   InputLeftElement,
   IconButton,
   Tooltip,
-  Button,
   ButtonGroup,
 } from '@chakra-ui/react'
 import { FiSearch, FiX, FiGrid, FiList } from 'react-icons/fi'

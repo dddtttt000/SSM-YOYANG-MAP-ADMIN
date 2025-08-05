@@ -17,7 +17,6 @@ import {
   InputRightElement,
   IconButton,
   Text,
-  Box,
 } from '@chakra-ui/react'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import { useState, useEffect } from 'react'
@@ -118,7 +117,7 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
     try {
       if (isEditMode && user) {
         await updateAdminUser.mutateAsync({
-          id: user.id,
+          id: String(user.id),
           dto: {
             name: formData.name,
             role: formData.role,

@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import {
   Box,
   Button,
@@ -20,7 +19,6 @@ import { FiEye, FiEyeOff } from 'react-icons/fi'
 import { useAuth } from '../contexts/AuthContext'
 
 const LoginPage = () => {
-  const navigate = useNavigate()
   const toast = useToast()
   const { login, isLoading } = useAuth()
   

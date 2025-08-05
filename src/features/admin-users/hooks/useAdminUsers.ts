@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@chakra-ui/react'
 import { adminUserService, AdminUserFilters, CreateAdminUserDto, UpdateAdminUserDto } from '../services/adminUserService'
+import { Permission } from '@/types/database.types'
 
 export const useAdminUsers = (filters?: AdminUserFilters) => {
   return useQuery({

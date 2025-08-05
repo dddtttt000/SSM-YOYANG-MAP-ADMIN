@@ -26,12 +26,11 @@ import {
   TagLabel,
   TagCloseButton,
   Box,
-  InputGroup,
-  InputLeftAddon,
 } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
 import { Facility } from '@/types/database.types'
 import { useCreateFacility, useUpdateFacility, useFacilityTypes } from '../hooks/useFacilities'
+import { getContactInfo, getOperatingHours } from '@/types/json-utils'
 
 interface FacilityFormModalProps {
   isOpen: boolean
@@ -93,12 +92,12 @@ const FacilityFormModal = ({ isOpen, onClose, facility }: FacilityFormModalProps
         facility_name: facility.facility_name,
         facility_type: facility.facility_type || '',
         address: facility.address || '',
-        phone: facility.phone || facility.contact_info?.phone || '',
-        email: facility.contact_info?.email || '',
-        website: facility.contact_info?.website || '',
-        weekday: facility.operating_hours?.weekday || '',
-        weekend: facility.operating_hours?.weekend || '',
-        holiday: facility.operating_hours?.holiday || '',
+        phone: facility.phone || getContactInfo(facility.contact_info).phone || '',
+        email: getContactInfo(facility.contact_info).email || '',
+        website: getContactInfo(facility.contact_info).website || '',
+        weekday: getOperatingHours(facility.operating_hours).weekday || '',
+        weekend: getOperatingHours(facility.operating_hours).weekend || '',
+        holiday: getOperatingHours(facility.operating_hours).holiday || '',
         capacity: facility.capacity || '',
         amenities: facility.amenities || [],
         status: facility.status,

@@ -8,7 +8,6 @@ import {
   ModalCloseButton,
   Button,
   VStack,
-  HStack,
   Text,
   Box,
   Divider,
@@ -18,7 +17,6 @@ import {
   Grid,
   GridItem,
 } from '@chakra-ui/react'
-import { Member } from '@/types/database.types'
 import { useMember } from '../hooks/useMembers'
 
 interface MemberDetailModalProps {

@@ -151,7 +151,7 @@ const FacilityDetailModal = ({ isOpen, onClose, facilityId, onEdit }: FacilityDe
                             편의시설
                           </Text>
                           <HStack wrap="wrap" spacing="2">
-                            {facility.amenities.map((amenity, index) => (
+                            {facility.amenities.map((amenity: string, index: number) => (
                               <Badge key={index} colorScheme="gray">
                                 {amenity}
                               </Badge>

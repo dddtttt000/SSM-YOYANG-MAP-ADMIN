@@ -34,7 +34,7 @@ import { Facility } from '@/types/database.types'
 import { FacilityFilters as Filters } from '../services/facilityService'
 
 const FacilitiesPage = () => {
-  const { canCreate, canDelete } = usePermission()
+  const { canCreate } = usePermission()
   const [filters, setFilters] = useState<Filters>({
     page: 1,
     limit: 12,

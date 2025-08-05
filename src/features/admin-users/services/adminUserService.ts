@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import { AdminUser, Permission } from '@/types/database.types'
+import { Permission } from '@/types/database.types'
 
 export interface AdminUserFilters {
   role?: 'super_admin' | 'admin'

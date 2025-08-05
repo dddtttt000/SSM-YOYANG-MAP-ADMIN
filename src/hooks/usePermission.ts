@@ -4,7 +4,7 @@ import { useAuth } from '@/features/auth/contexts/AuthContext'
 export const usePermission = () => {
   const { user } = useAuth()
 
-  const hasPermission = useCallback((resource: string, action: string) => {
+  const hasPermission = useCallback((_resource: string, action: string) => {
     if (!user) return false
 
     // role에 따른 권한

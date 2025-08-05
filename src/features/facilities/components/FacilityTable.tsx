@@ -14,11 +14,11 @@ import {
   MenuItem,
   Skeleton,
   Text,
-  HStack,
 } from '@chakra-ui/react'
 import { FiMoreVertical, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi'
 import { Facility } from '@/types/database.types'
 import { usePermission } from '@/hooks/usePermission'
+import { getContactInfo } from '@/types/json-utils'
 
 interface FacilityTableProps {
   facilities: Facility[]
@@ -143,7 +143,7 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
                 )}
               </Td>
               <Td>{facility.address || '-'}</Td>
-              <Td>{facility.phone || facility.contact_info?.phone || '-'}</Td>
+              <Td>{facility.phone || getContactInfo(facility.contact_info).phone || '-'}</Td>
               <Td>
                 <Badge colorScheme={getStatusBadgeColor(facility.status)}>
                   {getStatusLabel(facility.status)}
