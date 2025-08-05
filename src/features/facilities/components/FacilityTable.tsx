@@ -14,11 +14,11 @@ import {
   MenuItem,
   Skeleton,
   Text,
+  HStack,
 } from '@chakra-ui/react'
 import { FiMoreVertical, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi'
 import { Facility } from '@/types/database.types'
 import { usePermission } from '@/hooks/usePermission'
-import { getContactInfo } from '@/types/json-utils'
 
 interface FacilityTableProps {
   facilities: Facility[]
@@ -28,29 +28,21 @@ interface FacilityTableProps {
   onDelete: (facility: Facility) => void
 }
 
-const getStatusBadgeColor = (status: string) => {
-  switch (status) {
-    case 'active':
+const getRatingBadgeColor = (rating: string | null) => {
+  if (!rating) return 'gray'
+  switch (rating) {
+    case 'A':
       return 'green'
-    case 'inactive':
-      return 'gray'
-    case 'maintenance':
+    case 'B':
+      return 'blue'
+    case 'C':
+      return 'yellow'
+    case 'D':
       return 'orange'
+    case 'E':
+      return 'red'
     default:
       return 'gray'
-  }
-}
-
-const getStatusLabel = (status: string) => {
-  switch (status) {
-    case 'active':
-      return '운영중'
-    case 'inactive':
-      return '미운영'
-    case 'maintenance':
-      return '점검중'
-    default:
-      return status
   }
 }
 
@@ -65,16 +57,18 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
             <Tr>
               <Th>시설명</Th>
               <Th>유형</Th>
-              <Th>주소</Th>
+              <Th>지역</Th>
               <Th>연락처</Th>
-              <Th>상태</Th>
-              <Th>등록일</Th>
+              <Th>정원/현원</Th>
+              <Th>평가등급</Th>
+              <Th>설치일</Th>
               <Th width="100px">작업</Th>
             </Tr>
           </Thead>
           <Tbody>
             {[...Array(5)].map((_, index) => (
               <Tr key={index}>
+                <Td><Skeleton height="20px" /></Td>
                 <Td><Skeleton height="20px" /></Td>
                 <Td><Skeleton height="20px" /></Td>
                 <Td><Skeleton height="20px" /></Td>
@@ -98,16 +92,17 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
             <Tr>
               <Th>시설명</Th>
               <Th>유형</Th>
-              <Th>주소</Th>
+              <Th>지역</Th>
               <Th>연락처</Th>
-              <Th>상태</Th>
-              <Th>등록일</Th>
+              <Th>정원/현원</Th>
+              <Th>평가등급</Th>
+              <Th>설치일</Th>
               <Th width="100px">작업</Th>
             </Tr>
           </Thead>
           <Tbody>
             <Tr>
-              <Td colSpan={7}>
+              <Td colSpan={8}>
                 <Text textAlign="center" color="gray.500" py="8">
                   등록된 시설이 없습니다.
                 </Text>
@@ -126,30 +121,67 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
           <Tr>
             <Th>시설명</Th>
             <Th>유형</Th>
-            <Th>주소</Th>
+            <Th>지역</Th>
             <Th>연락처</Th>
-            <Th>상태</Th>
-            <Th>등록일</Th>
+            <Th>정원/현원</Th>
+            <Th>평가등급</Th>
+            <Th>설치일</Th>
             <Th width="100px">작업</Th>
           </Tr>
         </Thead>
         <Tbody>
           {facilities.map((facility) => (
             <Tr key={facility.admin_code}>
-              <Td fontWeight="medium">{facility.facility_name}</Td>
+              <Td fontWeight="medium">{facility.admin_name || '시설명 없음'}</Td>
               <Td>
-                {facility.facility_type && (
-                  <Badge colorScheme="blue">{facility.facility_type}</Badge>
+                {facility.admin_type_code && (
+                  <Badge colorScheme="blue" size="sm">
+                    {facility.admin_type_code}
+                  </Badge>
                 )}
               </Td>
-              <Td>{facility.address || '-'}</Td>
-              <Td>{facility.phone || getContactInfo(facility.contact_info).phone || '-'}</Td>
               <Td>
-                <Badge colorScheme={getStatusBadgeColor(facility.status)}>
-                  {getStatusLabel(facility.status)}
-                </Badge>
+                <Text fontSize="sm">
+                  {[facility.sido_name, facility.sigungu_name]
+                    .filter(Boolean)
+                    .join(' ') || '-'}
+                </Text>
               </Td>
-              <Td>{new Date(facility.created_at).toLocaleDateString('ko-KR')}</Td>
+              <Td>{facility.phone_number || '-'}</Td>
+              <Td>
+                <HStack spacing="1">
+                  <Text fontSize="sm">
+                    {facility.capacity || 0}
+                  </Text>
+                  <Text fontSize="sm" color="gray.500">/</Text>
+                  <Text fontSize="sm" color="brand.500">
+                    {(facility.current_male || 0) + (facility.current_female || 0)}
+                  </Text>
+                </HStack>
+              </Td>
+              <Td>
+                <HStack spacing="2">
+                  {facility.final_rating && (
+                    <Badge colorScheme={getRatingBadgeColor(facility.final_rating)}>
+                      {facility.final_rating}
+                    </Badge>
+                  )}
+                  {facility['2023_rating'] && facility['2023_rating'] !== facility.final_rating && (
+                    <Badge colorScheme="gray" size="sm">
+                      2023: {facility['2023_rating']}
+                    </Badge>
+                  )}
+                </HStack>
+              </Td>
+              <Td>
+                {facility.install_date 
+                  ? new Date(facility.install_date).toLocaleDateString('ko-KR', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit'
+                    })
+                  : '-'}
+              </Td>
               <Td>
                 <Menu>
                   <MenuButton

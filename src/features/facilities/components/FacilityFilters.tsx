@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react'
 import { FiSearch, FiX, FiGrid, FiList } from 'react-icons/fi'
 import { FacilityFilters as Filters } from '../services/facilityService'
-import { useFacilityTypes } from '../hooks/useFacilities'
+import { useSidoList, useSigunguList } from '../hooks/useFacilities'
 
 interface FacilityFiltersProps {
   filters: Filters
@@ -25,28 +25,40 @@ const FacilityFilters = ({
   viewMode, 
   onViewModeChange 
 }: FacilityFiltersProps) => {
-  const { data: facilityTypes } = useFacilityTypes()
+  const { data: sidoList } = useSidoList()
+  const { data: sigunguList } = useSigunguList(filters.sido_code)
 
   const handleSearchChange = (value: string) => {
-    onFiltersChange({ ...filters, search: value })
+    onFiltersChange({ ...filters, search: value, page: 1 })
   }
 
-  const handleTypeChange = (value: string) => {
+  const handleSidoChange = (value: string) => {
     onFiltersChange({ 
       ...filters, 
-      type: value === 'all' ? undefined : value 
+      sido_code: value === 'all' ? undefined : value,
+      sigungu_code: undefined, // 시도 변경시 시군구 초기화
+      page: 1
     })
   }
 
-  const handleStatusChange = (value: string) => {
+  const handleSigunguChange = (value: string) => {
     onFiltersChange({ 
       ...filters, 
-      status: value === 'all' ? undefined : value 
+      sigungu_code: value === 'all' ? undefined : value,
+      page: 1
+    })
+  }
+
+  const handleRatingChange = (value: string) => {
+    onFiltersChange({ 
+      ...filters, 
+      rating: value === 'all' ? undefined : value,
+      page: 1
     })
   }
 
   const clearSearch = () => {
-    onFiltersChange({ ...filters, search: '' })
+    onFiltersChange({ ...filters, search: '', page: 1 })
   }
 
   return (
@@ -79,27 +91,43 @@ const FacilityFilters = ({
         </InputGroup>
 
         <Select
-          value={filters.type || 'all'}
-          onChange={(e) => handleTypeChange(e.target.value)}
-          maxW="200px"
+          value={filters.sido_code || 'all'}
+          onChange={(e) => handleSidoChange(e.target.value)}
+          maxW="150px"
         >
-          <option value="all">모든 유형</option>
-          {facilityTypes?.map((type) => (
-            <option key={type} value={type}>
-              {type}
+          <option value="all">모든 시도</option>
+          {sidoList?.map((sido) => (
+            <option key={sido.code} value={sido.code}>
+              {sido.name}
             </option>
           ))}
         </Select>
 
         <Select
-          value={filters.status || 'all'}
-          onChange={(e) => handleStatusChange(e.target.value)}
-          maxW="200px"
+          value={filters.sigungu_code || 'all'}
+          onChange={(e) => handleSigunguChange(e.target.value)}
+          maxW="150px"
+          isDisabled={!filters.sido_code}
         >
-          <option value="all">모든 상태</option>
-          <option value="active">운영중</option>
-          <option value="inactive">미운영</option>
-          <option value="maintenance">점검중</option>
+          <option value="all">모든 시군구</option>
+          {sigunguList?.map((sigungu) => (
+            <option key={sigungu.code} value={sigungu.code}>
+              {sigungu.name}
+            </option>
+          ))}
+        </Select>
+
+        <Select
+          value={filters.rating || 'all'}
+          onChange={(e) => handleRatingChange(e.target.value)}
+          maxW="150px"
+        >
+          <option value="all">모든 등급</option>
+          <option value="A">A등급</option>
+          <option value="B">B등급</option>
+          <option value="C">C등급</option>
+          <option value="D">D등급</option>
+          <option value="E">E등급</option>
         </Select>
       </HStack>
 

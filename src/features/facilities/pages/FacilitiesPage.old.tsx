@@ -30,7 +30,7 @@ import FacilityDetailModal from '../components/FacilityDetailModal'
 import FacilityFormModal from '../components/FacilityFormModal'
 import FacilityFilters from '../components/FacilityFilters'
 import Pagination from '@/components/common/Pagination'
-import { FacilityWithRelations } from '../services/facilityService'
+import { Facility } from '@/types/database.types'
 import { FacilityFilters as Filters } from '../services/facilityService'
 
 const FacilitiesPage = () => {
@@ -63,7 +63,7 @@ const FacilitiesPage = () => {
     onClose: onDeleteAlertClose,
   } = useDisclosure()
 
-  const [selectedFacility, setSelectedFacility] = useState<FacilityWithRelations | null>(null)
+  const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null)
   const [selectedFacilityAdminCode, setSelectedFacilityAdminCode] = useState<string | null>(null)
   const cancelRef = useRef<HTMLButtonElement>(null)
 
@@ -75,7 +75,7 @@ const FacilitiesPage = () => {
     setFilters({ ...filters, page: 1, limit })
   }
 
-  const handleViewDetails = (facility: any) => {
+  const handleViewDetails = (facility: Facility) => {
     setSelectedFacilityAdminCode(facility.admin_code)
     onDetailModalOpen()
   }
@@ -85,13 +85,13 @@ const FacilitiesPage = () => {
     onFormModalOpen()
   }
 
-  const handleEditFacility = (facility: FacilityWithRelations) => {
+  const handleEditFacility = (facility: Facility) => {
     setSelectedFacility(facility)
     onFormModalOpen()
     onDetailModalClose()
   }
 
-  const handleDeleteFacility = (facility: any) => {
+  const handleDeleteFacility = (facility: Facility) => {
     setSelectedFacility(facility)
     onDeleteAlertOpen()
   }
@@ -143,35 +143,30 @@ const FacilitiesPage = () => {
             <Card>
               <CardBody>
                 <Stat>
-                  <StatLabel>총 정원</StatLabel>
-                  <StatNumber>{stats?.totalCapacity.toLocaleString() || 0}</StatNumber>
-                  <StatHelpText>명</StatHelpText>
+                  <StatLabel>운영중</StatLabel>
+                  <StatNumber>{stats?.active.toLocaleString() || 0}</StatNumber>
+                  <StatHelpText>현재 운영중인 시설</StatHelpText>
                 </Stat>
               </CardBody>
             </Card>
           </GridItem>
-          <GridItem>
-            <Card>
-              <CardBody>
-                <Stat>
-                  <StatLabel>현원</StatLabel>
-                  <StatNumber>{stats?.currentOccupancy.toLocaleString() || 0}</StatNumber>
-                  <StatHelpText>명</StatHelpText>
-                </Stat>
-              </CardBody>
-            </Card>
-          </GridItem>
-          <GridItem>
-            <Card>
-              <CardBody>
-                <Stat>
-                  <StatLabel>평균 정원</StatLabel>
-                  <StatNumber>{stats?.averageCapacity || 0}</StatNumber>
-                  <StatHelpText>명/시설</StatHelpText>
-                </Stat>
-              </CardBody>
-            </Card>
-          </GridItem>
+          {stats?.byType && Object.keys(stats.byType).length > 0 && (
+            <>
+              {Object.entries(stats.byType).slice(0, 2).map(([type, count]) => (
+                <GridItem key={type}>
+                  <Card>
+                    <CardBody>
+                      <Stat>
+                        <StatLabel>{type}</StatLabel>
+                        <StatNumber>{count.toLocaleString()}</StatNumber>
+                        <StatHelpText>해당 유형 시설</StatHelpText>
+                      </Stat>
+                    </CardBody>
+                  </Card>
+                </GridItem>
+              ))}
+            </>
+          )}
         </Grid>
 
         {/* 시설 목록 */}
@@ -234,7 +229,7 @@ const FacilitiesPage = () => {
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              정말로 <strong>{selectedFacility?.admin_name}</strong> 시설을 삭제하시겠습니까?
+              정말로 <strong>{selectedFacility?.facility_name}</strong> 시설을 삭제하시겠습니까?
               삭제된 시설은 복구할 수 없습니다.
             </AlertDialogBody>
 

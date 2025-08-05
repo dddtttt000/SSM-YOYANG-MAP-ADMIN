@@ -13,11 +13,12 @@ import {
   MenuItem,
   Box,
   Tooltip,
+  Progress,
+  Image,
 } from '@chakra-ui/react'
-import { FiMoreVertical, FiEye, FiEdit2, FiTrash2, FiMapPin, FiPhone, FiUsers } from 'react-icons/fi'
+import { FiMoreVertical, FiEye, FiEdit2, FiTrash2, FiMapPin, FiPhone, FiUsers, FiAward } from 'react-icons/fi'
 import { Facility } from '@/types/database.types'
 import { usePermission } from '@/hooks/usePermission'
-import { getContactInfo } from '@/types/json-utils'
 
 interface FacilityCardProps {
   facility: Facility
@@ -26,34 +27,31 @@ interface FacilityCardProps {
   onDelete: (facility: Facility) => void
 }
 
-const getStatusBadgeColor = (status: string) => {
-  switch (status) {
-    case 'active':
+const getRatingBadgeColor = (rating: string | null) => {
+  if (!rating) return 'gray'
+  switch (rating) {
+    case 'A':
       return 'green'
-    case 'inactive':
-      return 'gray'
-    case 'maintenance':
+    case 'B':
+      return 'blue'
+    case 'C':
+      return 'yellow'
+    case 'D':
       return 'orange'
+    case 'E':
+      return 'red'
     default:
       return 'gray'
-  }
-}
-
-const getStatusLabel = (status: string) => {
-  switch (status) {
-    case 'active':
-      return '운영중'
-    case 'inactive':
-      return '미운영'
-    case 'maintenance':
-      return '점검중'
-    default:
-      return status
   }
 }
 
 const FacilityCard = ({ facility, onView, onEdit, onDelete }: FacilityCardProps) => {
   const { canUpdate, canDelete } = usePermission()
+
+  // 입소율 계산
+  const occupancyRate = facility.capacity 
+    ? Math.round(((facility.current_male || 0) + (facility.current_female || 0)) / facility.capacity * 100)
+    : 0
 
   return (
     <Card h="full" _hover={{ shadow: 'lg' }} transition="all 0.2s">
@@ -62,13 +60,20 @@ const FacilityCard = ({ facility, onView, onEdit, onDelete }: FacilityCardProps)
           <HStack justify="space-between" align="start">
             <Box flex="1">
               <Text fontSize="lg" fontWeight="semibold" noOfLines={1}>
-                {facility.facility_name}
+                {facility.admin_name || '시설명 없음'}
               </Text>
-              {facility.facility_type && (
-                <Badge colorScheme="blue" mt="1">
-                  {facility.facility_type}
-                </Badge>
-              )}
+              <HStack spacing="2" mt="1">
+                {facility.admin_type_code && (
+                  <Badge colorScheme="blue" size="sm">
+                    {facility.admin_type_code}
+                  </Badge>
+                )}
+                {facility.final_rating && (
+                  <Badge colorScheme={getRatingBadgeColor(facility.final_rating)} size="sm">
+                    {facility.final_rating}등급
+                  </Badge>
+                )}
+              </HStack>
             </Box>
             <Menu>
               <MenuButton
@@ -100,43 +105,70 @@ const FacilityCard = ({ facility, onView, onEdit, onDelete }: FacilityCardProps)
             </Menu>
           </HStack>
 
+          {facility.thumbnail_url && (
+            <Image
+              src={facility.thumbnail_url}
+              alt={facility.admin_name || ''}
+              height="120px"
+              width="100%"
+              objectFit="cover"
+              borderRadius="md"
+            />
+          )}
+
           <VStack align="stretch" spacing="2" fontSize="sm" color="gray.600">
-            {facility.address && (
-              <HStack>
-                <FiMapPin size="14" />
-                <Text noOfLines={2}>{facility.address}</Text>
-              </HStack>
-            )}
+            <HStack>
+              <FiMapPin size="14" />
+              <Text noOfLines={1}>
+                {[facility.sido_name, facility.sigungu_name]
+                  .filter(Boolean)
+                  .join(' ') || facility.address || '주소 없음'}
+              </Text>
+            </HStack>
             
-            {(facility.phone || getContactInfo(facility.contact_info).phone) && (
+            {facility.phone_number && (
               <HStack>
                 <FiPhone size="14" />
-                <Text>{facility.phone || getContactInfo(facility.contact_info).phone}</Text>
+                <Text>{facility.phone_number}</Text>
               </HStack>
             )}
 
-            {facility.capacity && (
+            <HStack>
+              <FiUsers size="14" />
+              <Text>
+                정원: {facility.capacity || 0}명 / 현원: {(facility.current_male || 0) + (facility.current_female || 0)}명
+              </Text>
+            </HStack>
+
+            {facility.rating_date && (
               <HStack>
-                <FiUsers size="14" />
-                <Text>수용인원: {facility.capacity}명</Text>
+                <FiAward size="14" />
+                <Text>
+                  평가일: {new Date(facility.rating_date).toLocaleDateString('ko-KR')}
+                </Text>
               </HStack>
             )}
           </VStack>
 
-          {facility.amenities && facility.amenities.length > 0 && (
-            <HStack wrap="wrap" spacing="1">
-              {facility.amenities.slice(0, 3).map((amenity, index) => (
-                <Badge key={index} size="sm" colorScheme="gray">
-                  {amenity}
-                </Badge>
-              ))}
-              {facility.amenities.length > 3 && (
-                <Tooltip label={facility.amenities.slice(3).join(', ')}>
-                  <Badge size="sm" colorScheme="gray" cursor="help">
-                    +{facility.amenities.length - 3}
-                  </Badge>
-                </Tooltip>
-              )}
+          <Box>
+            <HStack justify="space-between" mb="1">
+              <Text fontSize="xs" color="gray.500">입소율</Text>
+              <Text fontSize="xs" fontWeight="bold">{occupancyRate}%</Text>
+            </HStack>
+            <Progress
+              value={occupancyRate}
+              size="sm"
+              colorScheme={occupancyRate > 90 ? 'red' : occupancyRate > 70 ? 'yellow' : 'green'}
+              borderRadius="full"
+            />
+          </Box>
+
+          {(facility.waiting_male || 0) + (facility.waiting_female || 0) > 0 && (
+            <HStack justify="space-between" fontSize="xs" color="orange.600">
+              <Text>대기자</Text>
+              <Text fontWeight="bold">
+                {(facility.waiting_male || 0) + (facility.waiting_female || 0)}명
+              </Text>
             </HStack>
           )}
         </VStack>
@@ -144,11 +176,13 @@ const FacilityCard = ({ facility, onView, onEdit, onDelete }: FacilityCardProps)
 
       <CardFooter pt="0">
         <HStack justify="space-between" w="full">
-          <Badge colorScheme={getStatusBadgeColor(facility.status)}>
-            {getStatusLabel(facility.status)}
-          </Badge>
           <Text fontSize="xs" color="gray.500">
-            등록일: {new Date(facility.created_at).toLocaleDateString('ko-KR')}
+            {facility.admin_code}
+          </Text>
+          <Text fontSize="xs" color="gray.500">
+            설치: {facility.install_date 
+              ? new Date(facility.install_date).toLocaleDateString('ko-KR')
+              : '정보 없음'}
           </Text>
         </HStack>
       </CardFooter>

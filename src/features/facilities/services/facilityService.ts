@@ -1,10 +1,11 @@
 import { supabase } from '@/lib/supabase'
-import { Facility } from '@/types/database.types'
+import { Facility, FacilityNonBenefit, FacilityProgram } from '@/types/database.types'
 
 export interface FacilityFilters {
-  type?: string
-  status?: string
   search?: string
+  sido_code?: string
+  sigungu_code?: string
+  rating?: string
   page?: number
   limit?: number
 }
@@ -16,30 +17,86 @@ export interface PaginatedResponse<T> {
   totalPages: number
 }
 
-export interface CreateFacilityDto {
-  facility_name: string
-  facility_type?: string
-  address?: string
-  contact_info?: {
-    phone?: string
-    email?: string
-    website?: string
-  }
-  operating_hours?: {
-    weekday?: string
-    weekend?: string
-    holiday?: string
-  }
-  capacity?: number
-  amenities?: string[]
-  status?: string
+export interface FacilityWithRelations extends Facility {
+  nonbenefits?: FacilityNonBenefit[]
+  programs?: FacilityProgram[]
 }
 
-export interface UpdateFacilityDto extends Partial<CreateFacilityDto> {}
+export interface FacilityStats {
+  total: number
+  byRating: Record<string, number>
+  bySido: Record<string, number>
+  averageCapacity: number
+  totalCapacity: number
+  currentOccupancy: number
+}
+
+export interface CreateFacilityDto {
+  admin_name: string
+  admin_type_code?: string
+  post_code?: string
+  sido_code?: string
+  sigungu_code?: string
+  address?: string
+  phone_number?: string
+  capacity?: number
+  homepage_url?: string
+  admin_introduce?: string
+}
+
+export interface UpdateFacilityDto extends Partial<CreateFacilityDto> {
+  // 인력 정보
+  facility_director?: number
+  office_director?: number
+  social_worker?: number
+  doctor_regular?: number
+  doctor_parttime?: number
+  nurse?: number
+  nurse_aide?: number
+  dental_hygienist?: number
+  physical_therapist?: number
+  occupational_therapist?: number
+  caregiver_level1?: number
+  caregiver_level2?: number
+  caregiver_deferred?: number
+  clerk?: number
+  nutritionist?: number
+  cook?: number
+  hygienist?: number
+  manager?: number
+  assistant?: number
+  others?: number
+
+  // 시설 정보
+  room_1?: number
+  room_2?: number
+  room_3?: number
+  room_4?: number
+  special_room?: number
+  office?: number
+  medical_room?: number
+  training_room?: number
+  program_room?: number
+  dining_room?: number
+  restroom?: number
+  bath_room?: number
+  laundry_room?: number
+
+  // 입소 현황
+  current_male?: number
+  current_female?: number
+  waiting_male?: number
+  waiting_female?: number
+
+  // 기타 정보
+  transport_desc?: string
+  parking_info?: string
+  thumbnail_url?: string
+}
 
 class FacilityService {
   async getFacilities(filters: FacilityFilters = {}): Promise<PaginatedResponse<Facility>> {
-    const { page = 1, limit = 10, type, status, search } = filters
+    const { page = 1, limit = 12, search, sido_code, sigungu_code, rating } = filters
     const from = (page - 1) * limit
     const to = from + limit - 1
 
@@ -51,23 +108,28 @@ class FacilityService {
       .from('facilities_ssmn_basic_full')
       .select('*')
       .range(from, to)
-      .order('created_at', { ascending: false })
+      .order('admin_code', { ascending: false })
 
     // 필터 적용
-    if (type && type !== 'all') {
-      countQuery = countQuery.eq('facility_type', type)
-      dataQuery = dataQuery.eq('facility_type', type)
-    }
-
-    if (status && status !== 'all') {
-      countQuery = countQuery.eq('status', status)
-      dataQuery = dataQuery.eq('status', status)
-    }
-
     if (search) {
-      const searchFilter = `facility_name.ilike.%${search}%,address.ilike.%${search}%`
+      const searchFilter = `admin_name.ilike.%${search}%,address.ilike.%${search}%`
       countQuery = countQuery.or(searchFilter)
       dataQuery = dataQuery.or(searchFilter)
+    }
+
+    if (sido_code && sido_code !== 'all') {
+      countQuery = countQuery.eq('sido_code', sido_code)
+      dataQuery = dataQuery.eq('sido_code', sido_code)
+    }
+
+    if (sigungu_code && sigungu_code !== 'all') {
+      countQuery = countQuery.eq('sigungu_code', sigungu_code)
+      dataQuery = dataQuery.eq('sigungu_code', sigungu_code)
+    }
+
+    if (rating && rating !== 'all') {
+      countQuery = countQuery.eq('final_rating', rating)
+      dataQuery = dataQuery.eq('final_rating', rating)
     }
 
     // 총 개수 조회
@@ -86,15 +148,40 @@ class FacilityService {
     }
   }
 
-  async getFacilityByAdminCode(adminCode: string) {
-    const { data, error } = await supabase
+  async getFacilityByAdminCode(adminCode: string): Promise<FacilityWithRelations> {
+    // 기본 정보 조회
+    const { data: facility, error: facilityError } = await supabase
       .from('facilities_ssmn_basic_full')
       .select('*')
       .eq('admin_code', adminCode)
       .single()
 
-    if (error) throw error
-    return data
+    if (facilityError) throw facilityError
+    if (!facility) throw new Error('시설을 찾을 수 없습니다.')
+
+    // 비급여 항목 조회
+    const { data: nonbenefits, error: nonbenefitError } = await supabase
+      .from('facilities_ssmn_etc_nonbenefit')
+      .select('*')
+      .eq('admin_code', adminCode)
+      .order('nonbenefit_registered_at', { ascending: false })
+
+    if (nonbenefitError) throw nonbenefitError
+
+    // 프로그램 조회
+    const { data: programs, error: programError } = await supabase
+      .from('facilities_ssmn_etc_program')
+      .select('*')
+      .eq('admin_code', adminCode)
+      .order('program_type', { ascending: true })
+
+    if (programError) throw programError
+
+    return {
+      ...facility,
+      nonbenefits: nonbenefits || [],
+      programs: programs || [],
+    }
   }
 
   async createFacility(dto: CreateFacilityDto) {
@@ -106,7 +193,6 @@ class FacilityService {
       .insert({
         admin_code: adminCode,
         ...dto,
-        status: dto.status || 'active',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
@@ -133,63 +219,208 @@ class FacilityService {
   }
 
   async deleteFacility(adminCode: string) {
-    // 소프트 삭제 (상태를 'deleted'로 변경)
+    // 관련 데이터 삭제
+    await supabase
+      .from('facilities_ssmn_etc_nonbenefit')
+      .delete()
+      .eq('admin_code', adminCode)
+
+    await supabase
+      .from('facilities_ssmn_etc_program')
+      .delete()
+      .eq('admin_code', adminCode)
+
+    // 메인 데이터 삭제
     const { error } = await supabase
       .from('facilities_ssmn_basic_full')
-      .update({
-        status: 'deleted',
-        updated_at: new Date().toISOString(),
-      })
+      .delete()
       .eq('admin_code', adminCode)
 
     if (error) throw error
     return true
   }
 
-  async getFacilityTypes() {
-    const { data, error } = await supabase
-      .from('facilities_ssmn_basic_full')
-      .select('facility_type')
-      .not('facility_type', 'is', null)
-
-    if (error) throw error
-
-    // 중복 제거하여 유니크한 타입만 반환
-    const types = [...new Set(data?.map(item => item.facility_type))].filter(Boolean)
-    return types
-  }
-
-  async getFacilityStats() {
+  async getFacilityStats(): Promise<FacilityStats> {
     // 전체 시설 수
     const { count: totalCount } = await supabase
       .from('facilities_ssmn_basic_full')
       .select('*', { count: 'exact', head: true })
-      .neq('status', 'deleted')
 
-    // 활성 시설 수
-    const { count: activeCount } = await supabase
+    // 평가등급별 통계
+    const { data: ratingData } = await supabase
       .from('facilities_ssmn_basic_full')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'active')
+      .select('final_rating')
+      .not('final_rating', 'is', null)
 
-    // 타입별 시설 수
-    const { data: typeData } = await supabase
-      .from('facilities_ssmn_basic_full')
-      .select('facility_type')
-      .neq('status', 'deleted')
-
-    const typeStats: Record<string, number> = {}
-    typeData?.forEach((item) => {
-      if (item.facility_type) {
-        typeStats[item.facility_type] = (typeStats[item.facility_type] || 0) + 1
+    const byRating: Record<string, number> = {}
+    ratingData?.forEach((item) => {
+      if (item.final_rating) {
+        byRating[item.final_rating] = (byRating[item.final_rating] || 0) + 1
       }
     })
 
+    // 시도별 통계
+    const { data: sidoData } = await supabase
+      .from('facilities_ssmn_basic_full')
+      .select('sido_name')
+      .not('sido_name', 'is', null)
+
+    const bySido: Record<string, number> = {}
+    sidoData?.forEach((item) => {
+      if (item.sido_name) {
+        bySido[item.sido_name] = (bySido[item.sido_name] || 0) + 1
+      }
+    })
+
+    // 정원 및 현원 통계
+    const { data: capacityData } = await supabase
+      .from('facilities_ssmn_basic_full')
+      .select('capacity, current_male, current_female')
+
+    let totalCapacity = 0
+    let currentOccupancy = 0
+    let validCapacityCount = 0
+
+    capacityData?.forEach((item) => {
+      if (item.capacity) {
+        totalCapacity += item.capacity
+        validCapacityCount++
+      }
+      if (item.current_male) currentOccupancy += item.current_male
+      if (item.current_female) currentOccupancy += item.current_female
+    })
+
+    const averageCapacity = validCapacityCount > 0 ? Math.round(totalCapacity / validCapacityCount) : 0
+
     return {
       total: totalCount || 0,
-      active: activeCount || 0,
-      byType: typeStats,
+      byRating,
+      bySido,
+      averageCapacity,
+      totalCapacity,
+      currentOccupancy,
     }
+  }
+
+  async getSidoList() {
+    const { data, error } = await supabase
+      .from('facilities_ssmn_basic_full')
+      .select('sido_code, sido_name')
+      .not('sido_code', 'is', null)
+      .not('sido_name', 'is', null)
+
+    if (error) throw error
+
+    // 중복 제거
+    const uniqueSidos = new Map<string, string>()
+    data?.forEach(item => {
+      if (item.sido_code && item.sido_name) {
+        uniqueSidos.set(item.sido_code, item.sido_name)
+      }
+    })
+
+    return Array.from(uniqueSidos.entries()).map(([code, name]) => ({
+      code,
+      name,
+    }))
+  }
+
+  async getSigunguList(sidoCode: string) {
+    const { data, error } = await supabase
+      .from('facilities_ssmn_basic_full')
+      .select('sigungu_code, sigungu_name')
+      .eq('sido_code', sidoCode)
+      .not('sigungu_code', 'is', null)
+      .not('sigungu_name', 'is', null)
+
+    if (error) throw error
+
+    // 중복 제거
+    const uniqueSigungus = new Map<string, string>()
+    data?.forEach(item => {
+      if (item.sigungu_code && item.sigungu_name) {
+        uniqueSigungus.set(item.sigungu_code, item.sigungu_name)
+      }
+    })
+
+    return Array.from(uniqueSigungus.entries()).map(([code, name]) => ({
+      code,
+      name,
+    }))
+  }
+
+  // 비급여 항목 관리
+  async addNonBenefit(adminCode: string, nonbenefit: Omit<FacilityNonBenefit, 'id' | 'admin_code' | 'created_at' | 'updated_at'>) {
+    const { data, error } = await supabase
+      .from('facilities_ssmn_etc_nonbenefit')
+      .insert({
+        admin_code: adminCode,
+        ...nonbenefit,
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  }
+
+  async updateNonBenefit(id: number, nonbenefit: Partial<Omit<FacilityNonBenefit, 'id' | 'admin_code' | 'created_at' | 'updated_at'>>) {
+    const { data, error } = await supabase
+      .from('facilities_ssmn_etc_nonbenefit')
+      .update(nonbenefit)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  }
+
+  async deleteNonBenefit(id: number) {
+    const { error } = await supabase
+      .from('facilities_ssmn_etc_nonbenefit')
+      .delete()
+      .eq('id', id)
+
+    if (error) throw error
+    return true
+  }
+
+  // 프로그램 관리
+  async addProgram(adminCode: string, program: Omit<FacilityProgram, 'id' | 'admin_code' | 'created_at' | 'updated_at'>) {
+    const { data, error } = await supabase
+      .from('facilities_ssmn_etc_program')
+      .insert({
+        admin_code: adminCode,
+        ...program,
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  }
+
+  async updateProgram(id: number, program: Partial<Omit<FacilityProgram, 'id' | 'admin_code' | 'created_at' | 'updated_at'>>) {
+    const { data, error } = await supabase
+      .from('facilities_ssmn_etc_program')
+      .update(program)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  }
+
+  async deleteProgram(id: number) {
+    const { error } = await supabase
+      .from('facilities_ssmn_etc_program')
+      .delete()
+      .eq('id', id)
+
+    if (error) throw error
+    return true
   }
 
   // admin_code 생성 헬퍼
