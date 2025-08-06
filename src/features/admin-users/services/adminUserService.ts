@@ -59,34 +59,30 @@ class AdminUserService {
   }
 
   async createAdminUser(dto: CreateAdminUserDto) {
-    // 1. Supabase Auth에 사용자 생성
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email: dto.email,
-      password: dto.password,
-      email_confirm: true,
-    })
-
-    if (authError) throw authError
-
-    // 2. admin_users 테이블에 정보 저장
-    const { data, error } = await supabase
+    // 이메일 중복 확인
+    const { data: existingUser } = await supabase
       .from('admin_users')
-      .insert({
-        id: authData.user.id,
-        email: dto.email,
-        name: dto.name,
-        role: dto.role,
-        permissions: dto.permissions || [],
-      })
-      .select()
+      .select('id')
+      .eq('email', dto.email)
       .single()
 
-    if (error) {
-      // 실패 시 Auth 사용자도 삭제
-      await supabase.auth.admin.deleteUser(authData.user.id)
-      throw error
+    if (existingUser) {
+      throw new Error('이미 존재하는 이메일입니다.')
     }
 
+    // bcrypt를 사용하여 비밀번호 해시 생성
+    // 주의: 실제로는 서버 사이드에서 처리해야 하지만, 
+    // 현재는 데이터베이스의 crypt 함수를 사용
+    const { data, error } = await supabase
+      .rpc('create_admin_user', {
+        p_email: dto.email,
+        p_name: dto.name,
+        p_role: dto.role,
+        p_password: dto.password,
+        p_permissions: dto.permissions || []
+      })
+
+    if (error) throw error
     return data
   }
 
