@@ -359,16 +359,46 @@ class FacilityService {
   }
 
   async getFacilityTypesWithCount() {
-    const { data, error } = await supabase
-      .from('facilities_ssmn_basic_full')
-      .select('admin_type_code')
-      .not('admin_type_code', 'is', null)
+    console.log('[getFacilityTypesWithCount] 시작')
+    
+    // Supabase는 기본적으로 1000개만 반환하므로 모든 데이터를 가져오기 위해 페이지네이션 사용
+    const allData: any[] = []
+    const limit = 1000
+    let offset = 0
+    
+    while (true) {
+      const { data, error } = await supabase
+        .from('facilities_ssmn_basic_full')
+        .select('admin_type_code')
+        .not('admin_type_code', 'is', null)
+        .range(offset, offset + limit - 1)
+      
+      if (error) {
+        console.error('[getFacilityTypesWithCount] 쿼리 에러:', error)
+        throw error
+      }
+      
+      if (!data || data.length === 0) break
+      
+      allData.push(...data)
+      
+      if (data.length < limit) break
+      offset += limit
+    }
 
-    if (error) throw error
+    console.log('[getFacilityTypesWithCount] 조회된 데이터 수:', allData.length)
+    
+    // 샘플 데이터 출력 (처음 5개)
+    if (allData && allData.length > 0) {
+      console.log('[getFacilityTypesWithCount] 샘플 데이터 (처음 5개):')
+      allData.slice(0, 5).forEach((item, index) => {
+        console.log(`  [${index + 1}] admin_type_code:`, item.admin_type_code)
+      })
+    }
 
     // 유형별 카운트 계산
     const typeCounts = new Map<string, number>()
-    data?.forEach(item => {
+    allData?.forEach(item => {
       if (item.admin_type_code) {
         const codes = item.admin_type_code.split(',').map((c: string) => c.trim())
         codes.forEach((code: string) => {
@@ -377,9 +407,16 @@ class FacilityService {
       }
     })
 
-    return Array.from(typeCounts.entries())
+    console.log('[getFacilityTypesWithCount] 고유한 유형 수:', typeCounts.size)
+    console.log('[getFacilityTypesWithCount] 유형별 카운트:', Object.fromEntries(typeCounts))
+
+    const result = Array.from(typeCounts.entries())
       .map(([code, count]) => ({ code, count }))
       .sort((a, b) => a.code.localeCompare(b.code))
+    
+    console.log('[getFacilityTypesWithCount] 최종 결과:', result)
+    
+    return result
   }
 
   async getSidoList() {

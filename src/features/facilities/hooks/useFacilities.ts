@@ -132,7 +132,17 @@ export const useFacilityTypes = () => {
 export const useFacilityTypesWithCount = () => {
   return useQuery({
     queryKey: ['facilityTypesWithCount'],
-    queryFn: () => facilityService.getFacilityTypesWithCount(),
+    queryFn: async () => {
+      console.log('[useFacilityTypesWithCount] 쿼리 실행')
+      try {
+        const result = await facilityService.getFacilityTypesWithCount()
+        console.log('[useFacilityTypesWithCount] 결과:', result)
+        return result
+      } catch (error) {
+        console.error('[useFacilityTypesWithCount] 에러:', error)
+        throw error
+      }
+    },
     staleTime: 10 * 60 * 1000, // 10분
   })
 }
