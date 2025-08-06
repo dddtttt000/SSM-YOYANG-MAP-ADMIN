@@ -15,10 +15,12 @@ import {
   Skeleton,
   Text,
   HStack,
+  Tooltip,
 } from '@chakra-ui/react'
 import { FiMoreVertical, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi'
 import { Facility } from '@/types/database.types'
 import { usePermission } from '@/hooks/usePermission'
+import { getFacilityTypeLabel } from '../constants/facilityTypes'
 
 interface FacilityTableProps {
   facilities: Facility[]
@@ -135,9 +137,15 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
               <Td fontWeight="medium">{facility.admin_name || '시설명 없음'}</Td>
               <Td>
                 {facility.admin_type_code && (
-                  <Badge colorScheme="blue" size="sm">
-                    {facility.admin_type_code}
-                  </Badge>
+                  <Tooltip 
+                    label={getFacilityTypeLabel(facility.admin_type_code)}
+                    placement="top"
+                    hasArrow
+                  >
+                    <Badge colorScheme="blue" size="sm" cursor="help">
+                      {facility.admin_type_code}
+                    </Badge>
+                  </Tooltip>
                 )}
               </Td>
               <Td>
