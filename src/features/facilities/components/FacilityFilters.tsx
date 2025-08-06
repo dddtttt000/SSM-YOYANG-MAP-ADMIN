@@ -7,6 +7,7 @@ import {
   IconButton,
   Tooltip,
   ButtonGroup,
+  Checkbox,
 } from '@chakra-ui/react'
 import { FiSearch, FiX, FiGrid, FiList } from 'react-icons/fi'
 import { FacilityFilters as Filters } from '../services/facilityService'
@@ -59,6 +60,10 @@ const FacilityFilters = ({
 
   const clearSearch = () => {
     onFiltersChange({ ...filters, search: '', page: 1 })
+  }
+
+  const handleShowAllChange = (checked: boolean) => {
+    onFiltersChange({ ...filters, showAll: checked, page: 1 })
   }
 
   return (
@@ -129,6 +134,13 @@ const FacilityFilters = ({
           <option value="D">D등급</option>
           <option value="E">E등급</option>
         </Select>
+
+        <Checkbox
+          isChecked={filters.showAll || false}
+          onChange={(e) => handleShowAllChange(e.target.checked)}
+        >
+          등록된 모든 시설 보기
+        </Checkbox>
       </HStack>
 
       <ButtonGroup size="sm" isAttached variant="outline">

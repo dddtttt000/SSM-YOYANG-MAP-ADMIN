@@ -8,6 +8,7 @@ export interface FacilityFilters {
   rating?: string
   page?: number
   limit?: number
+  showAll?: boolean
 }
 
 export interface PaginatedResponse<T> {
@@ -96,7 +97,7 @@ export interface UpdateFacilityDto extends Partial<CreateFacilityDto> {
 
 class FacilityService {
   async getFacilities(filters: FacilityFilters = {}): Promise<PaginatedResponse<Facility>> {
-    const { page = 1, limit = 12, search, sido_code, sigungu_code, rating } = filters
+    const { page = 1, limit = 12, search, sido_code, sigungu_code, rating, showAll } = filters
     const from = (page - 1) * limit
     const to = from + limit - 1
 
@@ -109,6 +110,12 @@ class FacilityService {
       .select('*')
       .range(from, to)
       .order('admin_code', { ascending: false })
+
+    // 시설명이 없는 시설 필터링 (showAll이 false일 때만)
+    if (!showAll) {
+      countQuery = countQuery.not('admin_name', 'is', null).neq('admin_name', '')
+      dataQuery = dataQuery.not('admin_name', 'is', null).neq('admin_name', '')
+    }
 
     // 필터 적용
     if (search) {

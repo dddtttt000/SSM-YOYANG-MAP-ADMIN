@@ -57,11 +57,11 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
             <Tr>
               <Th>시설명</Th>
               <Th>유형</Th>
-              <Th>지역</Th>
-              <Th>연락처</Th>
-              <Th>정원/현원</Th>
+              <Th>주소</Th>
+              <Th>정원</Th>
               <Th>평가등급</Th>
               <Th>설치일</Th>
+              <Th>연락처</Th>
               <Th width="100px">작업</Th>
             </Tr>
           </Thead>
@@ -92,11 +92,11 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
             <Tr>
               <Th>시설명</Th>
               <Th>유형</Th>
-              <Th>지역</Th>
-              <Th>연락처</Th>
-              <Th>정원/현원</Th>
+              <Th>주소</Th>
+              <Th>정원</Th>
               <Th>평가등급</Th>
               <Th>설치일</Th>
+              <Th>연락처</Th>
               <Th width="100px">작업</Th>
             </Tr>
           </Thead>
@@ -142,22 +142,13 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
               </Td>
               <Td>
                 <Text fontSize="sm">
-                  {[facility.sido_name, facility.sigungu_name]
-                    .filter(Boolean)
-                    .join(' ') || '-'}
+                  {facility.address || '-'}
                 </Text>
               </Td>
-              <Td>{facility.phone_number || '-'}</Td>
               <Td>
-                <HStack spacing="1">
-                  <Text fontSize="sm">
-                    {facility.capacity || 0}
-                  </Text>
-                  <Text fontSize="sm" color="gray.500">/</Text>
-                  <Text fontSize="sm" color="brand.500">
-                    {(facility.current_male || 0) + (facility.current_female || 0)}
-                  </Text>
-                </HStack>
+                <Text fontSize="sm">
+                  {facility.capacity || 0}명
+                </Text>
               </Td>
               <Td>
                 <HStack spacing="2">
@@ -182,6 +173,7 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
                     })
                   : '-'}
               </Td>
+              <Td>{facility.phone_number || '-'}</Td>
               <Td>
                 <Menu>
                   <MenuButton

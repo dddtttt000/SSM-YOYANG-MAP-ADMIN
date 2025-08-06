@@ -39,7 +39,7 @@ const FacilitiesPage = () => {
     page: 1,
     limit: 12,
   })
-  const [viewMode, setViewMode] = useState<'card' | 'table'>('card')
+  const [viewMode, setViewMode] = useState<'card' | 'table'>('table')
   
   const { data: facilitiesData, isLoading } = useFacilities(filters)
   const { data: stats } = useFacilityStats()
