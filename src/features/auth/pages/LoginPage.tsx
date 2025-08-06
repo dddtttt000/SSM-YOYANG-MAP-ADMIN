@@ -76,7 +76,7 @@ const LoginPage = () => {
       <VStack spacing="8">
         <VStack spacing="6" textAlign="center">
           <Heading size="xl" color="brand.600">
-            SSM-YOYANG Admin
+            순시미네 관리자
           </Heading>
           <Text fontSize="lg" color="gray.600">
             관리자 로그인

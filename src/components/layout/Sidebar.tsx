@@ -80,7 +80,7 @@ const SidebarContent = ({ onClose }: { onClose?: () => void }) => {
     >
       <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
         <Text fontSize="xl" fontWeight="bold" color="brand.600">
-          SSM-YOYANG
+          순시미네 관리자
         </Text>
         {onClose && (
           <IconButton

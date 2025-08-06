@@ -17,7 +17,6 @@ import {
   Icon,
   Skeleton,
   Badge,
-  Tooltip,
   Progress,
   useColorModeValue,
 } from '@chakra-ui/react'
