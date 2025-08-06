@@ -5,7 +5,6 @@ import {
   Tr,
   Th,
   Td,
-  Badge,
   Text,
   Skeleton,
   Box,

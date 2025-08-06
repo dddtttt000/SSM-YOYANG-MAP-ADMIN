@@ -2,10 +2,8 @@ import {
   collection,
   query,
   where,
-  orderBy,
   limit,
   getDocs,
-  Timestamp,
   QueryConstraint,
 } from 'firebase/firestore'
 import { firestore } from '@/lib/firebase'

@@ -5,7 +5,6 @@ import {
   Tr,
   Th,
   Td,
-  Badge,
   Text,
   Skeleton,
   Box,
@@ -14,7 +13,7 @@ import {
   Tooltip,
   Link,
 } from '@chakra-ui/react'
-import { FiPhone, FiExternalLink } from 'react-icons/fi'
+import { FiExternalLink } from 'react-icons/fi'
 import { CallEvent } from '../types'
 import { useMemberInfo, useFacilityInfo } from '../hooks/useMonitoring'
 import { useMemo } from 'react'
@@ -71,18 +70,6 @@ const CallEventsTable = ({ data, isLoading }: CallEventsTableProps) => {
     return `${minutes}분 ${remainingSeconds}초`
   }
 
-  // 전화번호 포맷
-  const formatPhoneNumber = (phone: string) => {
-    if (!phone) return '-'
-    // 하이픈이 없는 경우 추가
-    if (phone.length === 11 && !phone.includes('-')) {
-      return `${phone.slice(0, 3)}-${phone.slice(3, 7)}-${phone.slice(7)}`
-    }
-    if (phone.length === 10 && !phone.includes('-')) {
-      return `${phone.slice(0, 3)}-${phone.slice(3, 6)}-${phone.slice(6)}`
-    }
-    return phone
-  }
 
   if (isLoading) {
     return (
