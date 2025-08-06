@@ -317,20 +317,54 @@ class MonitoringService {
   }
 
   // 회원 정보 조회 (Supabase)
+  // userIds는 memberId(숫자) 또는 user_id(social_id) 값이 될 수 있음
   async getMemberInfo(userIds: string[]): Promise<Map<string, Member>> {
     if (userIds.length === 0) return new Map()
 
-    const { data, error } = await supabase
-      .from('members')
-      .select('*')
-      .in('id', userIds)
-
-    if (error) throw error
+    // 숫자형 ID와 문자열 ID 분리
+    const numericIds: number[] = []
+    const socialIds: string[] = []
+    
+    userIds.forEach(id => {
+      // 숫자로 변환 가능한 경우 (memberId)
+      const numId = Number(id)
+      if (!isNaN(numId) && numId > 0) {
+        numericIds.push(numId)
+      } else {
+        // 그 외의 경우 (social_id)
+        socialIds.push(id)
+      }
+    })
 
     const memberMap = new Map<string, Member>()
-    data?.forEach(member => {
-      memberMap.set(member.id, member)
-    })
+
+    // id로 조회 (AI분석, 상담전화, 즐겨찾기의 memberId)
+    if (numericIds.length > 0) {
+      const { data: membersByIds, error: idError } = await supabase
+        .from('members')
+        .select('*')
+        .in('id', numericIds)
+
+      if (idError) throw idError
+
+      membersByIds?.forEach(member => {
+        memberMap.set(member.id.toString(), member)
+      })
+    }
+
+    // social_id로 조회 (등급평가의 user_id)
+    if (socialIds.length > 0) {
+      const { data: membersBySocialIds, error: socialError } = await supabase
+        .from('members')
+        .select('*')
+        .in('social_id', socialIds)
+
+      if (socialError) throw socialError
+
+      membersBySocialIds?.forEach(member => {
+        memberMap.set(member.social_id, member)
+      })
+    }
 
     return memberMap
   }
