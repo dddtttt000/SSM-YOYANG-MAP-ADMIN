@@ -31,7 +31,7 @@ const MembersPage = () => {
   const { data: stats } = useMemberStats()
   
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null)
+  const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null)
 
   const handlePageChange = (page: number) => {
     setFilters({ ...filters, page })

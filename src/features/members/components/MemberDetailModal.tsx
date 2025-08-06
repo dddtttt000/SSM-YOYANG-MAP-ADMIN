@@ -22,7 +22,7 @@ import { useMember } from '../hooks/useMembers'
 interface MemberDetailModalProps {
   isOpen: boolean
   onClose: () => void
-  memberId: string | null
+  memberId: number | null
 }
 
 const InfoItem = ({ label, value }: { label: string; value: string | React.ReactNode }) => (
@@ -65,7 +65,7 @@ const getStatusLabel = (status: string) => {
 }
 
 const MemberDetailModal = ({ isOpen, onClose, memberId }: MemberDetailModalProps) => {
-  const { data: member, isLoading } = useMember(memberId || '')
+  const { data: member, isLoading } = useMember(memberId || 0)
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg">
@@ -91,7 +91,19 @@ const MemberDetailModal = ({ isOpen, onClose, memberId }: MemberDetailModalProps
                 </Text>
                 <Grid templateColumns="repeat(2, 1fr)" gap="4">
                   <GridItem>
-                    <InfoItem label="이름" value={member.name} />
+                    <InfoItem label="회원 ID" value={member.id.toString()} />
+                  </GridItem>
+                  <GridItem>
+                    <InfoItem label="소셜 ID" value={member.social_id} />
+                  </GridItem>
+                  <GridItem>
+                    <InfoItem label="이름" value={member.name || '-'} />
+                  </GridItem>
+                  <GridItem>
+                    <InfoItem label="닉네임" value={member.nickname || '-'} />
+                  </GridItem>
+                  <GridItem>
+                    <InfoItem label="소셜 타입" value={member.social_type} />
                   </GridItem>
                   <GridItem>
                     <InfoItem 
@@ -104,13 +116,13 @@ const MemberDetailModal = ({ isOpen, onClose, memberId }: MemberDetailModalProps
                     />
                   </GridItem>
                   <GridItem colSpan={2}>
-                    <InfoItem label="이메일" value={member.email} />
+                    <InfoItem label="이메일" value={member.email || '-'} />
                   </GridItem>
                   <GridItem>
-                    <InfoItem label="전화번호" value={member.phone || '등록되지 않음'} />
+                    <InfoItem label="전화번호" value={member.phone || '-'} />
                   </GridItem>
                   <GridItem>
-                    <InfoItem label="회원 ID" value={member.id} />
+                    <InfoItem label="성별" value={member.gender || '-'} />
                   </GridItem>
                 </Grid>
               </Box>
@@ -126,21 +138,21 @@ const MemberDetailModal = ({ isOpen, onClose, memberId }: MemberDetailModalProps
                   <GridItem>
                     <InfoItem 
                       label="가입일" 
-                      value={new Date(member.created_at).toLocaleDateString('ko-KR', {
+                      value={member.created_at ? new Date(member.created_at).toLocaleDateString('ko-KR', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
-                      })}
+                      }) : '-'}
                     />
                   </GridItem>
                   <GridItem>
                     <InfoItem 
                       label="최종 수정일" 
-                      value={new Date(member.updated_at).toLocaleDateString('ko-KR', {
+                      value={member.updated_at ? new Date(member.updated_at).toLocaleDateString('ko-KR', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
-                      })}
+                      }) : '-'}
                     />
                   </GridItem>
                 </Grid>
