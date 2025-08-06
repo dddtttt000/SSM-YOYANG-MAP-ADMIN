@@ -38,6 +38,7 @@ const FacilitiesPage = () => {
   const [filters, setFilters] = useState<Filters>({
     page: 1,
     limit: 12,
+    showAll: false,
   })
   const [viewMode, setViewMode] = useState<'card' | 'table'>('table')
   

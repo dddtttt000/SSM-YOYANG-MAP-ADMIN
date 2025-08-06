@@ -14,7 +14,6 @@ import {
   MenuItem,
   Skeleton,
   Text,
-  HStack,
   Tooltip,
 } from '@chakra-ui/react'
 import { FiMoreVertical, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi'
@@ -62,7 +61,7 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
               <Th>유형</Th>
               <Th>주소</Th>
               <Th>정원</Th>
-              <Th>평가등급</Th>
+              <Th>평가 등급</Th>
               <Th>설치일</Th>
               <Th>연락처</Th>
               <Th width="100px">작업</Th>
@@ -97,7 +96,7 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
               <Th>유형</Th>
               <Th>주소</Th>
               <Th>정원</Th>
-              <Th>평가등급</Th>
+              <Th>평가 등급</Th>
               <Th>설치일</Th>
               <Th>연락처</Th>
               <Th width="100px">작업</Th>
@@ -124,11 +123,11 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
           <Tr>
             <Th>시설명</Th>
             <Th>유형</Th>
-            <Th>지역</Th>
-            <Th>연락처</Th>
-            <Th>정원/현원</Th>
-            <Th>평가등급</Th>
+            <Th>주소</Th>
+            <Th>정원</Th>
+            <Th>평가 등급</Th>
             <Th>설치일</Th>
+            <Th>연락처</Th>
             <Th width="100px">작업</Th>
           </Tr>
         </Thead>
@@ -160,18 +159,11 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
                 </Text>
               </Td>
               <Td>
-                <HStack spacing="2">
-                  {facility.final_rating && (
-                    <Badge colorScheme={getRatingBadgeColor(facility.final_rating)}>
-                      {facility.final_rating}
-                    </Badge>
-                  )}
-                  {facility['2023_rating'] && facility['2023_rating'] !== facility.final_rating && (
-                    <Badge colorScheme="gray" size="sm">
-                      2023: {facility['2023_rating']}
-                    </Badge>
-                  )}
-                </HStack>
+                {facility.final_rating && (
+                  <Badge colorScheme={getRatingBadgeColor(facility.final_rating)}>
+                    {facility.final_rating}
+                  </Badge>
+                )}
               </Td>
               <Td>
                 {facility.install_date 
