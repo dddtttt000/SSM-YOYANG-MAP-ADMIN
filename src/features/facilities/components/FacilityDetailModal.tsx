@@ -35,6 +35,7 @@ import {
   StatLabel,
   StatNumber,
   StatGroup,
+  Tooltip,
 } from '@chakra-ui/react'
 import { 
   FiMapPin, 
@@ -47,6 +48,7 @@ import {
 import { useFacility } from '../hooks/useFacilities'
 import { usePermission } from '@/hooks/usePermission'
 import { FacilityWithRelations } from '../services/facilityService'
+import { getFacilityTypeLabel } from '../constants/facilityTypes'
 
 interface FacilityDetailModalProps {
   isOpen: boolean
@@ -147,9 +149,17 @@ const FacilityDetailModal = ({ isOpen, onClose, facilityId, onEdit }: FacilityDe
                             {facility.admin_name || '시설명 없음'}
                           </Text>
                           <HStack spacing="2">
-                            <Badge colorScheme="blue">
-                              {facility.admin_type_code || '유형 없음'}
-                            </Badge>
+                            {facility.admin_type_code && (
+                              <Tooltip 
+                                label={`${facility.admin_type_code} - ${getFacilityTypeLabel(facility.admin_type_code)}`}
+                                placement="top"
+                                hasArrow
+                              >
+                                <Badge colorScheme="blue" cursor="help">
+                                  {facility.admin_type_code}
+                                </Badge>
+                              </Tooltip>
+                            )}
                             {facility.final_rating && (
                               <Badge colorScheme={getRatingBadgeColor(facility.final_rating)}>
                                 평가등급: {facility.final_rating}

@@ -138,7 +138,7 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
               <Td>
                 {facility.admin_type_code && (
                   <Tooltip 
-                    label={getFacilityTypeLabel(facility.admin_type_code)}
+                    label={`${facility.admin_type_code} - ${getFacilityTypeLabel(facility.admin_type_code)}`}
                     placement="top"
                     hasArrow
                   >

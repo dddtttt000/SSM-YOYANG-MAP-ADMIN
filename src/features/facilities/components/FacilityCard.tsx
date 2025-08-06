@@ -14,10 +14,12 @@ import {
   Box,
   Progress,
   Image,
+  Tooltip,
 } from '@chakra-ui/react'
 import { FiMoreVertical, FiEye, FiEdit2, FiTrash2, FiMapPin, FiPhone, FiUsers, FiAward } from 'react-icons/fi'
 import { Facility } from '@/types/database.types'
 import { usePermission } from '@/hooks/usePermission'
+import { getFacilityTypeLabel } from '../constants/facilityTypes'
 
 interface FacilityCardProps {
   facility: Facility
@@ -63,9 +65,15 @@ const FacilityCard = ({ facility, onView, onEdit, onDelete }: FacilityCardProps)
               </Text>
               <HStack spacing="2" mt="1">
                 {facility.admin_type_code && (
-                  <Badge colorScheme="blue" size="sm">
-                    {facility.admin_type_code}
-                  </Badge>
+                  <Tooltip 
+                    label={`${facility.admin_type_code} - ${getFacilityTypeLabel(facility.admin_type_code)}`}
+                    placement="top"
+                    hasArrow
+                  >
+                    <Badge colorScheme="blue" size="sm" cursor="help">
+                      {facility.admin_type_code}
+                    </Badge>
+                  </Tooltip>
                 )}
                 {facility.final_rating && (
                   <Badge colorScheme={getRatingBadgeColor(facility.final_rating)} size="sm">
