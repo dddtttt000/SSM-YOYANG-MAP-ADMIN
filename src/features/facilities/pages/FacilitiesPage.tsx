@@ -135,7 +135,7 @@ const FacilitiesPage = () => {
                 <Stat>
                   <StatLabel>전체 시설</StatLabel>
                   <StatNumber>{stats?.total.toLocaleString() || 0}</StatNumber>
-                  <StatHelpText>총 등록 시설</StatHelpText>
+                  <StatHelpText>DB에 등록된 모든 시설</StatHelpText>
                 </Stat>
               </CardBody>
             </Card>
@@ -144,9 +144,9 @@ const FacilitiesPage = () => {
             <Card>
               <CardBody>
                 <Stat>
-                  <StatLabel>총 정원</StatLabel>
-                  <StatNumber>{stats?.totalCapacity.toLocaleString() || 0}</StatNumber>
-                  <StatHelpText>명</StatHelpText>
+                  <StatLabel>서비스 중인 시설</StatLabel>
+                  <StatNumber>{stats?.activeCount.toLocaleString() || 0}</StatNumber>
+                  <StatHelpText>앱에서 서비스 중인 시설</StatHelpText>
                 </Stat>
               </CardBody>
             </Card>
@@ -155,9 +155,9 @@ const FacilitiesPage = () => {
             <Card>
               <CardBody>
                 <Stat>
-                  <StatLabel>현원</StatLabel>
-                  <StatNumber>{stats?.currentOccupancy.toLocaleString() || 0}</StatNumber>
-                  <StatHelpText>명</StatHelpText>
+                  <StatLabel>요양 시설</StatLabel>
+                  <StatNumber>{stats?.nursingHomeCount.toLocaleString() || 0}</StatNumber>
+                  <StatHelpText>요양원 등 시설급여 이용 시설</StatHelpText>
                 </Stat>
               </CardBody>
             </Card>
@@ -166,9 +166,9 @@ const FacilitiesPage = () => {
             <Card>
               <CardBody>
                 <Stat>
-                  <StatLabel>평균 정원</StatLabel>
-                  <StatNumber>{stats?.averageCapacity || 0}</StatNumber>
-                  <StatHelpText>명/시설</StatHelpText>
+                  <StatLabel>재가 시설</StatLabel>
+                  <StatNumber>{stats?.homeCareCount.toLocaleString() || 0}</StatNumber>
+                  <StatHelpText>방문요양 등 재가급여 이용 시설</StatHelpText>
                 </Stat>
               </CardBody>
             </Card>

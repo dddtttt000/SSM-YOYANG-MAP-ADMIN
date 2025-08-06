@@ -26,6 +26,9 @@ export interface FacilityWithRelations extends Facility {
 
 export interface FacilityStats {
   total: number
+  activeCount: number  // 서비스 중인 시설 (시설명이 있는 시설)
+  nursingHomeCount: number  // 요양 시설
+  homeCareCount: number  // 재가 시설
   byRating: Record<string, number>
   bySido: Record<string, number>
   averageCapacity: number
@@ -287,6 +290,41 @@ class FacilityService {
       .from('facilities_ssmn_basic_full')
       .select('*', { count: 'exact', head: true })
 
+    // 서비스 중인 시설 수 (시설명이 있는 시설)
+    const { count: activeCount } = await supabase
+      .from('facilities_ssmn_basic_full')
+      .select('*', { count: 'exact', head: true })
+      .not('admin_name', 'is', null)
+      .neq('admin_name', '')
+
+    // 요양 시설 유형 코드들
+    const nursingHomeCodes = ['A01', 'A02', 'A03', 'A04', 'A05', 'AAA']
+    
+    // 재가 시설 유형 코드들
+    const homeCareCodes = ['B01', 'B02', 'B03', 'B04', 'B05', 'C01', 'C02', 'C03', 'C04', 'C05']
+
+    // 모든 시설의 admin_type_code를 가져와서 카운트
+    const { data: typeData } = await supabase
+      .from('facilities_ssmn_basic_full')
+      .select('admin_type_code')
+      .not('admin_type_code', 'is', null)
+
+    let nursingHomeCount = 0
+    let homeCareCount = 0
+
+    typeData?.forEach((item) => {
+      if (item.admin_type_code) {
+        // 요양 시설 체크
+        if (nursingHomeCodes.some(code => item.admin_type_code.includes(code))) {
+          nursingHomeCount++
+        }
+        // 재가 시설 체크
+        if (homeCareCodes.some(code => item.admin_type_code.includes(code))) {
+          homeCareCount++
+        }
+      }
+    })
+
     // 평가등급별 통계
     const { data: ratingData } = await supabase
       .from('facilities_ssmn_basic_full')
@@ -335,6 +373,9 @@ class FacilityService {
 
     return {
       total: totalCount || 0,
+      activeCount: activeCount || 0,
+      nursingHomeCount,
+      homeCareCount,
       byRating,
       bySido,
       averageCapacity,
