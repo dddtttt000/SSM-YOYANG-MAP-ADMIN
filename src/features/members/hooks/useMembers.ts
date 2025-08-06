@@ -10,7 +10,7 @@ export const useMembers = (filters: MemberFilters = {}) => {
   })
 }
 
-export const useMember = (id: string) => {
+export const useMember = (id: number) => {
   return useQuery({
     queryKey: ['member', id],
     queryFn: () => memberService.getMemberById(id),
@@ -23,7 +23,7 @@ export const useUpdateMemberStatus = () => {
   const toast = useToast()
 
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) => 
+    mutationFn: ({ id, status }: { id: number; status: string }) => 
       memberService.updateMemberStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['members'] })
