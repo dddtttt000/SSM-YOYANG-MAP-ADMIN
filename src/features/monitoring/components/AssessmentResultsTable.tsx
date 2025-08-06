@@ -127,39 +127,45 @@ const AssessmentResultsTable = ({ data, isLoading }: AssessmentResultsTableProps
                 </Td>
                 <Td>
                   <Badge 
-                    colorScheme={getGradeColor(result.grade)}
+                    colorScheme={getGradeColor(result.grade || '미평가')}
                     variant="solid"
                   >
-                    {result.grade}
+                    {result.grade || '미평가'}
                   </Badge>
                 </Td>
                 <Td>
                   <VStack align="start" spacing={0}>
                     <Text fontWeight="bold" fontSize="sm">
-                      {result.total_score}점
+                      {result.total_score || 0}점
                     </Text>
                     <Text fontSize="xs" color="gray.500">
-                      {result.grade_range}
+                      {result.grade_range || '-'}
                     </Text>
                   </VStack>
                 </Td>
                 <Td>
                   <VStack align="start" spacing={1}>
-                    <HStack spacing={2}>
-                      <Progress 
-                        value={result.answer_statistics.completion_rate} 
-                        size="sm" 
-                        width="60px"
-                        colorScheme="green"
-                      />
-                      <Text fontSize="xs">
-                        {Math.round(result.answer_statistics.completion_rate)}%
-                      </Text>
-                    </HStack>
-                    <Text fontSize="xs" color="gray.500">
-                      {result.answer_statistics.answered_questions}/
-                      {result.answer_statistics.total_questions}문항
-                    </Text>
+                    {result.answer_statistics ? (
+                      <>
+                        <HStack spacing={2}>
+                          <Progress 
+                            value={result.answer_statistics.completion_rate || 0} 
+                            size="sm" 
+                            width="60px"
+                            colorScheme="green"
+                          />
+                          <Text fontSize="xs">
+                            {Math.round(result.answer_statistics.completion_rate || 0)}%
+                          </Text>
+                        </HStack>
+                        <Text fontSize="xs" color="gray.500">
+                          {result.answer_statistics.answered_questions || 0}/
+                          {result.answer_statistics.total_questions || 0}문항
+                        </Text>
+                      </>
+                    ) : (
+                      <Text fontSize="xs" color="gray.500">-</Text>
+                    )}
                   </VStack>
                 </Td>
                 <Td>
@@ -187,19 +193,25 @@ const AssessmentResultsTable = ({ data, isLoading }: AssessmentResultsTableProps
                 </Td>
                 <Td>
                   <VStack align="start" spacing={1}>
-                    {result.recommendations.slice(0, 2).map((rec, idx) => (
-                      <Text key={idx} fontSize="xs" noOfLines={1}>
-                        • {rec}
-                      </Text>
-                    ))}
-                    {result.recommendations.length > 2 && (
-                      <Tooltip 
-                        label={result.recommendations.slice(2).join(', ')}
-                      >
-                        <Text fontSize="xs" color="gray.500" cursor="help">
-                          +{result.recommendations.length - 2}개 더보기
-                        </Text>
-                      </Tooltip>
+                    {result.recommendations && result.recommendations.length > 0 ? (
+                      <>
+                        {result.recommendations.slice(0, 2).map((rec, idx) => (
+                          <Text key={idx} fontSize="xs" noOfLines={1}>
+                            • {rec}
+                          </Text>
+                        ))}
+                        {result.recommendations.length > 2 && (
+                          <Tooltip 
+                            label={result.recommendations.slice(2).join(', ')}
+                          >
+                            <Text fontSize="xs" color="gray.500" cursor="help">
+                              +{result.recommendations.length - 2}개 더보기
+                            </Text>
+                          </Tooltip>
+                        )}
+                      </>
+                    ) : (
+                      <Text fontSize="xs" color="gray.500">-</Text>
                     )}
                   </VStack>
                 </Td>
