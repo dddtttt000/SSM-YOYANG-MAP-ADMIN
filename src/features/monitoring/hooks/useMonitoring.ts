@@ -57,10 +57,10 @@ export const useFavoriteFacilities = (filters: MonitoringFilters) => {
 }
 
 // 회원 정보 조회
-export const useMemberInfo = (userIds: string[]) => {
+export const useMemberInfo = (userIds: string[], isSocialId: boolean = false) => {
   return useQuery({
-    queryKey: ['memberInfo', userIds],
-    queryFn: () => monitoringService.getMemberInfo(userIds),
+    queryKey: ['memberInfo', userIds, isSocialId],
+    queryFn: () => monitoringService.getMemberInfo(userIds, isSocialId),
     enabled: userIds.length > 0,
     staleTime: 10 * 60 * 1000, // 10분
   })

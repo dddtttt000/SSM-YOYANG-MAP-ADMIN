@@ -31,8 +31,8 @@ const AssessmentResultsTable = ({ data, isLoading }: AssessmentResultsTableProps
     [data]
   )
 
-  // 회원 정보 조회
-  const { data: memberMap } = useMemberInfo(userIds)
+  // 회원 정보 조회 - user_id는 social_id이므로 isSocialId를 true로 설정
+  const { data: memberMap } = useMemberInfo(userIds, true)
 
   // Timestamp를 날짜 문자열로 변환
   const formatTimestamp = (timestamp: Timestamp) => {

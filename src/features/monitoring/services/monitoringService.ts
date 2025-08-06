@@ -318,10 +318,28 @@ class MonitoringService {
 
   // 회원 정보 조회 (Supabase)
   // userIds는 memberId(숫자) 또는 user_id(social_id) 값이 될 수 있음
-  async getMemberInfo(userIds: string[]): Promise<Map<string, Member>> {
+  async getMemberInfo(userIds: string[], isSocialId: boolean = false): Promise<Map<string, Member>> {
     if (userIds.length === 0) return new Map()
 
-    // 숫자형 ID와 문자열 ID 분리
+    const memberMap = new Map<string, Member>()
+
+    // isSocialId가 true인 경우 모든 ID를 social_id로 처리
+    if (isSocialId) {
+      const { data: membersBySocialIds, error: socialError } = await supabase
+        .from('members')
+        .select('*')
+        .in('social_id', userIds)
+
+      if (socialError) throw socialError
+
+      membersBySocialIds?.forEach(member => {
+        memberMap.set(member.social_id, member)
+      })
+
+      return memberMap
+    }
+
+    // 기존 로직 (memberId와 social_id 자동 구분)
     const numericIds: number[] = []
     const socialIds: string[] = []
     
@@ -335,8 +353,6 @@ class MonitoringService {
         socialIds.push(id)
       }
     })
-
-    const memberMap = new Map<string, Member>()
 
     // id로 조회 (AI분석, 상담전화, 즐겨찾기의 memberId)
     if (numericIds.length > 0) {
