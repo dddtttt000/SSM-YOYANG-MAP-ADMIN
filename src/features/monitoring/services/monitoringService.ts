@@ -54,7 +54,7 @@ class MonitoringService {
     const q = query(collection(firestore, this.collections.aiAnalyses), ...constraints)
     const snapshot = await getDocs(q)
 
-    return snapshot.docs.map(doc => ({
+    return snapshot.docs.map((doc: any) => ({
       id: doc.id,
       ...doc.data(),
     } as AIFacilityAnalysis))
@@ -82,7 +82,7 @@ class MonitoringService {
     const q = query(collection(firestore, this.collections.assessmentResults), ...constraints)
     const snapshot = await getDocs(q)
 
-    return snapshot.docs.map(doc => ({
+    return snapshot.docs.map((doc: any) => ({
       id: doc.id,
       ...doc.data(),
     } as AssessmentResult))
@@ -114,7 +114,7 @@ class MonitoringService {
     const q = query(collection(firestore, this.collections.callEvents), ...constraints)
     const snapshot = await getDocs(q)
 
-    return snapshot.docs.map(doc => ({
+    return snapshot.docs.map((doc: any) => ({
       id: doc.id,
       ...doc.data(),
     } as CallEvent))
@@ -147,14 +147,19 @@ class MonitoringService {
     const q = query(collection(firestore, this.collections.favoriteFacilities), ...constraints)
     const snapshot = await getDocs(q)
 
-    return snapshot.docs.map(doc => ({
+    return snapshot.docs.map((doc: any) => ({
       id: doc.id,
       ...doc.data(),
     } as FavoriteFacility))
   }
 
   // 통합 모니터링 데이터 조회
-  async getMonitoringData(filters: MonitoringFilters) {
+  async getMonitoringData(filters: MonitoringFilters): Promise<{
+    aiAnalyses: AIFacilityAnalysis[]
+    assessmentResults: AssessmentResult[]
+    callEvents: CallEvent[]
+    favoriteFacilities: FavoriteFacility[]
+  }> {
     const promises = []
 
     // 활동 유형별 조회
@@ -182,13 +187,13 @@ class MonitoringService {
       promises.push(Promise.resolve([]))
     }
 
-    const [aiAnalyses, assessmentResults, callEvents, favoriteFacilities] = await Promise.all(promises)
+    const results = await Promise.all(promises)
 
     return {
-      aiAnalyses,
-      assessmentResults,
-      callEvents,
-      favoriteFacilities,
+      aiAnalyses: results[0] as AIFacilityAnalysis[],
+      assessmentResults: results[1] as AssessmentResult[],
+      callEvents: results[2] as CallEvent[],
+      favoriteFacilities: results[3] as FavoriteFacility[],
     }
   }
 
@@ -254,9 +259,10 @@ class MonitoringService {
       ]).size,
       uniqueFacilities: new Set([
         ...data.aiAnalyses.map(item => item.admin_code),
+        ...data.assessmentResults.filter(item => item.admin_code).map(item => item.admin_code),
         ...data.callEvents.map(item => item.admin_code),
         ...data.favoriteFacilities.map(item => item.admin_code),
-      ]).size,
+      ].filter(Boolean)).size,
     }
   }
 }

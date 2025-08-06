@@ -16,6 +16,7 @@ export interface AIFacilityAnalysis {
 export interface AssessmentResult {
   id?: string
   user_id: string
+  admin_code?: string
   grade: string
   grade_range: string
   total_score: number

@@ -26,10 +26,10 @@ import {
   Alert,
   AlertIcon,
 } from '@chakra-ui/react'
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { useMonitoringData, useActivityStats } from '../hooks/useMonitoring'
 import { MonitoringFilters } from '../types'
-import { FiActivity, FiPhone, FiStar, FiBrain } from 'react-icons/fi'
+import { FiActivity, FiPhone, FiStar, FiDatabase } from 'react-icons/fi'
 import AIAnalysisTable from '../components/AIAnalysisTable'
 import AssessmentResultsTable from '../components/AssessmentResultsTable'
 import CallEventsTable from '../components/CallEventsTable'
@@ -225,7 +225,7 @@ const MonitoringPage = () => {
               <TabList>
                 <Tab>
                   <HStack spacing="2">
-                    <FiBrain />
+                    <FiDatabase />
                     <Text>AI 분석 ({monitoringData?.aiAnalyses.length || 0})</Text>
                   </HStack>
                 </Tab>
