@@ -3,20 +3,28 @@ import { Timestamp } from 'firebase/firestore'
 // AI 시설 분석 결과
 export interface AIFacilityAnalysis {
   id?: string
-  user_id: string
-  admin_code: string
-  analysis_date: Timestamp
-  prompt_type: string
-  response_summary?: string
-  created_at: Timestamp
-  data_version?: string
+  memberId: string
+  facilityId: string
+  facilityName: string
+  facilityAddress: string
+  facilityType: string
+  customerAge?: number | null
+  customerGender: string
+  longTermCareGrade: string
+  dementiaLevel: string
+  preferredLocation: string
+  preferredCareType: string
+  aiSummary: string
+  aiModelUsed: string
+  facilityData?: any
+  createdAt: Timestamp
+  updatedAt?: Timestamp | null
 }
 
 // 요양등급 평가 결과
 export interface AssessmentResult {
   id?: string
   user_id: string
-  admin_code?: string
   grade: string
   grade_range: string
   total_score: number
@@ -29,12 +37,13 @@ export interface AssessmentResult {
     answered_questions: number
     questions_by_category: Record<string, number>
   }
-  category_scores: Record<string, number>
+  category_scores?: Record<string, number>
   summary_scores: {
     category_scores: Record<string, number>
     service_scores: Record<string, number>
     raw_scores: Record<string, number>
   }
+  detailed_answers?: any[]
   created_at: Timestamp
   data_version: string
 }
@@ -42,25 +51,25 @@ export interface AssessmentResult {
 // 상담 전화 이벤트
 export interface CallEvent {
   id?: string
-  user_id: string
-  admin_code: string
-  facility_name: string
-  phone_number: string
-  call_duration?: number
-  call_status?: string
-  created_at: Timestamp
-  data_version?: string
+  memberId: string
+  facilityId: string
+  facilityName: string
+  facilityAddress: string
+  callStartTime: string
+  callEndTime?: string | null
+  callDurationSeconds?: number | null
+  createdAt: string | Timestamp
 }
 
 // 시설 즐겨찾기
 export interface FavoriteFacility {
   id?: string
-  user_id: string
-  admin_code: string
-  created_at: Timestamp
-  updated_at?: Timestamp
-  is_active: boolean
-  data_version?: string
+  memberId: string
+  facilityId: string
+  facilityName: string
+  facilityAddress: string
+  facilityType: string
+  createdAt: Timestamp
 }
 
 // 통합 모니터링 데이터

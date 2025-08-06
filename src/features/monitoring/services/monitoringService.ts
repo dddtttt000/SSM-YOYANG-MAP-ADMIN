@@ -30,127 +30,240 @@ class MonitoringService {
 
   // AI 시설 분석 이벤트 조회
   async getAIAnalyses(filters: MonitoringFilters): Promise<AIFacilityAnalysis[]> {
-    const constraints: QueryConstraint[] = [
-      orderBy('created_at', 'desc'),
-      limit(100),
-    ]
+    try {
+      const constraints: QueryConstraint[] = []
 
-    if (filters.userId) {
-      constraints.unshift(where('user_id', '==', filters.userId))
+      // orderBy와 where 조건을 함께 사용할 때는 인덱스가 필요할 수 있으므로
+      // 일단 where 조건 없이 전체 데이터를 가져온 후 필터링
+      if (!filters.userId && !filters.adminCode && !filters.startDate && !filters.endDate) {
+        constraints.push(limit(100))
+      }
+
+      if (filters.userId) {
+        constraints.push(where('memberId', '==', filters.userId))
+      }
+
+      if (filters.adminCode) {
+        constraints.push(where('facilityId', '==', filters.adminCode))
+      }
+
+      console.log('Fetching AI analyses with collection:', this.collections.aiAnalyses)
+      console.log('Constraints:', constraints)
+      
+      const q = query(collection(firestore, this.collections.aiAnalyses), ...constraints)
+      const snapshot = await getDocs(q)
+      console.log('AI analyses fetched:', snapshot.size, 'documents')
+
+      let results = snapshot.docs.map((doc: any) => ({
+        id: doc.id,
+        ...doc.data(),
+      } as AIFacilityAnalysis))
+
+      // 클라이언트 사이드에서 날짜 필터링
+      if (filters.startDate) {
+        results = results.filter(item => {
+          const itemDate = item.createdAt?.toDate?.() || new Date(0)
+          return itemDate >= filters.startDate!
+        })
+      }
+
+      if (filters.endDate) {
+        results = results.filter(item => {
+          const itemDate = item.createdAt?.toDate?.() || new Date(0)
+          return itemDate <= filters.endDate!
+        })
+      }
+
+      // 클라이언트 사이드에서 정렬
+      results.sort((a, b) => {
+        const dateA = a.createdAt?.toDate?.() || new Date(0)
+        const dateB = b.createdAt?.toDate?.() || new Date(0)
+        return dateB.getTime() - dateA.getTime()
+      })
+
+      return results
+    } catch (error) {
+      console.error('Error fetching AI analyses:', error)
+      throw error
     }
-
-    if (filters.adminCode) {
-      constraints.unshift(where('admin_code', '==', filters.adminCode))
-    }
-
-    if (filters.startDate) {
-      constraints.push(where('created_at', '>=', Timestamp.fromDate(filters.startDate)))
-    }
-
-    if (filters.endDate) {
-      constraints.push(where('created_at', '<=', Timestamp.fromDate(filters.endDate)))
-    }
-
-    const q = query(collection(firestore, this.collections.aiAnalyses), ...constraints)
-    const snapshot = await getDocs(q)
-
-    return snapshot.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data(),
-    } as AIFacilityAnalysis))
   }
 
   // 요양등급 평가 결과 조회
   async getAssessmentResults(filters: MonitoringFilters): Promise<AssessmentResult[]> {
-    const constraints: QueryConstraint[] = [
-      orderBy('created_at', 'desc'),
-      limit(100),
-    ]
+    try {
+      const constraints: QueryConstraint[] = []
 
-    if (filters.userId) {
-      constraints.unshift(where('user_id', '==', filters.userId))
+      if (!filters.userId && !filters.startDate && !filters.endDate) {
+        constraints.push(limit(100))
+      }
+
+      if (filters.userId) {
+        constraints.push(where('user_id', '==', filters.userId))
+      }
+
+      console.log('Fetching assessment results')
+      const q = query(collection(firestore, this.collections.assessmentResults), ...constraints)
+      const snapshot = await getDocs(q)
+      console.log('Assessment results fetched:', snapshot.size, 'documents')
+
+      let results = snapshot.docs.map((doc: any) => ({
+        id: doc.id,
+        ...doc.data(),
+      } as AssessmentResult))
+
+      // 클라이언트 사이드에서 날짜 필터링
+      if (filters.startDate) {
+        results = results.filter(item => {
+          const itemDate = item.created_at?.toDate?.() || new Date(0)
+          return itemDate >= filters.startDate!
+        })
+      }
+
+      if (filters.endDate) {
+        results = results.filter(item => {
+          const itemDate = item.created_at?.toDate?.() || new Date(0)
+          return itemDate <= filters.endDate!
+        })
+      }
+
+      // 클라이언트 사이드에서 정렬
+      results.sort((a, b) => {
+        const dateA = a.created_at?.toDate?.() || new Date(0)
+        const dateB = b.created_at?.toDate?.() || new Date(0)
+        return dateB.getTime() - dateA.getTime()
+      })
+
+      return results
+    } catch (error) {
+      console.error('Error fetching assessment results:', error)
+      throw error
     }
-
-    if (filters.startDate) {
-      constraints.push(where('created_at', '>=', Timestamp.fromDate(filters.startDate)))
-    }
-
-    if (filters.endDate) {
-      constraints.push(where('created_at', '<=', Timestamp.fromDate(filters.endDate)))
-    }
-
-    const q = query(collection(firestore, this.collections.assessmentResults), ...constraints)
-    const snapshot = await getDocs(q)
-
-    return snapshot.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data(),
-    } as AssessmentResult))
   }
 
   // 상담 전화 이벤트 조회
   async getCallEvents(filters: MonitoringFilters): Promise<CallEvent[]> {
-    const constraints: QueryConstraint[] = [
-      orderBy('created_at', 'desc'),
-      limit(100),
-    ]
+    try {
+      const constraints: QueryConstraint[] = []
 
-    if (filters.userId) {
-      constraints.unshift(where('user_id', '==', filters.userId))
+      if (!filters.userId && !filters.adminCode) {
+        constraints.push(limit(100))
+      }
+
+      if (filters.userId) {
+        constraints.push(where('memberId', '==', filters.userId))
+      }
+
+      if (filters.adminCode) {
+        constraints.push(where('facilityId', '==', filters.adminCode))
+      }
+
+      console.log('Fetching call events')
+      const q = query(collection(firestore, this.collections.callEvents), ...constraints)
+      const snapshot = await getDocs(q)
+      console.log('Call events fetched:', snapshot.size, 'documents')
+
+      let results = snapshot.docs.map((doc: any) => ({
+        id: doc.id,
+        ...doc.data(),
+      } as CallEvent))
+
+      // 날짜 필터링 (createdAt이 문자열인 경우 처리)
+      if (filters.startDate || filters.endDate) {
+        results = results.filter(item => {
+          let itemDate: Date
+          if (typeof item.createdAt === 'string') {
+            itemDate = new Date(item.createdAt)
+          } else {
+            itemDate = item.createdAt?.toDate?.() || new Date(0)
+          }
+          
+          if (filters.startDate && itemDate < filters.startDate) return false
+          if (filters.endDate && itemDate > filters.endDate) return false
+          return true
+        })
+      }
+
+      // 정렬
+      results.sort((a, b) => {
+        let dateA: Date
+        let dateB: Date
+        
+        if (typeof a.createdAt === 'string') {
+          dateA = new Date(a.createdAt)
+        } else {
+          dateA = a.createdAt?.toDate?.() || new Date(0)
+        }
+        
+        if (typeof b.createdAt === 'string') {
+          dateB = new Date(b.createdAt)
+        } else {
+          dateB = b.createdAt?.toDate?.() || new Date(0)
+        }
+        
+        return dateB.getTime() - dateA.getTime()
+      })
+
+      return results
+    } catch (error) {
+      console.error('Error fetching call events:', error)
+      throw error
     }
-
-    if (filters.adminCode) {
-      constraints.unshift(where('admin_code', '==', filters.adminCode))
-    }
-
-    if (filters.startDate) {
-      constraints.push(where('created_at', '>=', Timestamp.fromDate(filters.startDate)))
-    }
-
-    if (filters.endDate) {
-      constraints.push(where('created_at', '<=', Timestamp.fromDate(filters.endDate)))
-    }
-
-    const q = query(collection(firestore, this.collections.callEvents), ...constraints)
-    const snapshot = await getDocs(q)
-
-    return snapshot.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data(),
-    } as CallEvent))
   }
 
   // 즐겨찾기 시설 조회
   async getFavoriteFacilities(filters: MonitoringFilters): Promise<FavoriteFacility[]> {
-    const constraints: QueryConstraint[] = [
-      where('is_active', '==', true),
-      orderBy('created_at', 'desc'),
-      limit(100),
-    ]
+    try {
+      const constraints: QueryConstraint[] = []
 
-    if (filters.userId) {
-      constraints.unshift(where('user_id', '==', filters.userId))
+      if (!filters.userId && !filters.adminCode) {
+        constraints.push(limit(100))
+      }
+
+      if (filters.userId) {
+        constraints.push(where('memberId', '==', filters.userId))
+      }
+
+      if (filters.adminCode) {
+        constraints.push(where('facilityId', '==', filters.adminCode))
+      }
+
+      console.log('Fetching favorite facilities')
+      const q = query(collection(firestore, this.collections.favoriteFacilities), ...constraints)
+      const snapshot = await getDocs(q)
+      console.log('Favorite facilities fetched:', snapshot.size, 'documents')
+
+      let results = snapshot.docs.map((doc: any) => ({
+        id: doc.id,
+        ...doc.data(),
+      } as FavoriteFacility))
+
+      // 날짜 필터링
+      if (filters.startDate) {
+        results = results.filter(item => {
+          const itemDate = item.createdAt?.toDate?.() || new Date(0)
+          return itemDate >= filters.startDate!
+        })
+      }
+
+      if (filters.endDate) {
+        results = results.filter(item => {
+          const itemDate = item.createdAt?.toDate?.() || new Date(0)
+          return itemDate <= filters.endDate!
+        })
+      }
+
+      // 정렬
+      results.sort((a, b) => {
+        const dateA = a.createdAt?.toDate?.() || new Date(0)
+        const dateB = b.createdAt?.toDate?.() || new Date(0)
+        return dateB.getTime() - dateA.getTime()
+      })
+
+      return results
+    } catch (error) {
+      console.error('Error fetching favorite facilities:', error)
+      throw error
     }
-
-    if (filters.adminCode) {
-      constraints.unshift(where('admin_code', '==', filters.adminCode))
-    }
-
-    if (filters.startDate) {
-      constraints.push(where('created_at', '>=', Timestamp.fromDate(filters.startDate)))
-    }
-
-    if (filters.endDate) {
-      constraints.push(where('created_at', '<=', Timestamp.fromDate(filters.endDate)))
-    }
-
-    const q = query(collection(firestore, this.collections.favoriteFacilities), ...constraints)
-    const snapshot = await getDocs(q)
-
-    return snapshot.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data(),
-    } as FavoriteFacility))
   }
 
   // 통합 모니터링 데이터 조회
@@ -252,16 +365,15 @@ class MonitoringService {
         favorite: data.favoriteFacilities.length,
       },
       uniqueUsers: new Set([
-        ...data.aiAnalyses.map(item => item.user_id),
+        ...data.aiAnalyses.map(item => item.memberId),
         ...data.assessmentResults.map(item => item.user_id),
-        ...data.callEvents.map(item => item.user_id),
-        ...data.favoriteFacilities.map(item => item.user_id),
+        ...data.callEvents.map(item => item.memberId),
+        ...data.favoriteFacilities.map(item => item.memberId),
       ]).size,
       uniqueFacilities: new Set([
-        ...data.aiAnalyses.map(item => item.admin_code),
-        ...data.assessmentResults.filter(item => item.admin_code).map(item => item.admin_code),
-        ...data.callEvents.map(item => item.admin_code),
-        ...data.favoriteFacilities.map(item => item.admin_code),
+        ...data.aiAnalyses.map(item => item.facilityId),
+        ...data.callEvents.map(item => item.facilityId),
+        ...data.favoriteFacilities.map(item => item.facilityId),
       ].filter(Boolean)).size,
     }
   }

@@ -30,6 +30,7 @@ import { useState } from 'react'
 import { useMonitoringData, useActivityStats } from '../hooks/useMonitoring'
 import { MonitoringFilters } from '../types'
 import { FiActivity, FiPhone, FiStar, FiDatabase } from 'react-icons/fi'
+import { createTestData } from '../services/testData'
 import AIAnalysisTable from '../components/AIAnalysisTable'
 import AssessmentResultsTable from '../components/AssessmentResultsTable'
 import CallEventsTable from '../components/CallEventsTable'
@@ -72,6 +73,17 @@ const MonitoringPage = () => {
     })
   }
 
+  // 테스트 데이터 생성 (개발용)
+  const handleCreateTestData = async () => {
+    try {
+      await createTestData()
+      alert('테스트 데이터가 생성되었습니다. 페이지를 새로고침해주세요.')
+    } catch (error) {
+      console.error('테스트 데이터 생성 실패:', error)
+      alert('테스트 데이터 생성에 실패했습니다.')
+    }
+  }
+
   // 날짜 포맷
   const formatDate = (date?: Date) => {
     if (!date) return ''
@@ -94,8 +106,22 @@ const MonitoringPage = () => {
       <VStack spacing="8" align="stretch">
         {/* 헤더 */}
         <Box>
-          <Heading size="lg" mb="2">모니터링</Heading>
-          <Text color="gray.600">회원들의 서비스 이용 활동을 모니터링합니다.</Text>
+          <HStack justify="space-between" align="start">
+            <Box>
+              <Heading size="lg" mb="2">모니터링</Heading>
+              <Text color="gray.600">회원들의 서비스 이용 활동을 모니터링합니다.</Text>
+            </Box>
+            {/* 개발 환경에서만 표시 */}
+            {import.meta.env.DEV && (
+              <Button 
+                size="sm" 
+                colorScheme="purple" 
+                onClick={handleCreateTestData}
+              >
+                테스트 데이터 생성
+              </Button>
+            )}
+          </HStack>
         </Box>
 
         {/* 필터 섹션 */}

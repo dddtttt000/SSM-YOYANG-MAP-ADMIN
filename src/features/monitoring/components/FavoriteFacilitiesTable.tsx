@@ -27,14 +27,14 @@ interface FavoriteFacilitiesTableProps {
 }
 
 const FavoriteFacilitiesTable = ({ data, isLoading }: FavoriteFacilitiesTableProps) => {
-  // 유니크한 user_id와 admin_code 추출
+  // 유니크한 memberId와 facilityId 추출
   const userIds = useMemo(() => 
-    [...new Set(data.map(item => item.user_id))],
+    [...new Set(data.map(item => item.memberId))],
     [data]
   )
   
   const adminCodes = useMemo(() => 
-    [...new Set(data.map(item => item.admin_code))],
+    [...new Set(data.map(item => item.facilityId))],
     [data]
   )
 
@@ -55,24 +55,9 @@ const FavoriteFacilitiesTable = ({ data, isLoading }: FavoriteFacilitiesTablePro
   }
 
   // 시설 유형 라벨
-  const getFacilityTypeLabels = (typeCode?: string) => {
-    if (!typeCode) return '-'
-    
-    // 쉼표로 구분된 여러 유형 처리
-    const types = typeCode.split(',').map(code => code.trim())
-    const labels = types.map(code => FACILITY_TYPE_LABELS[code] || code)
-    
-    if (labels.length === 1) {
-      return labels[0]
-    }
-    
-    return (
-      <Tooltip label={labels.join(', ')}>
-        <Text cursor="help">
-          {labels[0]} 외 {labels.length - 1}개
-        </Text>
-      </Tooltip>
-    )
+  const getFacilityTypeLabel = (type?: string) => {
+    if (!type) return '-'
+    return type === '기타' ? '기타' : FACILITY_TYPE_LABELS[type] || type
   }
 
   // 시간 차이 계산 (등록 후 경과 시간)
@@ -122,21 +107,20 @@ const FavoriteFacilitiesTable = ({ data, isLoading }: FavoriteFacilitiesTablePro
             <Th>시설명</Th>
             <Th>시설 유형</Th>
             <Th>주소</Th>
-            <Th>상태</Th>
             <Th>경과 시간</Th>
             <Th width="60px">동작</Th>
           </Tr>
         </Thead>
         <Tbody>
           {data.map((favorite) => {
-            const member = memberMap?.get(favorite.user_id)
-            const facility = facilityMap?.get(favorite.admin_code)
+            const member = memberMap?.get(favorite.memberId)
+            const facility = facilityMap?.get(favorite.facilityId)
             
             return (
               <Tr key={favorite.id}>
                 <Td>
                   <Text fontSize="sm">
-                    {formatTimestamp(favorite.created_at)}
+                    {formatTimestamp(favorite.createdAt)}
                   </Text>
                 </Td>
                 <Td>
@@ -145,7 +129,7 @@ const FavoriteFacilitiesTable = ({ data, isLoading }: FavoriteFacilitiesTablePro
                       {member?.nickname || member?.name || '-'}
                     </Text>
                     <Text fontSize="xs" color="gray.500">
-                      {member?.email || favorite.user_id}
+                      {member?.email || `ID: ${favorite.memberId}`}
                     </Text>
                   </Box>
                 </Td>
@@ -154,42 +138,34 @@ const FavoriteFacilitiesTable = ({ data, isLoading }: FavoriteFacilitiesTablePro
                     <HStack spacing={1}>
                       <FiStar size={14} color="gold" />
                       <Text fontWeight="medium">
-                        {facility?.admin_name || '-'}
+                        {favorite.facilityName || facility?.admin_name || '-'}
                       </Text>
                     </HStack>
                     <Text fontSize="xs" color="gray.500">
-                      {favorite.admin_code}
+                      {favorite.facilityId}
                     </Text>
                   </Box>
                 </Td>
                 <Td>
                   <Text fontSize="sm">
-                    {getFacilityTypeLabels(facility?.admin_type_code)}
+                    {getFacilityTypeLabel(favorite.facilityType)}
                   </Text>
                 </Td>
                 <Td>
-                  <Text fontSize="sm" noOfLines={1} title={facility?.address}>
-                    {facility?.address || '-'}
+                  <Text fontSize="sm" noOfLines={1} title={favorite.facilityAddress}>
+                    {favorite.facilityAddress || facility?.address || '-'}
                   </Text>
-                </Td>
-                <Td>
-                  <Badge 
-                    colorScheme={favorite.is_active ? 'green' : 'gray'}
-                    variant="subtle"
-                  >
-                    {favorite.is_active ? '활성' : '비활성'}
-                  </Badge>
                 </Td>
                 <Td>
                   <Text fontSize="sm" color="gray.600">
-                    {getTimeDifference(favorite.created_at)}
+                    {getTimeDifference(favorite.createdAt)}
                   </Text>
                 </Td>
                 <Td>
                   <HStack spacing={1}>
                     <Tooltip label="시설 상세 보기">
                       <Link
-                        href={`/facilities/${favorite.admin_code}`}
+                        href={`/facilities/${favorite.facilityId}`}
                         isExternal
                       >
                         <IconButton

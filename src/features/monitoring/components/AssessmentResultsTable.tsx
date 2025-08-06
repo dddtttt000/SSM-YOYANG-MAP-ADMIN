@@ -60,13 +60,16 @@ const AssessmentResultsTable = ({ data, isLoading }: AssessmentResultsTableProps
   }
 
   // 주요 카테고리 점수 추출
-  const getMainCategoryScores = (categoryScores: Record<string, number>) => {
-    const mainCategories = ['일상생활', '인지기능', '행동변화', '간호처치', '재활']
+  const getMainCategoryScores = (summaryScores?: any) => {
+    if (!summaryScores?.category_scores) return []
+    
+    const categoryScores = summaryScores.category_scores
+    const mainCategories = ['신체기능', '인지기능', '행동변화', '간호처치', '재활영역']
     return mainCategories
       .filter(category => category in categoryScores)
       .map(category => ({
         name: category,
-        score: categoryScores[category],
+        score: Math.round(categoryScores[category]),
       }))
   }
 
@@ -103,7 +106,7 @@ const AssessmentResultsTable = ({ data, isLoading }: AssessmentResultsTableProps
         <Tbody>
           {data.map((result) => {
             const member = memberMap?.get(result.user_id)
-            const mainScores = getMainCategoryScores(result.category_scores)
+            const mainScores = getMainCategoryScores(result.summary_scores)
             
             return (
               <Tr key={result.id}>

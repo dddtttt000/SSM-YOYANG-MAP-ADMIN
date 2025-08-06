@@ -26,14 +26,14 @@ interface CallEventsTableProps {
 }
 
 const CallEventsTable = ({ data, isLoading }: CallEventsTableProps) => {
-  // 유니크한 user_id와 admin_code 추출
+  // 유니크한 memberId와 facilityId 추출
   const userIds = useMemo(() => 
-    [...new Set(data.map(item => item.user_id))],
+    [...new Set(data.map(item => item.memberId))],
     [data]
   )
   
   const adminCodes = useMemo(() => 
-    [...new Set(data.map(item => item.admin_code))],
+    [...new Set(data.map(item => item.facilityId))],
     [data]
   )
 
@@ -42,9 +42,19 @@ const CallEventsTable = ({ data, isLoading }: CallEventsTableProps) => {
   const { data: facilityMap } = useFacilityInfo(adminCodes)
 
   // Timestamp를 날짜 문자열로 변환
-  const formatTimestamp = (timestamp: Timestamp) => {
-    if (!timestamp || !timestamp.toDate) return '-'
-    return timestamp.toDate().toLocaleString('ko-KR', {
+  const formatTimestamp = (timestamp: Timestamp | string) => {
+    if (!timestamp) return '-'
+    
+    let date: Date
+    if (typeof timestamp === 'string') {
+      date = new Date(timestamp)
+    } else if (timestamp.toDate) {
+      date = timestamp.toDate()
+    } else {
+      return '-'
+    }
+    
+    return date.toLocaleString('ko-KR', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -54,33 +64,11 @@ const CallEventsTable = ({ data, isLoading }: CallEventsTableProps) => {
   }
 
   // 통화 시간 포맷
-  const formatDuration = (seconds?: number) => {
+  const formatDuration = (seconds?: number | null) => {
     if (!seconds) return '-'
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
     return `${minutes}분 ${remainingSeconds}초`
-  }
-
-  // 통화 상태 라벨
-  const getCallStatusLabel = (status?: string) => {
-    const labels: Record<string, string> = {
-      'completed': '통화 완료',
-      'missed': '부재중',
-      'busy': '통화중',
-      'failed': '통화 실패',
-    }
-    return labels[status || ''] || status || '알 수 없음'
-  }
-
-  // 통화 상태 색상
-  const getCallStatusColor = (status?: string) => {
-    const colors: Record<string, string> = {
-      'completed': 'green',
-      'missed': 'orange',
-      'busy': 'yellow',
-      'failed': 'red',
-    }
-    return colors[status || ''] || 'gray'
   }
 
   // 전화번호 포맷
@@ -120,22 +108,21 @@ const CallEventsTable = ({ data, isLoading }: CallEventsTableProps) => {
             <Th>통화일시</Th>
             <Th>회원</Th>
             <Th>시설명</Th>
-            <Th>전화번호</Th>
+            <Th>주소</Th>
             <Th>통화 시간</Th>
-            <Th>상태</Th>
             <Th width="60px">동작</Th>
           </Tr>
         </Thead>
         <Tbody>
           {data.map((call) => {
-            const member = memberMap?.get(call.user_id)
-            const facility = facilityMap?.get(call.admin_code)
+            const member = memberMap?.get(call.memberId)
+            const facility = facilityMap?.get(call.facilityId)
             
             return (
               <Tr key={call.id}>
                 <Td>
                   <Text fontSize="sm">
-                    {formatTimestamp(call.created_at)}
+                    {formatTimestamp(call.createdAt || call.callStartTime)}
                   </Text>
                 </Td>
                 <Td>
@@ -144,46 +131,35 @@ const CallEventsTable = ({ data, isLoading }: CallEventsTableProps) => {
                       {member?.nickname || member?.name || '-'}
                     </Text>
                     <Text fontSize="xs" color="gray.500">
-                      {member?.email || call.user_id}
+                      {member?.email || `ID: ${call.memberId}`}
                     </Text>
                   </Box>
                 </Td>
                 <Td>
                   <Box>
                     <Text fontWeight="medium">
-                      {call.facility_name || facility?.admin_name || '-'}
+                      {call.facilityName || facility?.admin_name || '-'}
                     </Text>
                     <Text fontSize="xs" color="gray.500">
-                      {call.admin_code}
+                      {call.facilityId}
                     </Text>
                   </Box>
                 </Td>
                 <Td>
-                  <HStack spacing={2}>
-                    <FiPhone size={14} color="gray" />
-                    <Text fontSize="sm">
-                      {formatPhoneNumber(call.phone_number)}
-                    </Text>
-                  </HStack>
-                </Td>
-                <Td>
-                  <Text fontSize="sm">
-                    {formatDuration(call.call_duration)}
+                  <Text fontSize="sm" noOfLines={1} title={call.facilityAddress}>
+                    {call.facilityAddress || '-'}
                   </Text>
                 </Td>
                 <Td>
-                  <Badge 
-                    colorScheme={getCallStatusColor(call.call_status)}
-                    variant="subtle"
-                  >
-                    {getCallStatusLabel(call.call_status)}
-                  </Badge>
+                  <Text fontSize="sm">
+                    {formatDuration(call.callDurationSeconds)}
+                  </Text>
                 </Td>
                 <Td>
                   <HStack spacing={1}>
                     <Tooltip label="시설 상세 보기">
                       <Link
-                        href={`/facilities/${call.admin_code}`}
+                        href={`/facilities/${call.facilityId}`}
                         isExternal
                       >
                         <IconButton

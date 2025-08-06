@@ -26,14 +26,14 @@ interface AIAnalysisTableProps {
 }
 
 const AIAnalysisTable = ({ data, isLoading }: AIAnalysisTableProps) => {
-  // 유니크한 user_id와 admin_code 추출
+  // 유니크한 memberId와 facilityId 추출
   const userIds = useMemo(() => 
-    [...new Set(data.map(item => item.user_id))],
+    [...new Set(data.map(item => item.memberId))],
     [data]
   )
   
   const adminCodes = useMemo(() => 
-    [...new Set(data.map(item => item.admin_code))],
+    [...new Set(data.map(item => item.facilityId))],
     [data]
   )
 
@@ -53,24 +53,24 @@ const AIAnalysisTable = ({ data, isLoading }: AIAnalysisTableProps) => {
     })
   }
 
-  // 프롬프트 타입 라벨
-  const getPromptTypeLabel = (type: string) => {
+  // 돌봄 유형 라벨
+  const getCareTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
-      'facility_info': '시설 정보',
-      'comparison': '시설 비교',
-      'recommendation': '시설 추천',
-      'detailed_analysis': '상세 분석',
+      'day_night': '주야간보호',
+      'visit': '방문요양',
+      'facility': '요양시설',
+      'short_term': '단기보호',
     }
     return labels[type] || type
   }
 
-  // 프롬프트 타입 색상
-  const getPromptTypeColor = (type: string) => {
+  // 돌봄 유형 색상
+  const getCareTypeColor = (type: string) => {
     const colors: Record<string, string> = {
-      'facility_info': 'blue',
-      'comparison': 'green',
-      'recommendation': 'purple',
-      'detailed_analysis': 'orange',
+      'day_night': 'blue',
+      'visit': 'green',
+      'facility': 'purple',
+      'short_term': 'orange',
     }
     return colors[type] || 'gray'
   }
@@ -99,21 +99,22 @@ const AIAnalysisTable = ({ data, isLoading }: AIAnalysisTableProps) => {
             <Th>분석일시</Th>
             <Th>회원</Th>
             <Th>시설명</Th>
-            <Th>분석 유형</Th>
-            <Th>요약</Th>
+            <Th>요양등급</Th>
+            <Th>희망 돌봄</Th>
+            <Th>AI 모델</Th>
             <Th width="60px">동작</Th>
           </Tr>
         </Thead>
         <Tbody>
           {data.map((analysis) => {
-            const member = memberMap?.get(analysis.user_id)
-            const facility = facilityMap?.get(analysis.admin_code)
+            const member = memberMap?.get(analysis.memberId)
+            const facility = facilityMap?.get(analysis.facilityId)
             
             return (
               <Tr key={analysis.id}>
                 <Td>
                   <Text fontSize="sm">
-                    {formatTimestamp(analysis.analysis_date)}
+                    {formatTimestamp(analysis.createdAt)}
                   </Text>
                 </Td>
                 <Td>
@@ -122,42 +123,46 @@ const AIAnalysisTable = ({ data, isLoading }: AIAnalysisTableProps) => {
                       {member?.nickname || member?.name || '-'}
                     </Text>
                     <Text fontSize="xs" color="gray.500">
-                      {member?.email || analysis.user_id}
+                      {member?.email || `ID: ${analysis.memberId}`}
                     </Text>
                   </Box>
                 </Td>
                 <Td>
                   <Box>
                     <Text fontWeight="medium">
-                      {facility?.admin_name || '-'}
+                      {analysis.facilityName || facility?.admin_name || '-'}
                     </Text>
                     <Text fontSize="xs" color="gray.500">
-                      {analysis.admin_code}
+                      {analysis.facilityId}
                     </Text>
                   </Box>
                 </Td>
                 <Td>
                   <Badge 
-                    colorScheme={getPromptTypeColor(analysis.prompt_type)}
-                    variant="subtle"
+                    colorScheme="teal"
+                    variant="solid"
                   >
-                    {getPromptTypeLabel(analysis.prompt_type)}
+                    {analysis.longTermCareGrade}
                   </Badge>
                 </Td>
                 <Td>
-                  <Text 
-                    fontSize="sm" 
-                    noOfLines={2}
-                    title={analysis.response_summary}
+                  <Badge 
+                    colorScheme={getCareTypeColor(analysis.preferredCareType)}
+                    variant="subtle"
                   >
-                    {analysis.response_summary || '-'}
+                    {getCareTypeLabel(analysis.preferredCareType)}
+                  </Badge>
+                </Td>
+                <Td>
+                  <Text fontSize="xs" color="gray.600">
+                    {analysis.aiModelUsed}
                   </Text>
                 </Td>
                 <Td>
                   <HStack spacing={1}>
                     <Tooltip label="시설 상세 보기">
                       <Link
-                        href={`/facilities/${analysis.admin_code}`}
+                        href={`/facilities/${analysis.facilityId}`}
                         isExternal
                       >
                         <IconButton

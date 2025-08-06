@@ -10,8 +10,23 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
+// Log Firebase config (without sensitive data)
+console.log('Firebase config loaded:', {
+  projectId: firebaseConfig.projectId,
+  authDomain: firebaseConfig.authDomain,
+  hasApiKey: !!firebaseConfig.apiKey,
+  hasAppId: !!firebaseConfig.appId,
+})
+
 // Initialize Firebase
-const app = initializeApp(firebaseConfig)
+let app
+try {
+  app = initializeApp(firebaseConfig)
+  console.log('Firebase initialized successfully')
+} catch (error) {
+  console.error('Firebase initialization error:', error)
+  throw error
+}
 
 // Initialize Firestore
 export const firestore = getFirestore(app)
