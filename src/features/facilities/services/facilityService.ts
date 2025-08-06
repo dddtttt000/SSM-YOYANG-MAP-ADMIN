@@ -157,14 +157,21 @@ class FacilityService {
 
   async getFacilityByAdminCode(adminCode: string): Promise<FacilityWithRelations> {
     // 기본 정보 조회
-    const { data: facility, error: facilityError } = await supabase
+    const { data: facilities, error: facilityError } = await supabase
       .from('facilities_ssmn_basic_full')
       .select('*')
       .eq('admin_code', adminCode)
-      .single()
 
     if (facilityError) throw facilityError
-    if (!facility) throw new Error('시설을 찾을 수 없습니다.')
+    if (!facilities || facilities.length === 0) {
+      throw new Error('시설을 찾을 수 없습니다.')
+    }
+    if (facilities.length > 1) {
+      console.error(`중복된 admin_code 발견: ${adminCode}, 개수: ${facilities.length}`)
+      throw new Error('중복된 시설 코드가 발견되었습니다.')
+    }
+    
+    const facility = facilities[0]
 
     // 비급여 항목 조회
     const { data: nonbenefits, error: nonbenefitError } = await supabase
@@ -211,6 +218,22 @@ class FacilityService {
   }
 
   async updateFacility(adminCode: string, dto: UpdateFacilityDto) {
+    // 먼저 해당 admin_code로 시설이 존재하는지 확인
+    const { data: existingData, error: checkError } = await supabase
+      .from('facilities_ssmn_basic_full')
+      .select('admin_code')
+      .eq('admin_code', adminCode)
+    
+    if (checkError) throw checkError
+    if (!existingData || existingData.length === 0) {
+      throw new Error('시설을 찾을 수 없습니다.')
+    }
+    if (existingData.length > 1) {
+      console.error(`중복된 admin_code 발견: ${adminCode}, 개수: ${existingData.length}`)
+      throw new Error('중복된 시설 코드가 발견되었습니다.')
+    }
+
+    // 업데이트 수행
     const { data, error } = await supabase
       .from('facilities_ssmn_basic_full')
       .update({
