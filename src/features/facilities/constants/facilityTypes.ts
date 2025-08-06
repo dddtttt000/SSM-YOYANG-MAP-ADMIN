@@ -56,6 +56,6 @@ export const getFacilityTypeLabel = (code: string | null | undefined): string =>
 
 // 개발 환경에서만 전역 객체에 노출 (테스트용)
 if (process.env.NODE_ENV === 'development') {
-  (window as any).FACILITY_TYPE_LABELS = FACILITY_TYPE_LABELS
-  (window as any).getFacilityTypeLabel = getFacilityTypeLabel
+  (window as any).FACILITY_TYPE_LABELS = FACILITY_TYPE_LABELS;
+  (window as any).getFacilityTypeLabel = getFacilityTypeLabel;
 }
