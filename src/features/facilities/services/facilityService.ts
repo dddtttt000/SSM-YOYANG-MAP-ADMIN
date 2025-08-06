@@ -6,6 +6,7 @@ export interface FacilityFilters {
   sido_code?: string
   sigungu_code?: string
   rating?: string
+  type_codes?: string[]
   page?: number
   limit?: number
   showAll?: boolean
@@ -97,7 +98,7 @@ export interface UpdateFacilityDto extends Partial<CreateFacilityDto> {
 
 class FacilityService {
   async getFacilities(filters: FacilityFilters = {}): Promise<PaginatedResponse<Facility>> {
-    const { page = 1, limit = 12, search, sido_code, sigungu_code, rating, showAll } = filters
+    const { page = 1, limit = 12, search, sido_code, sigungu_code, rating, type_codes, showAll } = filters
     const from = (page - 1) * limit
     const to = from + limit - 1
 
@@ -137,6 +138,12 @@ class FacilityService {
     if (rating && rating !== 'all') {
       countQuery = countQuery.eq('final_rating', rating)
       dataQuery = dataQuery.eq('final_rating', rating)
+    }
+
+    // 시설 유형 필터 적용
+    if (type_codes && type_codes.length > 0) {
+      countQuery = countQuery.in('admin_type_code', type_codes)
+      dataQuery = dataQuery.in('admin_type_code', type_codes)
     }
 
     // 총 개수 조회
@@ -349,6 +356,30 @@ class FacilityService {
     })
 
     return Array.from(uniqueTypes).sort()
+  }
+
+  async getFacilityTypesWithCount() {
+    const { data, error } = await supabase
+      .from('facilities_ssmn_basic_full')
+      .select('admin_type_code')
+      .not('admin_type_code', 'is', null)
+
+    if (error) throw error
+
+    // 유형별 카운트 계산
+    const typeCounts = new Map<string, number>()
+    data?.forEach(item => {
+      if (item.admin_type_code) {
+        const codes = item.admin_type_code.split(',').map((c: string) => c.trim())
+        codes.forEach((code: string) => {
+          typeCounts.set(code, (typeCounts.get(code) || 0) + 1)
+        })
+      }
+    })
+
+    return Array.from(typeCounts.entries())
+      .map(([code, count]) => ({ code, count }))
+      .sort((a, b) => a.code.localeCompare(b.code))
   }
 
   async getSidoList() {

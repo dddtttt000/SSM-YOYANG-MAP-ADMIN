@@ -8,10 +8,24 @@ import {
   Tooltip,
   ButtonGroup,
   Checkbox,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverHeader,
+  PopoverBody,
+  PopoverCloseButton,
+  Button,
+  Wrap,
+  WrapItem,
+  Badge,
+  Box,
+  Text,
+  VStack,
 } from '@chakra-ui/react'
-import { FiSearch, FiX, FiGrid, FiList } from 'react-icons/fi'
+import { FiSearch, FiX, FiGrid, FiList, FiFilter } from 'react-icons/fi'
 import { FacilityFilters as Filters } from '../services/facilityService'
-import { useSidoList, useSigunguList } from '../hooks/useFacilities'
+import { useSidoList, useSigunguList, useFacilityTypesWithCount } from '../hooks/useFacilities'
+import { getFacilityTypeLabel } from '../constants/facilityTypes'
 
 interface FacilityFiltersProps {
   filters: Filters
@@ -28,6 +42,9 @@ const FacilityFilters = ({
 }: FacilityFiltersProps) => {
   const { data: sidoList } = useSidoList()
   const { data: sigunguList } = useSigunguList(filters.sido_code)
+  const { data: facilityTypes } = useFacilityTypesWithCount()
+  
+  const selectedTypeCodes = filters.type_codes || []
 
   const handleSearchChange = (value: string) => {
     onFiltersChange({ ...filters, search: value, page: 1 })
@@ -64,6 +81,18 @@ const FacilityFilters = ({
 
   const handleShowAllChange = (checked: boolean) => {
     onFiltersChange({ ...filters, showAll: checked, page: 1 })
+  }
+
+  const handleTypeToggle = (typeCode: string) => {
+    const newTypeCodes = selectedTypeCodes.includes(typeCode)
+      ? selectedTypeCodes.filter(code => code !== typeCode)
+      : [...selectedTypeCodes, typeCode]
+    
+    onFiltersChange({ ...filters, type_codes: newTypeCodes, page: 1 })
+  }
+
+  const clearTypeFilters = () => {
+    onFiltersChange({ ...filters, type_codes: [], page: 1 })
   }
 
   return (
@@ -134,6 +163,74 @@ const FacilityFilters = ({
           <option value="D">D등급</option>
           <option value="E">E등급</option>
         </Select>
+
+        <Popover placement="bottom-start">
+          <PopoverTrigger>
+            <Button
+              size="sm"
+              leftIcon={<FiFilter />}
+              variant={selectedTypeCodes.length > 0 ? 'solid' : 'outline'}
+              colorScheme={selectedTypeCodes.length > 0 ? 'brand' : 'gray'}
+            >
+              시설 유형 {selectedTypeCodes.length > 0 && `(${selectedTypeCodes.length})`}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent width="600px">
+            <PopoverHeader>
+              <HStack justify="space-between">
+                <Text>시설 유형 선택</Text>
+                {selectedTypeCodes.length > 0 && (
+                  <Button size="xs" variant="ghost" onClick={clearTypeFilters}>
+                    초기화
+                  </Button>
+                )}
+              </HStack>
+            </PopoverHeader>
+            <PopoverCloseButton />
+            <PopoverBody maxH="400px" overflowY="auto">
+              <VStack align="stretch" spacing="2">
+                <Text fontSize="sm" color="gray.600" mb="2">
+                  클릭하여 필터링할 시설 유형을 선택하세요
+                </Text>
+                <Wrap spacing="2">
+                  {facilityTypes?.map((type) => (
+                    <WrapItem key={type.code}>
+                      <Box
+                        as="button"
+                        onClick={() => handleTypeToggle(type.code)}
+                        borderWidth="1px"
+                        borderRadius="md"
+                        px="3"
+                        py="2"
+                        bg={selectedTypeCodes.includes(type.code) ? 'brand.50' : 'white'}
+                        borderColor={selectedTypeCodes.includes(type.code) ? 'brand.500' : 'gray.200'}
+                        _hover={{ borderColor: 'brand.500' }}
+                        transition="all 0.2s"
+                      >
+                        <VStack spacing="1" align="start">
+                          <HStack spacing="2">
+                            <Badge 
+                              colorScheme={selectedTypeCodes.includes(type.code) ? 'brand' : 'gray'}
+                              fontSize="sm"
+                            >
+                              {type.code}
+                            </Badge>
+                            <Text fontSize="xs" color="gray.500">
+                              ({type.count}개)
+                            </Text>
+                          </HStack>
+                          <Text fontSize="xs" textAlign="left">
+                            {getFacilityTypeLabel(type.code)}
+                          </Text>
+                        </VStack>
+                      </Box>
+                    </WrapItem>
+                  ))}
+                </Wrap>
+              </VStack>
+            </PopoverBody>
+          </PopoverContent>
+        </Popover>
 
         <Checkbox
           isChecked={filters.showAll || false}

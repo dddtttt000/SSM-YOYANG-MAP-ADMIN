@@ -129,6 +129,14 @@ export const useFacilityTypes = () => {
   })
 }
 
+export const useFacilityTypesWithCount = () => {
+  return useQuery({
+    queryKey: ['facilityTypesWithCount'],
+    queryFn: () => facilityService.getFacilityTypesWithCount(),
+    staleTime: 10 * 60 * 1000, // 10분
+  })
+}
+
 export const useSidoList = () => {
   return useQuery({
     queryKey: ['sidoList'],
