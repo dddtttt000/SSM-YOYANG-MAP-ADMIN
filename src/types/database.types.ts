@@ -26,15 +26,22 @@ export interface Database {
       }
       members: {
         Row: {
-          id: string
-          email: string
-          name: string
+          id: number
+          email: string | null
+          name: string | null
           nickname: string | null
-          social_type: string | null
+          social_id: string
+          social_type: string
           phone: string | null
           status: string
-          created_at: string
-          updated_at: string
+          created_at: string | null
+          updated_at: string | null
+          birthday: string | null
+          birthyear: string | null
+          gender: string | null
+          profile_image: string | null
+          last_login_at: string | null
+          connected_at: string | null
         }
         Insert: Omit<Database['public']['Tables']['members']['Row'], 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Database['public']['Tables']['members']['Insert']>

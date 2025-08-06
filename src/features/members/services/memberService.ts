@@ -59,7 +59,7 @@ class MemberService {
     }
   }
 
-  async getMemberById(id: string) {
+  async getMemberById(id: number) {
     const { data, error } = await supabase
       .from('members')
       .select('*')
@@ -70,7 +70,7 @@ class MemberService {
     return data
   }
 
-  async updateMemberStatus(id: string, status: string) {
+  async updateMemberStatus(id: number, status: string) {
     const { data, error } = await supabase
       .from('members')
       .update({ 
