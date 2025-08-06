@@ -29,6 +29,12 @@ class MonitoringService {
   // AI 시설 분석 이벤트 조회
   async getAIAnalyses(filters: MonitoringFilters): Promise<AIFacilityAnalysis[]> {
     try {
+      // Firebase 설정 확인
+      if (!firestore?._settings?.projectId) {
+        console.error('Firebase가 제대로 설정되지 않았습니다.')
+        return []
+      }
+
       const constraints: QueryConstraint[] = []
 
       // orderBy와 where 조건을 함께 사용할 때는 인덱스가 필요할 수 있으므로
@@ -45,8 +51,11 @@ class MonitoringService {
         constraints.push(where('facilityId', '==', filters.adminCode))
       }
 
-      console.log('Fetching AI analyses with collection:', this.collections.aiAnalyses)
-      console.log('Constraints:', constraints)
+      console.log('Fetching AI analyses:', {
+        collection: this.collections.aiAnalyses,
+        projectId: firestore._settings?.projectId,
+        constraints: constraints.length,
+      })
       
       const q = query(collection(firestore, this.collections.aiAnalyses), ...constraints)
       const snapshot = await getDocs(q)

@@ -26,7 +26,7 @@ import {
   Alert,
   AlertIcon,
 } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useMonitoringData, useActivityStats } from '../hooks/useMonitoring'
 import { MonitoringFilters } from '../types'
 import { FiActivity, FiPhone, FiStar, FiDatabase } from 'react-icons/fi'
@@ -35,6 +35,7 @@ import AIAnalysisTable from '../components/AIAnalysisTable'
 import AssessmentResultsTable from '../components/AssessmentResultsTable'
 import CallEventsTable from '../components/CallEventsTable'
 import FavoriteFacilitiesTable from '../components/FavoriteFacilitiesTable'
+import { firestore } from '@/lib/firebase'
 
 const MonitoringPage = () => {
   const [filters, setFilters] = useState<MonitoringFilters>({
@@ -43,6 +44,15 @@ const MonitoringPage = () => {
 
   const { data: monitoringData, isLoading: isLoadingData, error: dataError } = useMonitoringData(filters)
   const { data: stats, isLoading: isLoadingStats } = useActivityStats(filters)
+
+  // Firebase 연결 상태 확인
+  useEffect(() => {
+    console.log('Firebase 연결 상태:', {
+      firestore: !!firestore,
+      projectId: firestore?._settings?.projectId || 'Not configured',
+      host: firestore?._settings?.host || 'Default',
+    })
+  }, [])
 
   // 날짜 필터 핸들러
   const handleDateChange = (field: 'startDate' | 'endDate', value: string) => {
