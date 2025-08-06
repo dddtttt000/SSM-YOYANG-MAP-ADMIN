@@ -1,6 +1,6 @@
 # SSM-YOYANG 관리자 시스템 프로젝트 현황
 
-## 📅 작업 일자: 2025-08-05
+## 📅 작업 일자: 2025-08-05 ~ 2025-08-06
 
 ## ✅ 완료된 작업 내역
 
@@ -24,9 +24,10 @@ src/
 │   ├── admin-users/   # 관리자 관리
 │   ├── members/       # 회원 관리
 │   ├── facilities/    # 시설 관리
-│   └── dashboard/     # 대시보드
+│   ├── dashboard/     # 대시보드
+│   └── monitoring/    # 모니터링
 ├── hooks/             # 커스텀 훅 (usePermission)
-├── lib/               # 외부 라이브러리 설정 (supabase.ts)
+├── lib/               # 외부 라이브러리 설정 (supabase.ts, firebase.ts)
 ├── types/             # TypeScript 타입 정의
 └── App.tsx            # 메인 앱 컴포넌트
 ```
@@ -68,6 +69,7 @@ src/
 - ✅ 시설 정보 폼 (기본/연락처/운영 정보)
 - ✅ 검색 및 필터링 (유형, 상태)
 - ✅ 통계 표시
+- ✅ 시설 유형 툴팁 추가 (2025-08-06)
 
 #### 3.6 공통 컴포넌트
 - ✅ 반응형 레이아웃 (사이드바, 헤더)
@@ -198,21 +200,91 @@ npm run preview
   - `~/.config/claude/claude_desktop_config.json` 생성
   - Supabase MCP 서버 설정 포함
 
+## 🔄 2025-08-06 추가 작업 내역
+
+### 1. 모니터링 메뉴 구현
+- ✅ Firebase 설정 및 연동
+  - Firebase 프로젝트 설정 및 환경 변수 구성
+  - Firestore 서비스 초기화
+- ✅ 모니터링 라우팅 및 페이지 구조 생성
+  - `/monitoring` 경로 추가
+  - 활동 유형별 탭 구조 구현
+- ✅ Firestore 실시간 데이터 연동
+  - `ai_analysis_activity` 컬렉션: AI 분석 활동
+  - `grade_evaluation_activity` 컬렉션: 요양등급 평가 활동
+  - `consultation_activity` 컬렉션: 상담 전화 활동
+  - `favorites_activity` 컬렉션: 즐겨찾기 활동
+- ✅ 활동 유형별 모니터링 컴포넌트 구현
+  - 실시간 데이터 표시
+  - 회원 정보 및 시설 정보 연계
+  - 타임스탬프 포맷팅
+- ✅ React Query와 Firebase 통합
+  - 실시간 구독 관리
+  - 자동 갱신 설정
+
+### 2. 대시보드 리팩토링
+- ✅ 실제 데이터 연동
+  - Supabase 및 Firestore 데이터 통합
+  - 실시간 통계 표시
+- ✅ 서비스 레이어 구현
+  - `dashboardService.ts`: 통계 데이터 집계
+  - `useDashboard.ts`: React Query 훅
+- ✅ 로딩 상태 및 에러 처리 개선
+
+### 3. UI/UX 개선
+- ✅ 타이틀 변경
+  - "SSM-YOYANG" → "순시미네 관리자"
+  - 로그인 페이지, 사이드바, HTML 타이틀 모두 변경
+- ✅ 시설 유형 코드 설명 툴팁 추가
+  - 시설 유형별 한글 설명 제공
+  - 사용자 편의성 향상
+- ✅ 연락처 표시 형식 개선
+  - 전화번호 포맷팅 추가
+
+### 4. 관리자 생성 기능 수정
+- ✅ 권한 제한 구현
+  - super_admin만 관리자 생성 가능
+  - admin 역할은 읽기/수정만 가능
+- ✅ RPC 함수 방식으로 변경
+  - Supabase Auth Admin API → password_digest 방식
+  - bcrypt 해시 사용하는 create_admin_user 함수 구현
+- ✅ RLS 정책 추가
+  - admin_users 테이블 보안 강화
+- ✅ permissions 컬럼 이슈 해결
+  - 데이터베이스에 없는 컬럼 참조 제거
+  - 프론트엔드 코드 수정 완료
+  - TypeScript 빌드 오류 해결
+
+### 5. 배포 환경 설정
+- ✅ Vercel 배포 연동
+- ✅ GitHub 메인 브랜치 자동 배포 설정
+- ✅ 빌드 오류 수정 및 최적화
+
 ## 📌 다음 작업 필요 사항
 
-### 1. 테스트 필요 항목
-- 로그인 기능 (admin@example.com / admin123456)
-- 시설 목록 조회 (admin_code 기반)
-- 시설 상세 정보 조회
-- 시설 CRUD 기능 (생성 시 자동 admin_code 생성)
+### 1. 관리자 생성 기능 활성화
+- Supabase 대시보드에서 `README_ADMIN_USER_FIX.md`의 SQL 스크립트 실행 필요
+- RLS 정책 검토 및 보안 강화
 
 ### 2. 추가 개선 사항
 - 비급여 항목(facilities_ssmn_etc_nonbenefit) 관리 기능 구현
 - 프로그램 정보(facilities_ssmn_etc_program) 관리 기능 구현
 - 시설 상세 정보에서 관련 테이블 데이터 표시
+- 권한 시스템 고도화 (별도 permissions 테이블 구현)
+
+### 3. 성능 최적화
+- 대량 데이터 로딩 시 가상화 적용
+- 이미지 최적화 및 lazy loading
+- 번들 사이즈 최적화 (현재 698KB)
+
+### 4. 모니터링 기능 확장
+- 활동 통계 및 분석 대시보드
+- 실시간 알림 기능
+- 활동 로그 내보내기
 
 ## 🔗 관련 문서
 - SYSTEM_DESIGN.md - 시스템 설계서
 - DEVELOPMENT_TASKS.md - 개발 태스크 리스트
 - DEVELOPMENT_PROMPT.md - 개발 가이드라인
 - README_LOGIN_SETUP.md - 로그인 설정 가이드
+- README_ADMIN_USER_FIX.md - 관리자 생성 기능 수정 가이드
