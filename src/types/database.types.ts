@@ -29,6 +29,8 @@ export interface Database {
           id: string
           email: string
           name: string
+          nickname: string | null
+          social_type: string | null
           phone: string | null
           status: string
           created_at: string

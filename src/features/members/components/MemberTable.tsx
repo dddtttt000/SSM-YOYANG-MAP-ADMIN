@@ -57,6 +57,38 @@ const getStatusLabel = (status: string) => {
   }
 }
 
+const getSocialTypeLabel = (socialType: string | null) => {
+  if (!socialType) return '-'
+  switch (socialType) {
+    case 'kakao':
+      return '카카오'
+    case 'naver':
+      return '네이버'
+    case 'google':
+      return '구글'
+    case 'apple':
+      return '애플'
+    default:
+      return socialType
+  }
+}
+
+const getSocialTypeBadgeColor = (socialType: string | null) => {
+  if (!socialType) return 'gray'
+  switch (socialType) {
+    case 'kakao':
+      return 'yellow'
+    case 'naver':
+      return 'green'
+    case 'google':
+      return 'blue'
+    case 'apple':
+      return 'gray'
+    default:
+      return 'gray'
+  }
+}
+
 const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) => {
   const { canUpdate } = usePermission()
   const updateMemberStatus = useUpdateMemberStatus()
@@ -71,9 +103,9 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
         <Table variant="simple">
           <Thead>
             <Tr>
-              <Th>이름</Th>
+              <Th>소셜</Th>
+              <Th>닉네임</Th>
               <Th>이메일</Th>
-              <Th>전화번호</Th>
               <Th>상태</Th>
               <Th>가입일</Th>
               <Th width="100px">작업</Th>
@@ -82,7 +114,7 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
           <Tbody>
             {[...Array(5)].map((_, index) => (
               <Tr key={index}>
-                <Td><Skeleton height="20px" /></Td>
+                <Td><Skeleton height="20px" width="60px" /></Td>
                 <Td><Skeleton height="20px" /></Td>
                 <Td><Skeleton height="20px" /></Td>
                 <Td><Skeleton height="20px" width="80px" /></Td>
@@ -102,9 +134,9 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
         <Table variant="simple">
           <Thead>
             <Tr>
-              <Th>이름</Th>
+              <Th>소셜</Th>
+              <Th>닉네임</Th>
               <Th>이메일</Th>
-              <Th>전화번호</Th>
               <Th>상태</Th>
               <Th>가입일</Th>
               <Th width="100px">작업</Th>
@@ -140,9 +172,13 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
         <Tbody>
           {members.map((member) => (
             <Tr key={member.id}>
-              <Td fontWeight="medium">{member.name}</Td>
+              <Td>
+                <Badge colorScheme={getSocialTypeBadgeColor(member.social_type)} variant="subtle">
+                  {getSocialTypeLabel(member.social_type)}
+                </Badge>
+              </Td>
+              <Td fontWeight="medium">{member.nickname || member.name}</Td>
               <Td>{member.email}</Td>
-              <Td>{member.phone || '-'}</Td>
               <Td>
                 {canUpdate('members') ? (
                   <Select

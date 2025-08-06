@@ -38,7 +38,7 @@ class MemberService {
     }
 
     if (search) {
-      const searchFilter = `name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`
+      const searchFilter = `name.ilike.%${search}%,nickname.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`
       countQuery = countQuery.or(searchFilter)
       dataQuery = dataQuery.or(searchFilter)
     }
@@ -116,7 +116,7 @@ class MemberService {
   async exportMembers(filters: MemberFilters = {}) {
     let query = supabase
       .from('members')
-      .select('id, email, name, phone, status, created_at')
+      .select('id, email, name, nickname, social_type, phone, status, created_at')
       .order('created_at', { ascending: false })
 
     if (filters.status && filters.status !== 'all') {
@@ -124,7 +124,7 @@ class MemberService {
     }
 
     if (filters.search) {
-      query = query.or(`name.ilike.%${filters.search}%,email.ilike.%${filters.search}%,phone.ilike.%${filters.search}%`)
+      query = query.or(`name.ilike.%${filters.search}%,nickname.ilike.%${filters.search}%,email.ilike.%${filters.search}%,phone.ilike.%${filters.search}%`)
     }
 
     const { data, error } = await query
