@@ -112,107 +112,108 @@ const AIAnalysisTable = ({ data, isLoading }: AIAnalysisTableProps) => {
   }
 
   return (
-    <Box overflowX="auto">
-      <Table variant="simple" size="sm">
-        <Thead>
-          <Tr>
-            <Th>분석일시</Th>
-            <Th>회원</Th>
-            <Th>시설명</Th>
-            <Th>요양등급</Th>
-            <Th>희망 돌봄</Th>
-            <Th>AI 모델</Th>
-            <Th width="60px">동작</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {data.map((analysis) => {
-            const member = memberMap?.get(analysis.memberId)
-            const facility = facilityMap?.get(analysis.facilityId)
-            
-            return (
-              <Tr key={analysis.id}>
-                <Td>
-                  <Text fontSize="sm">
-                    {formatTimestamp(analysis.createdAt)}
-                  </Text>
-                </Td>
-                <Td>
-                  <Box>
-                    <Text fontWeight="medium">
-                      {member?.nickname || member?.name || '-'}
+    <>
+      <Box overflowX="auto">
+        <Table variant="simple" size="sm">
+          <Thead>
+            <Tr>
+              <Th>분석일시</Th>
+              <Th>회원</Th>
+              <Th>시설명</Th>
+              <Th>요양등급</Th>
+              <Th>희망 돌봄</Th>
+              <Th>AI 모델</Th>
+              <Th width="60px">동작</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {data.map((analysis) => {
+              const member = memberMap?.get(analysis.memberId)
+              const facility = facilityMap?.get(analysis.facilityId)
+              
+              return (
+                <Tr key={analysis.id}>
+                  <Td>
+                    <Text fontSize="sm">
+                      {formatTimestamp(analysis.createdAt)}
                     </Text>
-                    <Text fontSize="xs" color="gray.500">
-                      {member?.email || `ID: ${analysis.memberId}`}
+                  </Td>
+                  <Td>
+                    <Box>
+                      <Text fontWeight="medium">
+                        {member?.nickname || member?.name || '-'}
+                      </Text>
+                      <Text fontSize="xs" color="gray.500">
+                        {member?.email || `ID: ${analysis.memberId}`}
+                      </Text>
+                    </Box>
+                  </Td>
+                  <Td>
+                    <Box>
+                      <Text fontWeight="medium">
+                        {analysis.facilityName || facility?.admin_name || '-'}
+                      </Text>
+                      <Text fontSize="xs" color="gray.500">
+                        {analysis.facilityId}
+                      </Text>
+                    </Box>
+                  </Td>
+                  <Td>
+                    <Badge 
+                      colorScheme="teal"
+                      variant="solid"
+                    >
+                      {analysis.longTermCareGrade}
+                    </Badge>
+                  </Td>
+                  <Td>
+                    <Badge 
+                      colorScheme={getCareTypeColor(analysis.preferredCareType)}
+                      variant="subtle"
+                    >
+                      {getCareTypeLabel(analysis.preferredCareType)}
+                    </Badge>
+                  </Td>
+                  <Td>
+                    <Text fontSize="xs" color="gray.600">
+                      {analysis.aiModelUsed}
                     </Text>
-                  </Box>
-                </Td>
-                <Td>
-                  <Box>
-                    <Text fontWeight="medium">
-                      {analysis.facilityName || facility?.admin_name || '-'}
-                    </Text>
-                    <Text fontSize="xs" color="gray.500">
-                      {analysis.facilityId}
-                    </Text>
-                  </Box>
-                </Td>
-                <Td>
-                  <Badge 
-                    colorScheme="teal"
-                    variant="solid"
-                  >
-                    {analysis.longTermCareGrade}
-                  </Badge>
-                </Td>
-                <Td>
-                  <Badge 
-                    colorScheme={getCareTypeColor(analysis.preferredCareType)}
-                    variant="subtle"
-                  >
-                    {getCareTypeLabel(analysis.preferredCareType)}
-                  </Badge>
-                </Td>
-                <Td>
-                  <Text fontSize="xs" color="gray.600">
-                    {analysis.aiModelUsed}
-                  </Text>
-                </Td>
-                <Td>
-                  <HStack spacing={1}>
-                    <Tooltip label="AI 답변 보기">
-                      <IconButton
-                        aria-label="AI 답변 보기"
-                        icon={<FiMessageSquare />}
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleViewAIResponse(analysis)}
-                      />
-                    </Tooltip>
-                    <Tooltip label="시설 상세 보기">
-                      <Link
-                        href={`/facilities/${analysis.facilityId}`}
-                        isExternal
-                      >
+                  </Td>
+                  <Td>
+                    <HStack spacing={1}>
+                      <Tooltip label="AI 답변 보기">
                         <IconButton
-                          aria-label="시설 상세"
-                          icon={<FiExternalLink />}
+                          aria-label="AI 답변 보기"
+                          icon={<FiMessageSquare />}
                           size="sm"
                           variant="ghost"
+                          onClick={() => handleViewAIResponse(analysis)}
                         />
-                      </Link>
-                    </Tooltip>
-                  </HStack>
-                </Td>
-              </Tr>
-            )
-          })}
-        </Tbody>
-      </Table>
-    </Box>
+                      </Tooltip>
+                      <Tooltip label="시설 상세 보기">
+                        <Link
+                          href={`/facilities/${analysis.facilityId}`}
+                          isExternal
+                        >
+                          <IconButton
+                            aria-label="시설 상세"
+                            icon={<FiExternalLink />}
+                            size="sm"
+                            variant="ghost"
+                          />
+                        </Link>
+                      </Tooltip>
+                    </HStack>
+                  </Td>
+                </Tr>
+              )
+            })}
+          </Tbody>
+        </Table>
+      </Box>
 
-    {/* AI 답변 모달 */}
-    <Modal isOpen={isOpen} onClose={onClose} size="xl">
+      {/* AI 답변 모달 */}
+      <Modal isOpen={isOpen} onClose={onClose} size="xl">
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>AI 분석 답변</ModalHeader>
