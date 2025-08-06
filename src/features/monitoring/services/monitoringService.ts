@@ -30,8 +30,8 @@ class MonitoringService {
   async getAIAnalyses(filters: MonitoringFilters): Promise<AIFacilityAnalysis[]> {
     try {
       // Firebase 설정 확인
-      if (!firestore?._settings?.projectId) {
-        console.error('Firebase가 제대로 설정되지 않았습니다.')
+      if (!firestore) {
+        console.error('Firebase가 초기화되지 않았습니다.')
         return []
       }
 
@@ -53,7 +53,6 @@ class MonitoringService {
 
       console.log('Fetching AI analyses:', {
         collection: this.collections.aiAnalyses,
-        projectId: firestore._settings?.projectId,
         constraints: constraints.length,
       })
       

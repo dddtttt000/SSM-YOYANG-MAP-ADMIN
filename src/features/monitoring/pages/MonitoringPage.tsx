@@ -49,8 +49,8 @@ const MonitoringPage = () => {
   useEffect(() => {
     console.log('Firebase 연결 상태:', {
       firestore: !!firestore,
-      projectId: firestore?._settings?.projectId || 'Not configured',
-      host: firestore?._settings?.host || 'Default',
+      // Firestore 인스턴스가 있으면 연결됨
+      connected: !!firestore,
     })
   }, [])
 
