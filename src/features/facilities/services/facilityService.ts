@@ -142,8 +142,12 @@ class FacilityService {
 
     // 시설 유형 필터 적용
     if (type_codes && type_codes.length > 0) {
-      countQuery = countQuery.in('admin_type_code', type_codes)
-      dataQuery = dataQuery.in('admin_type_code', type_codes)
+      // 복수 유형 코드를 가진 시설도 포함하기 위해 OR 조건 사용
+      const typeFilters = type_codes.map(code => `admin_type_code.ilike.%${code}%`).join(',')
+      console.log('[getFacilities] 시설 유형 필터 적용:', type_codes)
+      console.log('[getFacilities] 생성된 필터 조건:', typeFilters)
+      countQuery = countQuery.or(typeFilters)
+      dataQuery = dataQuery.or(typeFilters)
     }
 
     // 총 개수 조회
