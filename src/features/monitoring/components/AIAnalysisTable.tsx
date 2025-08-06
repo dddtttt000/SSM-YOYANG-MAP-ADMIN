@@ -13,11 +13,21 @@ import {
   IconButton,
   Tooltip,
   Link,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+  VStack,
 } from '@chakra-ui/react'
-import { FiExternalLink } from 'react-icons/fi'
+import { FiExternalLink, FiMessageSquare } from 'react-icons/fi'
 import { AIFacilityAnalysis } from '../types'
 import { useMemberInfo, useFacilityInfo } from '../hooks/useMonitoring'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Timestamp } from 'firebase/firestore'
 
 interface AIAnalysisTableProps {
@@ -26,6 +36,10 @@ interface AIAnalysisTableProps {
 }
 
 const AIAnalysisTable = ({ data, isLoading }: AIAnalysisTableProps) => {
+  // 모달 상태 관리
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const [selectedAnalysis, setSelectedAnalysis] = useState<AIFacilityAnalysis | null>(null)
+
   // 유니크한 memberId와 facilityId 추출
   const userIds = useMemo(() => 
     [...new Set(data.map(item => item.memberId))],
@@ -40,6 +54,12 @@ const AIAnalysisTable = ({ data, isLoading }: AIAnalysisTableProps) => {
   // 회원 및 시설 정보 조회
   const { data: memberMap } = useMemberInfo(userIds)
   const { data: facilityMap } = useFacilityInfo(adminCodes)
+
+  // AI 답변 보기 핸들러
+  const handleViewAIResponse = (analysis: AIFacilityAnalysis) => {
+    setSelectedAnalysis(analysis)
+    onOpen()
+  }
 
   // Timestamp를 날짜 문자열로 변환
   const formatTimestamp = (timestamp: Timestamp) => {
@@ -160,6 +180,15 @@ const AIAnalysisTable = ({ data, isLoading }: AIAnalysisTableProps) => {
                 </Td>
                 <Td>
                   <HStack spacing={1}>
+                    <Tooltip label="AI 답변 보기">
+                      <IconButton
+                        aria-label="AI 답변 보기"
+                        icon={<FiMessageSquare />}
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleViewAIResponse(analysis)}
+                      />
+                    </Tooltip>
                     <Tooltip label="시설 상세 보기">
                       <Link
                         href={`/facilities/${analysis.facilityId}`}
@@ -181,6 +210,87 @@ const AIAnalysisTable = ({ data, isLoading }: AIAnalysisTableProps) => {
         </Tbody>
       </Table>
     </Box>
+
+    {/* AI 답변 모달 */}
+    <Modal isOpen={isOpen} onClose={onClose} size="xl">
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>AI 분석 답변</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody pb={6}>
+          {selectedAnalysis && (
+            <VStack align="stretch" spacing={4}>
+              {/* 분석 정보 */}
+              <Box borderWidth="1px" borderRadius="md" p={4} bg="gray.50">
+                <VStack align="stretch" spacing={2}>
+                  <HStack justify="space-between">
+                    <Text fontSize="sm" color="gray.600">시설명:</Text>
+                    <Text fontSize="sm" fontWeight="medium">
+                      {selectedAnalysis.facilityName}
+                    </Text>
+                  </HStack>
+                  <HStack justify="space-between">
+                    <Text fontSize="sm" color="gray.600">요양등급:</Text>
+                    <Badge colorScheme="teal" variant="solid">
+                      {selectedAnalysis.longTermCareGrade}
+                    </Badge>
+                  </HStack>
+                  <HStack justify="space-between">
+                    <Text fontSize="sm" color="gray.600">희망 돌봄:</Text>
+                    <Badge 
+                      colorScheme={getCareTypeColor(selectedAnalysis.preferredCareType)}
+                      variant="subtle"
+                    >
+                      {getCareTypeLabel(selectedAnalysis.preferredCareType)}
+                    </Badge>
+                  </HStack>
+                  <HStack justify="space-between">
+                    <Text fontSize="sm" color="gray.600">AI 모델:</Text>
+                    <Text fontSize="sm">{selectedAnalysis.aiModelUsed}</Text>
+                  </HStack>
+                  <HStack justify="space-between">
+                    <Text fontSize="sm" color="gray.600">분석일시:</Text>
+                    <Text fontSize="sm">{formatTimestamp(selectedAnalysis.createdAt)}</Text>
+                  </HStack>
+                </VStack>
+              </Box>
+
+              {/* AI 답변 내용 */}
+              <Box>
+                <Text fontSize="sm" fontWeight="semibold" mb={2}>
+                  AI 분석 내용:
+                </Text>
+                <Box 
+                  borderWidth="1px" 
+                  borderRadius="md" 
+                  p={4} 
+                  bg="blue.50"
+                  borderColor="blue.200"
+                >
+                  <Text whiteSpace="pre-wrap" fontSize="sm">
+                    {selectedAnalysis.aiSummary}
+                  </Text>
+                </Box>
+              </Box>
+
+              {/* 추가 정보 */}
+              {selectedAnalysis.customerAge && (
+                <HStack spacing={4}>
+                  <Text fontSize="sm" color="gray.600">고객 연령:</Text>
+                  <Text fontSize="sm">{selectedAnalysis.customerAge}세</Text>
+                  <Text fontSize="sm" color="gray.600">성별:</Text>
+                  <Text fontSize="sm">{selectedAnalysis.customerGender}</Text>
+                </HStack>
+              )}
+            </VStack>
+          )}
+        </ModalBody>
+        <ModalFooter>
+          <Button onClick={onClose}>닫기</Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  </>
   )
 }
 
