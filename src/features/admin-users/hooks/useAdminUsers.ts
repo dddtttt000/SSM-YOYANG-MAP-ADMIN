@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@chakra-ui/react'
 import { adminUserService, AdminUserFilters, CreateAdminUserDto, UpdateAdminUserDto } from '../services/adminUserService'
-import { Permission } from '@/types/database.types'
 
 export const useAdminUsers = (filters?: AdminUserFilters) => {
   return useQuery({
@@ -105,32 +104,34 @@ export const useDeleteAdminUser = () => {
   })
 }
 
-export const useUpdateAdminUserPermissions = () => {
-  const queryClient = useQueryClient()
-  const toast = useToast()
+// permissions 기능은 현재 사용하지 않음
+// 향후 권한 시스템 구현 시 활성화 가능
+// export const useUpdateAdminUserPermissions = () => {
+//   const queryClient = useQueryClient()
+//   const toast = useToast()
 
-  return useMutation({
-    mutationFn: ({ id, permissions }: { id: string; permissions: Permission[] }) => 
-      adminUserService.updateAdminUserPermissions(id, permissions),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['adminUsers'] })
-      queryClient.invalidateQueries({ queryKey: ['adminUser'] })
-      toast({
-        title: '권한 설정 완료',
-        description: '관리자 권한이 업데이트되었습니다.',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      })
-    },
-    onError: (error: Error) => {
-      toast({
-        title: '권한 설정 실패',
-        description: error.message,
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      })
-    },
-  })
-}
+//   return useMutation({
+//     mutationFn: ({ id, permissions }: { id: string; permissions: Permission[] }) => 
+//       adminUserService.updateAdminUserPermissions(id, permissions),
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ['adminUsers'] })
+//       queryClient.invalidateQueries({ queryKey: ['adminUser'] })
+//       toast({
+//         title: '권한 설정 완료',
+//         description: '관리자 권한이 업데이트되었습니다.',
+//         status: 'success',
+//         duration: 3000,
+//         isClosable: true,
+//       })
+//     },
+//     onError: (error: Error) => {
+//       toast({
+//         title: '권한 설정 실패',
+//         description: error.message,
+//         status: 'error',
+//         duration: 5000,
+//         isClosable: true,
+//       })
+//     },
+//   })
+// }

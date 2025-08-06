@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
 import { AdminUser, Permission } from '@/types/database.types'
-import { useUpdateAdminUserPermissions } from '../hooks/useAdminUsers'
+// import { useUpdateAdminUserPermissions } from '../hooks/useAdminUsers'
 
 interface PermissionModalProps {
   isOpen: boolean
@@ -71,7 +71,7 @@ const resourcePermissions: ResourcePermission[] = [
 ]
 
 const PermissionModal = ({ isOpen, onClose, user }: PermissionModalProps) => {
-  const updatePermissions = useUpdateAdminUserPermissions()
+  // const updatePermissions = useUpdateAdminUserPermissions()
   const [permissions, setPermissions] = useState<Permission[]>([])
 
   useEffect(() => {
@@ -131,15 +131,19 @@ const PermissionModal = ({ isOpen, onClose, user }: PermissionModalProps) => {
   const handleSubmit = async () => {
     if (!user) return
 
-    try {
-      await updatePermissions.mutateAsync({
-        id: String(user.id),
-        permissions,
-      })
-      onClose()
-    } catch (error) {
-      // 에러는 훅에서 toast로 처리됨
-    }
+    // TODO: 향후 permissions 시스템 구현 시 활성화
+    // try {
+    //   await updatePermissions.mutateAsync({
+    //     id: String(user.id),
+    //     permissions,
+    //   })
+    //   onClose()
+    // } catch (error) {
+    //   // 에러는 훅에서 toast로 처리됨
+    // }
+    
+    // 현재는 권한 시스템이 구현되지 않아 저장하지 않음
+    onClose()
   }
 
   const handleClose = () => {
@@ -222,7 +226,7 @@ const PermissionModal = ({ isOpen, onClose, user }: PermissionModalProps) => {
           <Button
             colorScheme="brand"
             onClick={handleSubmit}
-            isLoading={updatePermissions.isPending}
+            // isLoading={updatePermissions.isPending}
             isDisabled={user.role !== 'admin'}
           >
             저장
