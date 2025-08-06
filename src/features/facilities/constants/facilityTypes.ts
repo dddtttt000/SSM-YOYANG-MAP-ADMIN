@@ -51,6 +51,14 @@ for (let i = 31; i <= 99; i++) {
 
 export const getFacilityTypeLabel = (code: string | null | undefined): string => {
   if (!code) return '미지정'
+  
+  // 콤마로 구분된 여러 코드 처리
+  if (code.includes(',')) {
+    const codes = code.split(',').map(c => c.trim())
+    const labels = codes.map(c => FACILITY_TYPE_LABELS[c] || c)
+    return labels.join(', ')
+  }
+  
   return FACILITY_TYPE_LABELS[code] || code
 }
 
