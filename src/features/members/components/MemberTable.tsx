@@ -103,9 +103,11 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
         <Table variant="simple">
           <Thead>
             <Tr>
-              <Th>소셜</Th>
-              <Th>닉네임</Th>
+              <Th>ID</Th>
+              <Th>소셜ID</Th>
+              <Th>이름</Th>
               <Th>이메일</Th>
+              <Th>전화번호</Th>
               <Th>상태</Th>
               <Th>가입일</Th>
               <Th width="100px">작업</Th>
@@ -114,6 +116,8 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
           <Tbody>
             {[...Array(5)].map((_, index) => (
               <Tr key={index}>
+                <Td><Skeleton height="20px" width="100px" /></Td>
+                <Td><Skeleton height="20px" width="120px" /></Td>
                 <Td><Skeleton height="20px" width="60px" /></Td>
                 <Td><Skeleton height="20px" /></Td>
                 <Td><Skeleton height="20px" /></Td>
@@ -134,9 +138,11 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
         <Table variant="simple">
           <Thead>
             <Tr>
-              <Th>소셜</Th>
-              <Th>닉네임</Th>
+              <Th>ID</Th>
+              <Th>소셜ID</Th>
+              <Th>이름</Th>
               <Th>이메일</Th>
+              <Th>전화번호</Th>
               <Th>상태</Th>
               <Th>가입일</Th>
               <Th width="100px">작업</Th>
@@ -144,7 +150,7 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
           </Thead>
           <Tbody>
             <Tr>
-              <Td colSpan={6}>
+              <Td colSpan={8}>
                 <Text textAlign="center" color="gray.500" py="8">
                   등록된 회원이 없습니다.
                 </Text>
@@ -161,6 +167,8 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
       <Table variant="simple">
         <Thead>
           <Tr>
+            <Th>ID</Th>
+            <Th>소셜ID</Th>
             <Th>이름</Th>
             <Th>이메일</Th>
             <Th>전화번호</Th>
@@ -173,12 +181,33 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
           {members.map((member) => (
             <Tr key={member.id}>
               <Td>
+                <Text fontSize="sm" fontFamily="mono">
+                  {member.id.substring(0, 8)}...
+                </Text>
+              </Td>
+              <Td>
+                {member.social_id ? (
+                  <Text fontSize="sm">
+                    {member.social_id}
+                  </Text>
+                ) : (
+                  <Text fontSize="sm" color="gray.400">-</Text>
+                )}
+              </Td>
+              <Td>
                 <Badge colorScheme={getSocialTypeBadgeColor(member.social_type)} variant="subtle">
                   {getSocialTypeLabel(member.social_type)}
                 </Badge>
               </Td>
               <Td fontWeight="medium">{member.nickname || member.name}</Td>
               <Td>{member.email}</Td>
+              <Td>
+                {member.phone_number ? (
+                  <Text fontSize="sm">{member.phone_number}</Text>
+                ) : (
+                  <Text fontSize="sm" color="gray.400">-</Text>
+                )}
+              </Td>
               <Td>
                 {canUpdate('members') ? (
                   <Select
