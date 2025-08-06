@@ -21,6 +21,7 @@ import { FiMoreVertical, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi'
 import { Facility } from '@/types/database.types'
 import { usePermission } from '@/hooks/usePermission'
 import { getFacilityTypeLabel } from '../constants/facilityTypes'
+import { formatPhoneNumber } from '../utils/formatters'
 
 interface FacilityTableProps {
   facilities: Facility[]
@@ -181,7 +182,7 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
                     })
                   : '-'}
               </Td>
-              <Td>{facility.phone_number || '-'}</Td>
+              <Td>{formatPhoneNumber(facility)}</Td>
               <Td>
                 <Menu>
                   <MenuButton
