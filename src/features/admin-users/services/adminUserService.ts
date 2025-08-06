@@ -11,14 +11,12 @@ export interface CreateAdminUserDto {
   email: string
   name: string
   role: 'super_admin' | 'admin'
-  permissions?: Permission[]
   password: string
 }
 
 export interface UpdateAdminUserDto {
   name?: string
   role?: 'super_admin' | 'admin'
-  permissions?: Permission[]
   is_active?: boolean
 }
 
@@ -78,8 +76,7 @@ class AdminUserService {
         p_email: dto.email,
         p_name: dto.name,
         p_role: dto.role,
-        p_password: dto.password,
-        p_permissions: dto.permissions || []
+        p_password: dto.password
       })
 
     if (error) throw error
@@ -117,20 +114,22 @@ class AdminUserService {
     return true
   }
 
-  async updateAdminUserPermissions(id: string, permissions: Permission[]) {
-    const { data, error } = await supabase
-      .from('admin_users')
-      .update({
-        permissions,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', id)
-      .select()
-      .single()
+  // permissions 컬럼이 없으므로 이 메서드는 사용하지 않음
+  // 향후 권한 시스템 구현 시 활성화 가능
+  // async updateAdminUserPermissions(id: string, permissions: Permission[]) {
+  //   const { data, error } = await supabase
+  //     .from('admin_users')
+  //     .update({
+  //       permissions,
+  //       updated_at: new Date().toISOString(),
+  //     })
+  //     .eq('id', id)
+  //     .select()
+  //     .single()
 
-    if (error) throw error
-    return data
-  }
+  //   if (error) throw error
+  //   return data
+  // }
 }
 
 export const adminUserService = new AdminUserService()
