@@ -12,7 +12,7 @@ import {
   Divider,
 } from '@chakra-ui/react'
 import { Link, useLocation } from 'react-router-dom'
-import { FiHome, FiUsers, FiShield, FiMapPin, FiX } from 'react-icons/fi'
+import { FiHome, FiUsers, FiShield, FiMapPin, FiX, FiActivity } from 'react-icons/fi'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
 import { usePermission } from '@/hooks/usePermission'
 
@@ -50,6 +50,12 @@ const navItems: NavItem[] = [
     path: '/facilities', 
     icon: FiMapPin,
     requiredPermission: { resource: 'facilities', action: 'read' }
+  },
+  { 
+    name: '모니터링', 
+    path: '/monitoring', 
+    icon: FiActivity,
+    requiredPermission: { resource: 'monitoring', action: 'read' }
   },
 ]
 

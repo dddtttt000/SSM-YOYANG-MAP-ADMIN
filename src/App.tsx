@@ -11,6 +11,7 @@ const DashboardPage = lazy(() => import('@/features/dashboard/pages/DashboardPag
 const AdminUsersPage = lazy(() => import('@/features/admin-users/pages/AdminUsersPage'))
 const MembersPage = lazy(() => import('@/features/members/pages/MembersPage'))
 const FacilitiesPage = lazy(() => import('@/features/facilities/pages/FacilitiesPage'))
+const MonitoringPage = lazy(() => import('@/features/monitoring/pages/MonitoringPage'))
 
 const LoadingFallback = () => (
   <Center h="100vh">
@@ -38,6 +39,7 @@ function App() {
               <Route path="admin-users" element={<AdminUsersPage />} />
               <Route path="members" element={<MembersPage />} />
               <Route path="facilities" element={<FacilitiesPage />} />
+              <Route path="monitoring" element={<MonitoringPage />} />
             </Route>
           </Routes>
         </Suspense>
