@@ -161,12 +161,10 @@ const FacilityFormModal = ({ isOpen, onClose, facility }: FacilityFormModalProps
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="xl">
+    <Modal isOpen={isOpen} onClose={handleClose} size='xl'>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>
-          {isEditMode ? '시설 정보 수정' : '새 시설 등록'}
-        </ModalHeader>
+        <ModalHeader>{isEditMode ? '시설 정보 수정' : '새 시설 등록'}</ModalHeader>
         <ModalCloseButton />
 
         <ModalBody>
@@ -179,13 +177,13 @@ const FacilityFormModal = ({ isOpen, onClose, facility }: FacilityFormModalProps
 
             <TabPanels>
               <TabPanel>
-                <VStack spacing="4">
+                <VStack spacing='4'>
                   <FormControl isInvalid={!!errors.admin_name} isRequired>
                     <FormLabel>시설명</FormLabel>
                     <Input
                       value={formData.admin_name}
-                      onChange={(e) => setFormData({ ...formData, admin_name: e.target.value })}
-                      placeholder="시설명을 입력하세요"
+                      onChange={e => setFormData({ ...formData, admin_name: e.target.value })}
+                      placeholder='시설명을 입력하세요'
                     />
                     <FormErrorMessage>{errors.admin_name}</FormErrorMessage>
                   </FormControl>
@@ -195,7 +193,7 @@ const FacilityFormModal = ({ isOpen, onClose, facility }: FacilityFormModalProps
                     {!customType ? (
                       <Select
                         value={formData.admin_type_code}
-                        onChange={(e) => {
+                        onChange={e => {
                           if (e.target.value === 'custom') {
                             setCustomType(true)
                             setFormData({ ...formData, admin_type_code: '' })
@@ -203,23 +201,23 @@ const FacilityFormModal = ({ isOpen, onClose, facility }: FacilityFormModalProps
                             setFormData({ ...formData, admin_type_code: e.target.value })
                           }
                         }}
-                        placeholder="시설 유형을 선택하세요"
+                        placeholder='시설 유형을 선택하세요'
                       >
-                        {facilityTypes?.map((type) => (
+                        {facilityTypes?.map(type => (
                           <option key={type} value={type}>
                             {type}
                           </option>
                         ))}
-                        <option value="custom">직접 입력</option>
+                        <option value='custom'>직접 입력</option>
                       </Select>
                     ) : (
                       <HStack>
                         <Input
                           value={formData.admin_type_code}
-                          onChange={(e) => setFormData({ ...formData, admin_type_code: e.target.value })}
-                          placeholder="시설 유형을 입력하세요"
+                          onChange={e => setFormData({ ...formData, admin_type_code: e.target.value })}
+                          placeholder='시설 유형을 입력하세요'
                         />
-                        <Button size="sm" onClick={() => setCustomType(false)}>
+                        <Button size='sm' onClick={() => setCustomType(false)}>
                           선택
                         </Button>
                       </HStack>
@@ -231,8 +229,8 @@ const FacilityFormModal = ({ isOpen, onClose, facility }: FacilityFormModalProps
                     <FormLabel>주소</FormLabel>
                     <Textarea
                       value={formData.address}
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      placeholder="시설 주소를 입력하세요"
+                      onChange={e => setFormData({ ...formData, address: e.target.value })}
+                      placeholder='시설 주소를 입력하세요'
                       rows={2}
                     />
                   </FormControl>
@@ -241,10 +239,10 @@ const FacilityFormModal = ({ isOpen, onClose, facility }: FacilityFormModalProps
                     <FormLabel>수용 인원</FormLabel>
                     <NumberInput
                       value={formData.capacity}
-                      onChange={(value) => setFormData({ ...formData, capacity: value })}
+                      onChange={value => setFormData({ ...formData, capacity: value })}
                       min={0}
                     >
-                      <NumberInputField placeholder="수용 가능 인원" />
+                      <NumberInputField placeholder='수용 가능 인원' />
                     </NumberInput>
                     <FormErrorMessage>{errors.capacity}</FormErrorMessage>
                   </FormControl>
@@ -253,8 +251,8 @@ const FacilityFormModal = ({ isOpen, onClose, facility }: FacilityFormModalProps
                     <FormLabel>시설 소개</FormLabel>
                     <Textarea
                       value={formData.admin_introduce}
-                      onChange={(e) => setFormData({ ...formData, admin_introduce: e.target.value })}
-                      placeholder="시설 소개를 입력하세요"
+                      onChange={e => setFormData({ ...formData, admin_introduce: e.target.value })}
+                      placeholder='시설 소개를 입력하세요'
                       rows={3}
                     />
                   </FormControl>
@@ -262,13 +260,13 @@ const FacilityFormModal = ({ isOpen, onClose, facility }: FacilityFormModalProps
               </TabPanel>
 
               <TabPanel>
-                <VStack spacing="4">
+                <VStack spacing='4'>
                   <FormControl>
                     <FormLabel>전화번호</FormLabel>
                     <Input
                       value={formData.phone_number}
-                      onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
-                      placeholder="02-1234-5678"
+                      onChange={e => setFormData({ ...formData, phone_number: e.target.value })}
+                      placeholder='02-1234-5678'
                     />
                   </FormControl>
 
@@ -276,8 +274,8 @@ const FacilityFormModal = ({ isOpen, onClose, facility }: FacilityFormModalProps
                     <FormLabel>홈페이지</FormLabel>
                     <Input
                       value={formData.homepage_url}
-                      onChange={(e) => setFormData({ ...formData, homepage_url: e.target.value })}
-                      placeholder="https://example.com"
+                      onChange={e => setFormData({ ...formData, homepage_url: e.target.value })}
+                      placeholder='https://example.com'
                     />
                     <FormErrorMessage>{errors.homepage_url}</FormErrorMessage>
                   </FormControl>
@@ -288,11 +286,11 @@ const FacilityFormModal = ({ isOpen, onClose, facility }: FacilityFormModalProps
         </ModalBody>
 
         <ModalFooter>
-          <Button variant="ghost" mr={3} onClick={handleClose}>
+          <Button variant='ghost' mr={3} onClick={handleClose}>
             취소
           </Button>
           <Button
-            colorScheme="brand"
+            colorScheme='brand'
             onClick={handleSubmit}
             isLoading={createFacility.isPending || updateFacility.isPending}
           >

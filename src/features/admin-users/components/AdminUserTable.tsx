@@ -80,7 +80,7 @@ const AdminUserTable = ({ adminUsers, isLoading, onEdit, onEditPermissions }: Ad
   if (isLoading) {
     return (
       <TableContainer>
-        <Table variant="simple">
+        <Table variant='simple'>
           <Thead>
             <Tr>
               <Th>이름</Th>
@@ -88,18 +88,30 @@ const AdminUserTable = ({ adminUsers, isLoading, onEdit, onEditPermissions }: Ad
               <Th>역할</Th>
               <Th>상태</Th>
               <Th>가입일</Th>
-              <Th width="100px">작업</Th>
+              <Th width='100px'>작업</Th>
             </Tr>
           </Thead>
           <Tbody>
             {[...Array(5)].map((_, index) => (
               <Tr key={index}>
-                <Td><Skeleton height="20px" /></Td>
-                <Td><Skeleton height="20px" /></Td>
-                <Td><Skeleton height="20px" width="80px" /></Td>
-                <Td><Skeleton height="20px" width="60px" /></Td>
-                <Td><Skeleton height="20px" width="100px" /></Td>
-                <Td><Skeleton height="20px" width="40px" /></Td>
+                <Td>
+                  <Skeleton height='20px' />
+                </Td>
+                <Td>
+                  <Skeleton height='20px' />
+                </Td>
+                <Td>
+                  <Skeleton height='20px' width='80px' />
+                </Td>
+                <Td>
+                  <Skeleton height='20px' width='60px' />
+                </Td>
+                <Td>
+                  <Skeleton height='20px' width='100px' />
+                </Td>
+                <Td>
+                  <Skeleton height='20px' width='40px' />
+                </Td>
               </Tr>
             ))}
           </Tbody>
@@ -111,7 +123,7 @@ const AdminUserTable = ({ adminUsers, isLoading, onEdit, onEditPermissions }: Ad
   if (adminUsers.length === 0) {
     return (
       <TableContainer>
-        <Table variant="simple">
+        <Table variant='simple'>
           <Thead>
             <Tr>
               <Th>이름</Th>
@@ -119,13 +131,13 @@ const AdminUserTable = ({ adminUsers, isLoading, onEdit, onEditPermissions }: Ad
               <Th>역할</Th>
               <Th>상태</Th>
               <Th>가입일</Th>
-              <Th width="100px">작업</Th>
+              <Th width='100px'>작업</Th>
             </Tr>
           </Thead>
           <Tbody>
             <Tr>
               <Td colSpan={6}>
-                <Text textAlign="center" color="gray.500" py="8">
+                <Text textAlign='center' color='gray.500' py='8'>
                   등록된 관리자가 없습니다.
                 </Text>
               </Td>
@@ -139,7 +151,7 @@ const AdminUserTable = ({ adminUsers, isLoading, onEdit, onEditPermissions }: Ad
   return (
     <>
       <TableContainer>
-        <Table variant="simple">
+        <Table variant='simple'>
           <Thead>
             <Tr>
               <Th>이름</Th>
@@ -147,23 +159,19 @@ const AdminUserTable = ({ adminUsers, isLoading, onEdit, onEditPermissions }: Ad
               <Th>역할</Th>
               <Th>상태</Th>
               <Th>가입일</Th>
-              <Th width="100px">작업</Th>
+              <Th width='100px'>작업</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {adminUsers.map((user) => (
+            {adminUsers.map(user => (
               <Tr key={user.id}>
-                <Td fontWeight="medium">{user.name}</Td>
+                <Td fontWeight='medium'>{user.name}</Td>
                 <Td>{user.email}</Td>
                 <Td>
-                  <Badge colorScheme={getRoleBadgeColor(user.role)}>
-                    {getRoleLabel(user.role)}
-                  </Badge>
+                  <Badge colorScheme={getRoleBadgeColor(user.role)}>{getRoleLabel(user.role)}</Badge>
                 </Td>
                 <Td>
-                  <Badge colorScheme={user.is_active ? 'green' : 'gray'}>
-                    {user.is_active ? '활성' : '비활성'}
-                  </Badge>
+                  <Badge colorScheme={user.is_active ? 'green' : 'gray'}>{user.is_active ? '활성' : '비활성'}</Badge>
                 </Td>
                 <Td>{new Date(user.created_at).toLocaleDateString('ko-KR')}</Td>
                 <Td>
@@ -171,9 +179,9 @@ const AdminUserTable = ({ adminUsers, isLoading, onEdit, onEditPermissions }: Ad
                     <MenuButton
                       as={IconButton}
                       icon={<FiMoreVertical />}
-                      variant="ghost"
-                      size="sm"
-                      aria-label="작업 메뉴"
+                      variant='ghost'
+                      size='sm'
+                      aria-label='작업 메뉴'
                     />
                     <MenuList>
                       {canUpdate('admin_users') && (
@@ -187,11 +195,7 @@ const AdminUserTable = ({ adminUsers, isLoading, onEdit, onEditPermissions }: Ad
                         </MenuItem>
                       )}
                       {canDelete('admin_users') && user.role !== 'super_admin' && (
-                        <MenuItem 
-                          icon={<FiTrash2 />} 
-                          onClick={() => handleDelete(user)}
-                          color="red.500"
-                        >
+                        <MenuItem icon={<FiTrash2 />} onClick={() => handleDelete(user)} color='red.500'>
                           비활성화
                         </MenuItem>
                       )}
@@ -204,32 +208,23 @@ const AdminUserTable = ({ adminUsers, isLoading, onEdit, onEditPermissions }: Ad
         </Table>
       </TableContainer>
 
-      <AlertDialog
-        isOpen={isOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-      >
+      <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
         <AlertDialogOverlay>
           <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
               관리자 비활성화
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              정말로 <strong>{selectedUser?.name}</strong> 관리자를 비활성화하시겠습니까?
-              비활성화된 관리자는 더 이상 시스템에 로그인할 수 없습니다.
+              정말로 <strong>{selectedUser?.name}</strong> 관리자를 비활성화하시겠습니까? 비활성화된 관리자는 더 이상
+              시스템에 로그인할 수 없습니다.
             </AlertDialogBody>
 
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={onClose}>
                 취소
               </Button>
-              <Button
-                colorScheme="red"
-                onClick={confirmDelete}
-                ml={3}
-                isLoading={deleteAdminUser.isPending}
-              >
+              <Button colorScheme='red' onClick={confirmDelete} ml={3} isLoading={deleteAdminUser.isPending}>
                 비활성화
               </Button>
             </AlertDialogFooter>

@@ -26,10 +26,10 @@ const MembersPage = () => {
     page: 1,
     limit: 10,
   })
-  
+
   const { data: membersData, isLoading } = useMembers(filters)
   const { data: stats } = useMemberStats()
-  
+
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null)
 
@@ -48,18 +48,16 @@ const MembersPage = () => {
 
   return (
     <Box>
-      <VStack align="stretch" spacing="6">
+      <VStack align='stretch' spacing='6'>
         <Box>
-          <Heading size="lg" mb="2">
+          <Heading size='lg' mb='2'>
             회원 관리
           </Heading>
-          <Text color="gray.600">
-            가입한 회원들의 정보를 조회하고 관리할 수 있습니다.
-          </Text>
+          <Text color='gray.600'>가입한 회원들의 정보를 조회하고 관리할 수 있습니다.</Text>
         </Box>
 
         {/* 통계 카드 */}
-        <Grid templateColumns="repeat(auto-fit, minmax(200px, 1fr))" gap="4">
+        <Grid templateColumns='repeat(auto-fit, minmax(200px, 1fr))' gap='4'>
           <GridItem>
             <Card>
               <CardBody>
@@ -98,17 +96,10 @@ const MembersPage = () => {
         {/* 회원 목록 */}
         <Card>
           <CardBody>
-            <VStack align="stretch" spacing="4">
-              <MemberFilters
-                filters={filters}
-                onFiltersChange={setFilters}
-              />
-              
-              <MemberTable
-                members={membersData?.data || []}
-                isLoading={isLoading}
-                onViewDetails={handleViewDetails}
-              />
+            <VStack align='stretch' spacing='4'>
+              <MemberFilters filters={filters} onFiltersChange={setFilters} />
+
+              <MemberTable members={membersData?.data || []} isLoading={isLoading} onViewDetails={handleViewDetails} />
 
               {membersData && (
                 <Pagination
@@ -125,11 +116,7 @@ const MembersPage = () => {
         </Card>
       </VStack>
 
-      <MemberDetailModal
-        isOpen={isOpen}
-        onClose={onClose}
-        memberId={selectedMemberId}
-      />
+      <MemberDetailModal isOpen={isOpen} onClose={onClose} memberId={selectedMemberId} />
     </Box>
   )
 }

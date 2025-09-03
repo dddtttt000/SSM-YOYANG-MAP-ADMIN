@@ -27,10 +27,10 @@ interface MemberDetailModalProps {
 
 const InfoItem = ({ label, value }: { label: string; value: string | React.ReactNode }) => (
   <Box>
-    <Text fontSize="sm" color="gray.500" mb="1">
+    <Text fontSize='sm' color='gray.500' mb='1'>
       {label}
     </Text>
-    <Text fontWeight="medium">{value}</Text>
+    <Text fontWeight='medium'>{value}</Text>
   </Box>
 )
 
@@ -68,7 +68,7 @@ const MemberDetailModal = ({ isOpen, onClose, memberId }: MemberDetailModalProps
   const { data: member, isLoading } = useMember(memberId || 0)
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} size='lg'>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>회원 상세 정보</ModalHeader>
@@ -76,53 +76,51 @@ const MemberDetailModal = ({ isOpen, onClose, memberId }: MemberDetailModalProps
 
         <ModalBody>
           {isLoading ? (
-            <VStack spacing="4" align="stretch">
-              <Skeleton height="20px" width="60%" />
-              <SkeletonText mt="4" noOfLines={4} spacing="4" />
-              <Skeleton height="20px" width="40%" />
-              <SkeletonText mt="4" noOfLines={3} spacing="4" />
+            <VStack spacing='4' align='stretch'>
+              <Skeleton height='20px' width='60%' />
+              <SkeletonText mt='4' noOfLines={4} spacing='4' />
+              <Skeleton height='20px' width='40%' />
+              <SkeletonText mt='4' noOfLines={3} spacing='4' />
             </VStack>
           ) : member ? (
-            <VStack spacing="6" align="stretch">
+            <VStack spacing='6' align='stretch'>
               {/* 기본 정보 */}
               <Box>
-                <Text fontSize="lg" fontWeight="semibold" mb="4">
+                <Text fontSize='lg' fontWeight='semibold' mb='4'>
                   기본 정보
                 </Text>
-                <Grid templateColumns="repeat(2, 1fr)" gap="4">
+                <Grid templateColumns='repeat(2, 1fr)' gap='4'>
                   <GridItem>
-                    <InfoItem label="회원 ID" value={member.id.toString()} />
+                    <InfoItem label='회원 ID' value={member.id.toString()} />
                   </GridItem>
                   <GridItem>
-                    <InfoItem label="소셜 ID" value={member.social_id} />
+                    <InfoItem label='소셜 ID' value={member.social_id} />
                   </GridItem>
                   <GridItem>
-                    <InfoItem label="이름" value={member.name || '-'} />
+                    <InfoItem label='이름' value={member.name || '-'} />
                   </GridItem>
                   <GridItem>
-                    <InfoItem label="닉네임" value={member.nickname || '-'} />
+                    <InfoItem label='닉네임' value={member.nickname || '-'} />
                   </GridItem>
                   <GridItem>
-                    <InfoItem label="소셜 타입" value={member.social_type} />
+                    <InfoItem label='소셜 타입' value={member.social_type} />
                   </GridItem>
                   <GridItem>
-                    <InfoItem 
-                      label="상태" 
+                    <InfoItem
+                      label='상태'
                       value={
-                        <Badge colorScheme={getStatusBadgeColor(member.status)}>
-                          {getStatusLabel(member.status)}
-                        </Badge>
+                        <Badge colorScheme={getStatusBadgeColor(member.status)}>{getStatusLabel(member.status)}</Badge>
                       }
                     />
                   </GridItem>
                   <GridItem colSpan={2}>
-                    <InfoItem label="이메일" value={member.email || '-'} />
+                    <InfoItem label='이메일' value={member.email || '-'} />
                   </GridItem>
                   <GridItem>
-                    <InfoItem label="전화번호" value={member.phone || '-'} />
+                    <InfoItem label='전화번호' value={member.phone || '-'} />
                   </GridItem>
                   <GridItem>
-                    <InfoItem label="성별" value={member.gender || '-'} />
+                    <InfoItem label='성별' value={member.gender || '-'} />
                   </GridItem>
                 </Grid>
               </Box>
@@ -131,28 +129,36 @@ const MemberDetailModal = ({ isOpen, onClose, memberId }: MemberDetailModalProps
 
               {/* 가입 정보 */}
               <Box>
-                <Text fontSize="lg" fontWeight="semibold" mb="4">
+                <Text fontSize='lg' fontWeight='semibold' mb='4'>
                   가입 정보
                 </Text>
-                <Grid templateColumns="repeat(2, 1fr)" gap="4">
+                <Grid templateColumns='repeat(2, 1fr)' gap='4'>
                   <GridItem>
-                    <InfoItem 
-                      label="가입일" 
-                      value={member.created_at ? new Date(member.created_at).toLocaleDateString('ko-KR', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      }) : '-'}
+                    <InfoItem
+                      label='가입일'
+                      value={
+                        member.created_at
+                          ? new Date(member.created_at).toLocaleDateString('ko-KR', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            })
+                          : '-'
+                      }
                     />
                   </GridItem>
                   <GridItem>
-                    <InfoItem 
-                      label="최종 수정일" 
-                      value={member.updated_at ? new Date(member.updated_at).toLocaleDateString('ko-KR', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      }) : '-'}
+                    <InfoItem
+                      label='최종 수정일'
+                      value={
+                        member.updated_at
+                          ? new Date(member.updated_at).toLocaleDateString('ko-KR', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            })
+                          : '-'
+                      }
                     />
                   </GridItem>
                 </Grid>
@@ -161,7 +167,7 @@ const MemberDetailModal = ({ isOpen, onClose, memberId }: MemberDetailModalProps
               {/* 추가 정보가 있다면 여기에 표시 */}
             </VStack>
           ) : (
-            <Text color="gray.500">회원 정보를 불러올 수 없습니다.</Text>
+            <Text color='gray.500'>회원 정보를 불러올 수 없습니다.</Text>
           )}
         </ModalBody>
 

@@ -21,7 +21,7 @@ import { useAuth } from '../contexts/AuthContext'
 const LoginPage = () => {
   const toast = useToast()
   const { login, isLoading } = useAuth()
-  
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -29,26 +29,26 @@ const LoginPage = () => {
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {}
-    
+
     if (!email) {
       newErrors.email = '이메일을 입력해주세요.'
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = '유효한 이메일 주소를 입력해주세요.'
     }
-    
+
     if (!password) {
       newErrors.password = '비밀번호를 입력해주세요.'
     } else if (password.length < 6) {
       newErrors.password = '비밀번호는 6자 이상이어야 합니다.'
     }
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!validateForm()) return
 
     try {
@@ -72,13 +72,13 @@ const LoginPage = () => {
   }
 
   return (
-    <Container maxW="lg" py={{ base: '12', md: '24' }} px={{ base: '0', sm: '8' }}>
-      <VStack spacing="8">
-        <VStack spacing="6" textAlign="center">
-          <Heading size="xl" color="brand.600">
+    <Container maxW='lg' py={{ base: '12', md: '24' }} px={{ base: '0', sm: '8' }}>
+      <VStack spacing='8'>
+        <VStack spacing='6' textAlign='center'>
+          <Heading size='xl' color='brand.600'>
             순시미네 관리자
           </Heading>
-          <Text fontSize="lg" color="gray.600">
+          <Text fontSize='lg' color='gray.600'>
             관리자 로그인
           </Text>
         </VStack>
@@ -86,54 +86,54 @@ const LoginPage = () => {
         <Box
           py={{ base: '8', sm: '10' }}
           px={{ base: '4', sm: '10' }}
-          bg="white"
-          boxShadow="xl"
-          borderRadius="xl"
-          w="full"
-          maxW="md"
+          bg='white'
+          boxShadow='xl'
+          borderRadius='xl'
+          w='full'
+          maxW='md'
         >
           <form onSubmit={handleSubmit}>
-            <VStack spacing="6">
+            <VStack spacing='6'>
               <FormControl isInvalid={!!errors.email}>
-                <FormLabel htmlFor="email">이메일</FormLabel>
+                <FormLabel htmlFor='email'>이메일</FormLabel>
                 <Input
-                  id="email"
-                  type="email"
+                  id='email'
+                  type='email'
                   value={email}
-                  onChange={(e) => {
+                  onChange={e => {
                     setEmail(e.target.value)
                     if (errors.email) {
                       setErrors({ ...errors, email: undefined })
                     }
                   }}
-                  placeholder="admin@example.com"
-                  size="lg"
+                  placeholder='admin@example.com'
+                  size='lg'
                 />
                 <FormErrorMessage>{errors.email}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={!!errors.password}>
-                <FormLabel htmlFor="password">비밀번호</FormLabel>
-                <InputGroup size="lg">
+                <FormLabel htmlFor='password'>비밀번호</FormLabel>
+                <InputGroup size='lg'>
                   <Input
-                    id="password"
+                    id='password'
                     type={showPassword ? 'text' : 'password'}
                     value={password}
-                    onChange={(e) => {
+                    onChange={e => {
                       setPassword(e.target.value)
                       if (errors.password) {
                         setErrors({ ...errors, password: undefined })
                       }
                     }}
-                    placeholder="••••••••"
+                    placeholder='••••••••'
                   />
                   <InputRightElement>
                     <IconButton
                       aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 표시'}
                       icon={showPassword ? <FiEyeOff /> : <FiEye />}
                       onClick={() => setShowPassword(!showPassword)}
-                      variant="ghost"
-                      size="sm"
+                      variant='ghost'
+                      size='sm'
                     />
                   </InputRightElement>
                 </InputGroup>
@@ -141,13 +141,13 @@ const LoginPage = () => {
               </FormControl>
 
               <Button
-                type="submit"
-                colorScheme="brand"
-                size="lg"
-                fontSize="md"
+                type='submit'
+                colorScheme='brand'
+                size='lg'
+                fontSize='md'
                 isLoading={isLoading}
-                loadingText="로그인 중..."
-                w="full"
+                loadingText='로그인 중...'
+                w='full'
               >
                 로그인
               </Button>

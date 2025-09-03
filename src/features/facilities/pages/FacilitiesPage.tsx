@@ -41,28 +41,16 @@ const FacilitiesPage = () => {
     showAll: false,
   })
   const [viewMode, setViewMode] = useState<'card' | 'table'>('table')
-  
+
   const { data: facilitiesData, isLoading } = useFacilities(filters)
   const { data: stats } = useFacilityStats()
   const deleteFacility = useDeleteFacility()
-  
-  const {
-    isOpen: isDetailModalOpen,
-    onOpen: onDetailModalOpen,
-    onClose: onDetailModalClose,
-  } = useDisclosure()
-  
-  const {
-    isOpen: isFormModalOpen,
-    onOpen: onFormModalOpen,
-    onClose: onFormModalClose,
-  } = useDisclosure()
-  
-  const {
-    isOpen: isDeleteAlertOpen,
-    onOpen: onDeleteAlertOpen,
-    onClose: onDeleteAlertClose,
-  } = useDisclosure()
+
+  const { isOpen: isDetailModalOpen, onOpen: onDetailModalOpen, onClose: onDetailModalClose } = useDisclosure()
+
+  const { isOpen: isFormModalOpen, onOpen: onFormModalOpen, onClose: onFormModalClose } = useDisclosure()
+
+  const { isOpen: isDeleteAlertOpen, onOpen: onDeleteAlertOpen, onClose: onDeleteAlertClose } = useDisclosure()
 
   const [selectedFacility, setSelectedFacility] = useState<FacilityWithRelations | null>(null)
   const [selectedFacilityAdminCode, setSelectedFacilityAdminCode] = useState<string | null>(null)
@@ -106,29 +94,23 @@ const FacilitiesPage = () => {
 
   return (
     <Box>
-      <VStack align="stretch" spacing="6">
-        <HStack justify="space-between">
+      <VStack align='stretch' spacing='6'>
+        <HStack justify='space-between'>
           <Box>
-            <Heading size="lg" mb="2">
+            <Heading size='lg' mb='2'>
               시설 관리
             </Heading>
-            <Text color="gray.600">
-              등록된 시설 정보를 조회하고 관리할 수 있습니다.
-            </Text>
+            <Text color='gray.600'>등록된 시설 정보를 조회하고 관리할 수 있습니다.</Text>
           </Box>
           {canCreate('facilities') && (
-            <Button
-              colorScheme="brand"
-              leftIcon={<FiPlus />}
-              onClick={handleAddFacility}
-            >
+            <Button colorScheme='brand' leftIcon={<FiPlus />} onClick={handleAddFacility}>
               시설 등록
             </Button>
           )}
         </HStack>
 
         {/* 통계 카드 */}
-        <Grid templateColumns="repeat(auto-fit, minmax(200px, 1fr))" gap="4">
+        <Grid templateColumns='repeat(auto-fit, minmax(200px, 1fr))' gap='4'>
           <GridItem>
             <Card>
               <CardBody>
@@ -178,14 +160,14 @@ const FacilitiesPage = () => {
         {/* 시설 목록 */}
         <Card>
           <CardBody>
-            <VStack align="stretch" spacing="4">
+            <VStack align='stretch' spacing='4'>
               <FacilityFilters
                 filters={filters}
                 onFiltersChange={setFilters}
                 viewMode={viewMode}
                 onViewModeChange={setViewMode}
               />
-              
+
               <FacilityList
                 facilities={facilitiesData?.data || []}
                 isLoading={isLoading}
@@ -217,38 +199,25 @@ const FacilitiesPage = () => {
         onEdit={handleEditFacility}
       />
 
-      <FacilityFormModal
-        isOpen={isFormModalOpen}
-        onClose={onFormModalClose}
-        facility={selectedFacility}
-      />
+      <FacilityFormModal isOpen={isFormModalOpen} onClose={onFormModalClose} facility={selectedFacility} />
 
-      <AlertDialog
-        isOpen={isDeleteAlertOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onDeleteAlertClose}
-      >
+      <AlertDialog isOpen={isDeleteAlertOpen} leastDestructiveRef={cancelRef} onClose={onDeleteAlertClose}>
         <AlertDialogOverlay>
           <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
               시설 삭제
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              정말로 <strong>{selectedFacility?.admin_name}</strong> 시설을 삭제하시겠습니까?
-              삭제된 시설은 복구할 수 없습니다.
+              정말로 <strong>{selectedFacility?.admin_name}</strong> 시설을 삭제하시겠습니까? 삭제된 시설은 복구할 수
+              없습니다.
             </AlertDialogBody>
 
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={onDeleteAlertClose}>
                 취소
               </Button>
-              <Button
-                colorScheme="red"
-                onClick={confirmDelete}
-                ml={3}
-                isLoading={deleteFacility.isPending}
-              >
+              <Button colorScheme='red' onClick={confirmDelete} ml={3} isLoading={deleteFacility.isPending}>
                 삭제
               </Button>
             </AlertDialogFooter>

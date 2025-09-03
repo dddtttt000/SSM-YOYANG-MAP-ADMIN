@@ -14,8 +14,8 @@ const FacilitiesPage = lazy(() => import('@/features/facilities/pages/Facilities
 const MonitoringPage = lazy(() => import('@/features/monitoring/pages/MonitoringPage'))
 
 const LoadingFallback = () => (
-  <Center h="100vh">
-    <Spinner size="xl" color="brand.500" thickness="4px" />
+  <Center h='100vh'>
+    <Spinner size='xl' color='brand.500' thickness='4px' />
   </Center>
 )
 
@@ -25,21 +25,21 @@ function App() {
       <AuthProvider>
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
+            <Route path='/login' element={<LoginPage />} />
             <Route
-              path="/"
+              path='/'
               element={
                 <ProtectedRoute>
                   <Layout />
                 </ProtectedRoute>
               }
             >
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<DashboardPage />} />
-              <Route path="admin-users" element={<AdminUsersPage />} />
-              <Route path="members" element={<MembersPage />} />
-              <Route path="facilities" element={<FacilitiesPage />} />
-              <Route path="monitoring" element={<MonitoringPage />} />
+              <Route index element={<Navigate to='/dashboard' replace />} />
+              <Route path='dashboard' element={<DashboardPage />} />
+              <Route path='admin-users' element={<AdminUsersPage />} />
+              <Route path='members' element={<MembersPage />} />
+              <Route path='facilities' element={<FacilitiesPage />} />
+              <Route path='monitoring' element={<MonitoringPage />} />
             </Route>
           </Routes>
         </Suspense>

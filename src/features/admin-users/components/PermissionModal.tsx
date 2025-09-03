@@ -95,13 +95,7 @@ const PermissionModal = ({ isOpen, onClose, user }: PermissionModalProps) => {
       if (newActions.length === 0) {
         setPermissions(permissions.filter(p => p.resource !== resource))
       } else {
-        setPermissions(
-          permissions.map(p =>
-            p.resource === resource
-              ? { ...p, actions: newActions }
-              : p
-          )
-        )
+        setPermissions(permissions.map(p => (p.resource === resource ? { ...p, actions: newActions } : p)))
       }
     } else if (checked) {
       setPermissions([...permissions, { resource, actions: [action as any] }])
@@ -109,9 +103,7 @@ const PermissionModal = ({ isOpen, onClose, user }: PermissionModalProps) => {
   }
 
   const handleSelectAll = (resource: string) => {
-    const allActions = resourcePermissions
-      .find(r => r.resource === resource)
-      ?.actions.map(a => a.value) || []
+    const allActions = resourcePermissions.find(r => r.resource === resource)?.actions.map(a => a.value) || []
 
     const existingPermission = permissions.find(p => p.resource === resource)
     const hasAllActions = existingPermission?.actions.length === allActions.length
@@ -120,10 +112,12 @@ const PermissionModal = ({ isOpen, onClose, user }: PermissionModalProps) => {
       setPermissions(permissions.filter(p => p.resource !== resource))
     } else {
       setPermissions(
-        permissions.filter(p => p.resource !== resource).concat({
-          resource,
-          actions: allActions as any[],
-        })
+        permissions
+          .filter(p => p.resource !== resource)
+          .concat({
+            resource,
+            actions: allActions as any[],
+          })
       )
     }
   }
@@ -141,7 +135,7 @@ const PermissionModal = ({ isOpen, onClose, user }: PermissionModalProps) => {
     // } catch (error) {
     //   // 에러는 훅에서 toast로 처리됨
     // }
-    
+
     // 현재는 권한 시스템이 구현되지 않아 저장하지 않음
     onClose()
   }
@@ -154,58 +148,49 @@ const PermissionModal = ({ isOpen, onClose, user }: PermissionModalProps) => {
   if (!user) return null
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="xl">
+    <Modal isOpen={isOpen} onClose={handleClose} size='xl'>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
           권한 설정 - {user.name}
-          <Text fontSize="sm" color="gray.500" fontWeight="normal" mt="1">
+          <Text fontSize='sm' color='gray.500' fontWeight='normal' mt='1'>
             운영자의 접근 권한을 세부적으로 설정할 수 있습니다.
           </Text>
         </ModalHeader>
         <ModalCloseButton />
 
         <ModalBody>
-          <VStack spacing="6" align="stretch">
+          <VStack spacing='6' align='stretch'>
             {user.role === 'super_admin' && (
-              <Box p="4" bg="blue.50" borderRadius="md">
-                <Text color="blue.700">
-                  최고 관리자는 모든 권한을 가지고 있으므로 별도 설정이 필요하지 않습니다.
-                </Text>
+              <Box p='4' bg='blue.50' borderRadius='md'>
+                <Text color='blue.700'>최고 관리자는 모든 권한을 가지고 있으므로 별도 설정이 필요하지 않습니다.</Text>
               </Box>
             )}
-
 
             {user.role === 'admin' && (
               <>
                 {resourcePermissions.map((resource, index) => (
                   <Box key={resource.resource}>
-                    {index > 0 && <Divider my="4" />}
-                    <VStack align="stretch" spacing="3">
-                      <HStack justify="space-between">
+                    {index > 0 && <Divider my='4' />}
+                    <VStack align='stretch' spacing='3'>
+                      <HStack justify='space-between'>
                         <Box>
-                          <Text fontWeight="semibold">{resource.label}</Text>
-                          <Text fontSize="sm" color="gray.600">
+                          <Text fontWeight='semibold'>{resource.label}</Text>
+                          <Text fontSize='sm' color='gray.600'>
                             {resource.description}
                           </Text>
                         </Box>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleSelectAll(resource.resource)}
-                        >
+                        <Button size='sm' variant='ghost' onClick={() => handleSelectAll(resource.resource)}>
                           전체 선택
                         </Button>
                       </HStack>
-                      
-                      <HStack spacing="4" wrap="wrap">
+
+                      <HStack spacing='4' wrap='wrap'>
                         {resource.actions.map(action => (
                           <Checkbox
                             key={`${resource.resource}-${action.value}`}
                             isChecked={isActionChecked(resource.resource, action.value)}
-                            onChange={(e) =>
-                              handleActionToggle(resource.resource, action.value, e.target.checked)
-                            }
+                            onChange={e => handleActionToggle(resource.resource, action.value, e.target.checked)}
                           >
                             {action.label}
                           </Checkbox>
@@ -220,11 +205,11 @@ const PermissionModal = ({ isOpen, onClose, user }: PermissionModalProps) => {
         </ModalBody>
 
         <ModalFooter>
-          <Button variant="ghost" mr={3} onClick={handleClose}>
+          <Button variant='ghost' mr={3} onClick={handleClose}>
             취소
           </Button>
           <Button
-            colorScheme="brand"
+            colorScheme='brand'
             onClick={handleSubmit}
             // isLoading={updatePermissions.isPending}
             isDisabled={user.role !== 'admin'}

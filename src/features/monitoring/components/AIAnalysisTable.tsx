@@ -41,15 +41,9 @@ const AIAnalysisTable = ({ data, isLoading }: AIAnalysisTableProps) => {
   const [selectedAnalysis, setSelectedAnalysis] = useState<AIFacilityAnalysis | null>(null)
 
   // 유니크한 memberId와 facilityId 추출
-  const userIds = useMemo(() => 
-    [...new Set(data.map(item => item.memberId))],
-    [data]
-  )
-  
-  const adminCodes = useMemo(() => 
-    [...new Set(data.map(item => item.facilityId))],
-    [data]
-  )
+  const userIds = useMemo(() => [...new Set(data.map(item => item.memberId))], [data])
+
+  const adminCodes = useMemo(() => [...new Set(data.map(item => item.facilityId))], [data])
 
   // 회원 및 시설 정보 조회
   const { data: memberMap } = useMemberInfo(userIds)
@@ -76,10 +70,10 @@ const AIAnalysisTable = ({ data, isLoading }: AIAnalysisTableProps) => {
   // 돌봄 유형 라벨
   const getCareTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
-      'day_night': '주야간보호',
-      'visit': '방문요양',
-      'facility': '요양시설',
-      'short_term': '단기보호',
+      day_night: '주야간보호',
+      visit: '방문요양',
+      facility: '요양시설',
+      short_term: '단기보호',
     }
     return labels[type] || type
   }
@@ -87,10 +81,10 @@ const AIAnalysisTable = ({ data, isLoading }: AIAnalysisTableProps) => {
   // 돌봄 유형 색상
   const getCareTypeColor = (type: string) => {
     const colors: Record<string, string> = {
-      'day_night': 'blue',
-      'visit': 'green',
-      'facility': 'purple',
-      'short_term': 'orange',
+      day_night: 'blue',
+      visit: 'green',
+      facility: 'purple',
+      short_term: 'orange',
     }
     return colors[type] || 'gray'
   }
@@ -98,23 +92,23 @@ const AIAnalysisTable = ({ data, isLoading }: AIAnalysisTableProps) => {
   if (isLoading) {
     return (
       <Box>
-        <Skeleton height="300px" />
+        <Skeleton height='300px' />
       </Box>
     )
   }
 
   if (data.length === 0) {
     return (
-      <Box textAlign="center" py="8">
-        <Text color="gray.500">AI 분석 활동이 없습니다.</Text>
+      <Box textAlign='center' py='8'>
+        <Text color='gray.500'>AI 분석 활동이 없습니다.</Text>
       </Box>
     )
   }
 
   return (
     <>
-      <Box overflowX="auto">
-        <Table variant="simple" size="sm">
+      <Box overflowX='auto'>
+        <Table variant='simple' size='sm'>
           <Thead>
             <Tr>
               <Th>분석일시</Th>
@@ -123,84 +117,64 @@ const AIAnalysisTable = ({ data, isLoading }: AIAnalysisTableProps) => {
               <Th>요양등급</Th>
               <Th>희망 돌봄</Th>
               <Th>AI 모델</Th>
-              <Th width="60px">동작</Th>
+              <Th width='60px'>동작</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {data.map((analysis) => {
+            {data.map(analysis => {
               const member = memberMap?.get(analysis.memberId)
               const facility = facilityMap?.get(analysis.facilityId)
-              
+
               return (
                 <Tr key={analysis.id}>
                   <Td>
-                    <Text fontSize="sm">
-                      {formatTimestamp(analysis.createdAt)}
-                    </Text>
+                    <Text fontSize='sm'>{formatTimestamp(analysis.createdAt)}</Text>
                   </Td>
                   <Td>
                     <Box>
-                      <Text fontWeight="medium">
-                        {member?.nickname || member?.name || '-'}
-                      </Text>
-                      <Text fontSize="xs" color="gray.500">
+                      <Text fontWeight='medium'>{member?.nickname || member?.name || '-'}</Text>
+                      <Text fontSize='xs' color='gray.500'>
                         {member?.email || `ID: ${analysis.memberId}`}
                       </Text>
                     </Box>
                   </Td>
                   <Td>
                     <Box>
-                      <Text fontWeight="medium">
-                        {analysis.facilityName || facility?.admin_name || '-'}
-                      </Text>
-                      <Text fontSize="xs" color="gray.500">
+                      <Text fontWeight='medium'>{analysis.facilityName || facility?.admin_name || '-'}</Text>
+                      <Text fontSize='xs' color='gray.500'>
                         {analysis.facilityId}
                       </Text>
                     </Box>
                   </Td>
                   <Td>
-                    <Badge 
-                      colorScheme="teal"
-                      variant="solid"
-                    >
+                    <Badge colorScheme='teal' variant='solid'>
                       {analysis.longTermCareGrade}
                     </Badge>
                   </Td>
                   <Td>
-                    <Badge 
-                      colorScheme={getCareTypeColor(analysis.preferredCareType)}
-                      variant="subtle"
-                    >
+                    <Badge colorScheme={getCareTypeColor(analysis.preferredCareType)} variant='subtle'>
                       {getCareTypeLabel(analysis.preferredCareType)}
                     </Badge>
                   </Td>
                   <Td>
-                    <Text fontSize="xs" color="gray.600">
+                    <Text fontSize='xs' color='gray.600'>
                       {analysis.aiModelUsed}
                     </Text>
                   </Td>
                   <Td>
                     <HStack spacing={1}>
-                      <Tooltip label="AI 답변 보기">
+                      <Tooltip label='AI 답변 보기'>
                         <IconButton
-                          aria-label="AI 답변 보기"
+                          aria-label='AI 답변 보기'
                           icon={<FiMessageSquare />}
-                          size="sm"
-                          variant="ghost"
+                          size='sm'
+                          variant='ghost'
                           onClick={() => handleViewAIResponse(analysis)}
                         />
                       </Tooltip>
-                      <Tooltip label="시설 상세 보기">
-                        <Link
-                          href={`/facilities/${analysis.facilityId}`}
-                          isExternal
-                        >
-                          <IconButton
-                            aria-label="시설 상세"
-                            icon={<FiExternalLink />}
-                            size="sm"
-                            variant="ghost"
-                          />
+                      <Tooltip label='시설 상세 보기'>
+                        <Link href={`/facilities/${analysis.facilityId}`} isExternal>
+                          <IconButton aria-label='시설 상세' icon={<FiExternalLink />} size='sm' variant='ghost' />
                         </Link>
                       </Tooltip>
                     </HStack>
@@ -213,85 +187,90 @@ const AIAnalysisTable = ({ data, isLoading }: AIAnalysisTableProps) => {
       </Box>
 
       {/* AI 답변 모달 */}
-      <Modal isOpen={isOpen} onClose={onClose} size="xl">
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>AI 분석 답변</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody pb={6}>
-          {selectedAnalysis && (
-            <VStack align="stretch" spacing={4}>
-              {/* 분석 정보 */}
-              <Box borderWidth="1px" borderRadius="md" p={4} bg="gray.50">
-                <VStack align="stretch" spacing={2}>
-                  <HStack justify="space-between">
-                    <Text fontSize="sm" color="gray.600">시설명:</Text>
-                    <Text fontSize="sm" fontWeight="medium">
-                      {selectedAnalysis.facilityName}
-                    </Text>
-                  </HStack>
-                  <HStack justify="space-between">
-                    <Text fontSize="sm" color="gray.600">요양등급:</Text>
-                    <Badge colorScheme="teal" variant="solid">
-                      {selectedAnalysis.longTermCareGrade}
-                    </Badge>
-                  </HStack>
-                  <HStack justify="space-between">
-                    <Text fontSize="sm" color="gray.600">희망 돌봄:</Text>
-                    <Badge 
-                      colorScheme={getCareTypeColor(selectedAnalysis.preferredCareType)}
-                      variant="subtle"
-                    >
-                      {getCareTypeLabel(selectedAnalysis.preferredCareType)}
-                    </Badge>
-                  </HStack>
-                  <HStack justify="space-between">
-                    <Text fontSize="sm" color="gray.600">AI 모델:</Text>
-                    <Text fontSize="sm">{selectedAnalysis.aiModelUsed}</Text>
-                  </HStack>
-                  <HStack justify="space-between">
-                    <Text fontSize="sm" color="gray.600">분석일시:</Text>
-                    <Text fontSize="sm">{formatTimestamp(selectedAnalysis.createdAt)}</Text>
-                  </HStack>
-                </VStack>
-              </Box>
-
-              {/* AI 답변 내용 */}
-              <Box>
-                <Text fontSize="sm" fontWeight="semibold" mb={2}>
-                  AI 분석 내용:
-                </Text>
-                <Box 
-                  borderWidth="1px" 
-                  borderRadius="md" 
-                  p={4} 
-                  bg="blue.50"
-                  borderColor="blue.200"
-                >
-                  <Text whiteSpace="pre-wrap" fontSize="sm">
-                    {selectedAnalysis.aiSummary}
-                  </Text>
+      <Modal isOpen={isOpen} onClose={onClose} size='xl'>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>AI 분석 답변</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            {selectedAnalysis && (
+              <VStack align='stretch' spacing={4}>
+                {/* 분석 정보 */}
+                <Box borderWidth='1px' borderRadius='md' p={4} bg='gray.50'>
+                  <VStack align='stretch' spacing={2}>
+                    <HStack justify='space-between'>
+                      <Text fontSize='sm' color='gray.600'>
+                        시설명:
+                      </Text>
+                      <Text fontSize='sm' fontWeight='medium'>
+                        {selectedAnalysis.facilityName}
+                      </Text>
+                    </HStack>
+                    <HStack justify='space-between'>
+                      <Text fontSize='sm' color='gray.600'>
+                        요양등급:
+                      </Text>
+                      <Badge colorScheme='teal' variant='solid'>
+                        {selectedAnalysis.longTermCareGrade}
+                      </Badge>
+                    </HStack>
+                    <HStack justify='space-between'>
+                      <Text fontSize='sm' color='gray.600'>
+                        희망 돌봄:
+                      </Text>
+                      <Badge colorScheme={getCareTypeColor(selectedAnalysis.preferredCareType)} variant='subtle'>
+                        {getCareTypeLabel(selectedAnalysis.preferredCareType)}
+                      </Badge>
+                    </HStack>
+                    <HStack justify='space-between'>
+                      <Text fontSize='sm' color='gray.600'>
+                        AI 모델:
+                      </Text>
+                      <Text fontSize='sm'>{selectedAnalysis.aiModelUsed}</Text>
+                    </HStack>
+                    <HStack justify='space-between'>
+                      <Text fontSize='sm' color='gray.600'>
+                        분석일시:
+                      </Text>
+                      <Text fontSize='sm'>{formatTimestamp(selectedAnalysis.createdAt)}</Text>
+                    </HStack>
+                  </VStack>
                 </Box>
-              </Box>
 
-              {/* 추가 정보 */}
-              {selectedAnalysis.customerAge && (
-                <HStack spacing={4}>
-                  <Text fontSize="sm" color="gray.600">고객 연령:</Text>
-                  <Text fontSize="sm">{selectedAnalysis.customerAge}세</Text>
-                  <Text fontSize="sm" color="gray.600">성별:</Text>
-                  <Text fontSize="sm">{selectedAnalysis.customerGender}</Text>
-                </HStack>
-              )}
-            </VStack>
-          )}
-        </ModalBody>
-        <ModalFooter>
-          <Button onClick={onClose}>닫기</Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  </>
+                {/* AI 답변 내용 */}
+                <Box>
+                  <Text fontSize='sm' fontWeight='semibold' mb={2}>
+                    AI 분석 내용:
+                  </Text>
+                  <Box borderWidth='1px' borderRadius='md' p={4} bg='blue.50' borderColor='blue.200'>
+                    <Text whiteSpace='pre-wrap' fontSize='sm'>
+                      {selectedAnalysis.aiSummary}
+                    </Text>
+                  </Box>
+                </Box>
+
+                {/* 추가 정보 */}
+                {selectedAnalysis.customerAge && (
+                  <HStack spacing={4}>
+                    <Text fontSize='sm' color='gray.600'>
+                      고객 연령:
+                    </Text>
+                    <Text fontSize='sm'>{selectedAnalysis.customerAge}세</Text>
+                    <Text fontSize='sm' color='gray.600'>
+                      성별:
+                    </Text>
+                    <Text fontSize='sm'>{selectedAnalysis.customerGender}</Text>
+                  </HStack>
+                )}
+              </VStack>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Button onClick={onClose}>닫기</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
   )
 }
 

@@ -12,13 +12,18 @@ const Layout = () => {
   }
 
   return (
-    <Flex h="100vh" overflow="hidden">
+    <Flex h='100vh' overflow='hidden'>
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-      
-      <Flex flex="1" direction="column" ml={{ base: 0, md: isSidebarOpen ? '280px' : '80px' }} transition="margin-left 0.3s">
+
+      <Flex
+        flex='1'
+        direction='column'
+        ml={{ base: 0, md: isSidebarOpen ? '280px' : '80px' }}
+        transition='margin-left 0.3s'
+      >
         <Header onMenuClick={toggleSidebar} isSidebarOpen={isSidebarOpen} />
-        
-        <Box flex="1" overflow="auto" bg="gray.50" p="6">
+
+        <Box flex='1' overflow='auto' bg='gray.50' p='6'>
           <Outlet />
         </Box>
       </Flex>

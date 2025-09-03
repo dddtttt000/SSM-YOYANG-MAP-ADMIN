@@ -20,10 +20,10 @@ import {
   Progress,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { 
-  FiUsers, 
-  FiShield, 
-  FiMapPin, 
+import {
+  FiUsers,
+  FiShield,
+  FiMapPin,
   FiActivity,
   FiPhone,
   FiStar,
@@ -135,25 +135,23 @@ const DashboardPage = () => {
 
   return (
     <Box>
-      <VStack align="stretch" spacing="6">
+      <VStack align='stretch' spacing='6'>
         <Box>
-          <Heading size="lg" mb="2">
+          <Heading size='lg' mb='2'>
             대시보드
           </Heading>
-          <Text color="gray.600">
-            {user?.name}님, 환영합니다! 오늘의 현황을 확인해보세요.
-          </Text>
+          <Text color='gray.600'>{user?.name}님, 환영합니다! 오늘의 현황을 확인해보세요.</Text>
         </Box>
 
         {/* 통계 카드 */}
-        <Grid templateColumns="repeat(auto-fit, minmax(250px, 1fr))" gap="6">
+        <Grid templateColumns='repeat(auto-fit, minmax(250px, 1fr))' gap='6'>
           {statsLoading ? (
             <>
-              {[1, 2, 3, 4].map((i) => (
+              {[1, 2, 3, 4].map(i => (
                 <GridItem key={i}>
                   <Card>
                     <CardBody>
-                      <Skeleton height="100px" />
+                      <Skeleton height='100px' />
                     </CardBody>
                   </Card>
                 </GridItem>
@@ -164,32 +162,22 @@ const DashboardPage = () => {
               <GridItem key={index}>
                 <Card>
                   <CardBody>
-                    <HStack justify="space-between" align="start">
+                    <HStack justify='space-between' align='start'>
                       <Stat>
-                        <StatLabel color="gray.600">{stat.label}</StatLabel>
-                        <StatNumber fontSize="3xl">{stat.value}</StatNumber>
+                        <StatLabel color='gray.600'>{stat.label}</StatLabel>
+                        <StatNumber fontSize='3xl'>{stat.value}</StatNumber>
                         <StatHelpText>
-                          {stat.change !== 0 && (
-                            <StatArrow type={stat.change > 0 ? 'increase' : 'decrease'} />
-                          )}
+                          {stat.change !== 0 && <StatArrow type={stat.change > 0 ? 'increase' : 'decrease'} />}
                           {stat.change !== 0 && `${Math.abs(stat.change)}%`}
                           {stat.subValue && (
-                            <Text fontSize="xs" color="gray.500" mt={1}>
+                            <Text fontSize='xs' color='gray.500' mt={1}>
                               {stat.subValue}
                             </Text>
                           )}
                         </StatHelpText>
                       </Stat>
-                      <Box
-                        p="3"
-                        bg={`${stat.color}.50`}
-                        borderRadius="lg"
-                      >
-                        <Icon
-                          as={stat.icon}
-                          boxSize="6"
-                          color={`${stat.color}.500`}
-                        />
+                      <Box p='3' bg={`${stat.color}.50`} borderRadius='lg'>
+                        <Icon as={stat.icon} boxSize='6' color={`${stat.color}.500`} />
                       </Box>
                     </HStack>
                   </CardBody>
@@ -199,52 +187,46 @@ const DashboardPage = () => {
           )}
         </Grid>
 
-        <Grid templateColumns="repeat(auto-fit, minmax(400px, 1fr))" gap="6">
+        <Grid templateColumns='repeat(auto-fit, minmax(400px, 1fr))' gap='6'>
           {/* 최근 활동 */}
           <GridItem>
             <Card>
               <CardHeader>
-                <HStack justify="space-between">
-                  <Heading size="md">최근 활동</Heading>
-                  <Icon as={FiClock} color="gray.500" />
+                <HStack justify='space-between'>
+                  <Heading size='md'>최근 활동</Heading>
+                  <Icon as={FiClock} color='gray.500' />
                 </HStack>
               </CardHeader>
               <CardBody>
-                <VStack align="stretch" spacing="4">
+                <VStack align='stretch' spacing='4'>
                   {activitiesLoading ? (
                     <>
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <Skeleton key={i} height="60px" />
+                      {[1, 2, 3, 4, 5].map(i => (
+                        <Skeleton key={i} height='60px' />
                       ))}
                     </>
                   ) : activities && activities.length > 0 ? (
-                    activities.map((activity) => {
+                    activities.map(activity => {
                       const { icon, color } = getActivityIcon(activity.type)
                       return (
                         <HStack
                           key={activity.id}
                           p={3}
                           bg={cardBg}
-                          borderWidth="1px"
+                          borderWidth='1px'
                           borderColor={borderColor}
-                          borderRadius="md"
+                          borderRadius='md'
                           spacing={3}
                         >
-                          <Box
-                            p={2}
-                            bg={`${color}.50`}
-                            borderRadius="md"
-                          >
+                          <Box p={2} bg={`${color}.50`} borderRadius='md'>
                             <Icon as={icon} color={`${color}.500`} />
                           </Box>
-                          <VStack align="start" flex={1} spacing={0}>
-                            <Text fontSize="sm" fontWeight="medium">
+                          <VStack align='start' flex={1} spacing={0}>
+                            <Text fontSize='sm' fontWeight='medium'>
                               {activity.description}
                             </Text>
-                            <HStack spacing={2} fontSize="xs" color="gray.500">
-                              {activity.userName && (
-                                <Text>{activity.userName}</Text>
-                              )}
+                            <HStack spacing={2} fontSize='xs' color='gray.500'>
+                              {activity.userName && <Text>{activity.userName}</Text>}
                               {activity.facilityName && (
                                 <>
                                   <Text>•</Text>
@@ -253,14 +235,14 @@ const DashboardPage = () => {
                               )}
                             </HStack>
                           </VStack>
-                          <Text fontSize="xs" color="gray.500">
+                          <Text fontSize='xs' color='gray.500'>
                             {getRelativeTime(activity.timestamp)}
                           </Text>
                         </HStack>
                       )
                     })
                   ) : (
-                    <Text color="gray.500" textAlign="center" py={8}>
+                    <Text color='gray.500' textAlign='center' py={8}>
                       최근 활동이 없습니다.
                     </Text>
                   )}
@@ -273,60 +255,61 @@ const DashboardPage = () => {
           <GridItem>
             <Card>
               <CardHeader>
-                <Heading size="md">시스템 상태</Heading>
+                <Heading size='md'>시스템 상태</Heading>
               </CardHeader>
               <CardBody>
-                <VStack align="stretch" spacing="4">
+                <VStack align='stretch' spacing='4'>
                   {systemLoading ? (
                     <>
-                      {[1, 2, 3, 4].map((i) => (
-                        <Skeleton key={i} height="30px" />
+                      {[1, 2, 3, 4].map(i => (
+                        <Skeleton key={i} height='30px' />
                       ))}
                     </>
                   ) : systemStatus ? (
                     <>
-                      <HStack justify="space-between">
+                      <HStack justify='space-between'>
                         <Text>데이터베이스</Text>
                         <Badge colorScheme={getStatusColor(systemStatus.database)}>
-                          {systemStatus.database === 'normal' ? '정상' : 
-                           systemStatus.database === 'warning' ? '경고' : '오류'}
+                          {systemStatus.database === 'normal'
+                            ? '정상'
+                            : systemStatus.database === 'warning'
+                              ? '경고'
+                              : '오류'}
                         </Badge>
                       </HStack>
-                      <HStack justify="space-between">
+                      <HStack justify='space-between'>
                         <Text>API 서버</Text>
                         <Badge colorScheme={getStatusColor(systemStatus.api)}>
-                          {systemStatus.api === 'normal' ? '정상' : 
-                           systemStatus.api === 'warning' ? '경고' : '오류'}
+                          {systemStatus.api === 'normal' ? '정상' : systemStatus.api === 'warning' ? '경고' : '오류'}
                         </Badge>
                       </HStack>
-                      <HStack justify="space-between">
+                      <HStack justify='space-between'>
                         <Text>인증 서비스</Text>
                         <Badge colorScheme={getStatusColor(systemStatus.auth)}>
-                          {systemStatus.auth === 'normal' ? '정상' : 
-                           systemStatus.auth === 'warning' ? '경고' : '오류'}
+                          {systemStatus.auth === 'normal' ? '정상' : systemStatus.auth === 'warning' ? '경고' : '오류'}
                         </Badge>
                       </HStack>
                       <Box>
-                        <HStack justify="space-between" mb={2}>
+                        <HStack justify='space-between' mb={2}>
                           <Text>스토리지</Text>
-                          <Text 
-                            fontSize="sm" 
+                          <Text
+                            fontSize='sm'
                             color={`${getStatusColor(systemStatus.storage.status)}.500`}
-                            fontWeight="semibold"
+                            fontWeight='semibold'
                           >
                             {systemStatus.storage.usage}% 사용
                           </Text>
                         </HStack>
-                        <Progress 
-                          value={systemStatus.storage.usage} 
-                          size="sm" 
+                        <Progress
+                          value={systemStatus.storage.usage}
+                          size='sm'
                           colorScheme={getStatusColor(systemStatus.storage.status)}
-                          borderRadius="full"
+                          borderRadius='full'
                         />
                       </Box>
                     </>
                   ) : (
-                    <Text color="gray.500" textAlign="center" py={8}>
+                    <Text color='gray.500' textAlign='center' py={8}>
                       상태 정보를 불러올 수 없습니다.
                     </Text>
                   )}
