@@ -99,7 +99,7 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
 
   if (isLoading) {
     return (
-      <TableContainer>
+      <TableContainer overflowX='auto'>
         <Table variant='simple'>
           <Thead>
             <Tr>
@@ -150,7 +150,7 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
 
   if (members.length === 0) {
     return (
-      <TableContainer>
+      <TableContainer overflowX='auto'>
         <Table variant='simple'>
           <Thead>
             <Tr>
@@ -179,39 +179,43 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
   }
 
   return (
-    <TableContainer>
-      <Table variant='simple'>
+    <TableContainer overflowX='auto'>
+      <Table variant='simple' size='sm'>
         <Thead>
           <Tr>
-            <Th>ID</Th>
-            <Th>소셜ID</Th>
-            <Th>소셜타입</Th>
-            <Th>닉네임</Th>
-            <Th>이메일</Th>
-            <Th>상태</Th>
-            <Th>가입일</Th>
-            <Th width='100px'>작업</Th>
+            <Th whiteSpace='nowrap'>ID</Th>
+            <Th whiteSpace='nowrap'>소셜ID</Th>
+            <Th whiteSpace='nowrap'>소셜타입</Th>
+            <Th whiteSpace='nowrap'>닉네임</Th>
+            <Th whiteSpace='nowrap'>이메일</Th>
+            <Th whiteSpace='nowrap'>상태</Th>
+            <Th whiteSpace='nowrap'>가입일</Th>
+            <Th whiteSpace='nowrap' width='100px'>
+              작업
+            </Th>
           </Tr>
         </Thead>
         <Tbody>
           {members.map(member => (
             <Tr key={member.id}>
-              <Td>
+              <Td whiteSpace='nowrap'>
                 <Text fontSize='sm' fontFamily='mono'>
                   {member.id}
                 </Text>
               </Td>
-              <Td>
+              <Td whiteSpace='nowrap'>
                 <Text fontSize='sm'>{member.social_id}</Text>
               </Td>
-              <Td>
+              <Td whiteSpace='nowrap'>
                 <Badge colorScheme={getSocialTypeBadgeColor(member.social_type)} variant='subtle'>
                   {getSocialTypeLabel(member.social_type)}
                 </Badge>
               </Td>
-              <Td fontWeight='medium'>{member.nickname || member.name || '-'}</Td>
-              <Td>{member.email || '-'}</Td>
-              <Td>
+              <Td whiteSpace='nowrap' fontWeight='medium'>
+                {member.nickname || member.name || '-'}
+              </Td>
+              <Td whiteSpace='nowrap'>{member.email || '-'}</Td>
+              <Td whiteSpace='nowrap'>
                 {canUpdate('members') ? (
                   <Select
                     value={member.status}
@@ -229,8 +233,10 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
                   <Badge colorScheme={getStatusBadgeColor(member.status)}>{getStatusLabel(member.status)}</Badge>
                 )}
               </Td>
-              <Td>{member.created_at ? new Date(member.created_at).toLocaleDateString('ko-KR') : '-'}</Td>
-              <Td>
+              <Td whiteSpace='nowrap'>
+                {member.created_at ? new Date(member.created_at).toLocaleDateString('ko-KR') : '-'}
+              </Td>
+              <Td whiteSpace='nowrap'>
                 <Menu>
                   <MenuButton
                     as={IconButton}

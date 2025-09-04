@@ -1,5 +1,6 @@
 import {
   Box,
+  Container,
   Heading,
   Text,
   Card,
@@ -47,8 +48,8 @@ const MembersPage = () => {
   }
 
   return (
-    <Box>
-      <VStack align='stretch' spacing='6'>
+    <Container maxW='container.xl' py='8'>
+      <VStack align='stretch' spacing='8'>
         <Box>
           <Heading size='lg' mb='2'>
             회원 관리
@@ -57,10 +58,10 @@ const MembersPage = () => {
         </Box>
 
         {/* 통계 카드 */}
-        <Grid templateColumns='repeat(auto-fit, minmax(200px, 1fr))' gap='4'>
+        <Grid templateColumns='repeat(auto-fit, minmax(220px, 1fr))' gap='4'>
           <GridItem>
-            <Card>
-              <CardBody>
+            <Card h='100%'>
+              <CardBody minH='120px'>
                 <Stat>
                   <StatLabel>전체 회원</StatLabel>
                   <StatNumber>{stats?.total.toLocaleString() || 0}</StatNumber>
@@ -70,8 +71,8 @@ const MembersPage = () => {
             </Card>
           </GridItem>
           <GridItem>
-            <Card>
-              <CardBody>
+            <Card h='100%'>
+              <CardBody minH='120px'>
                 <Stat>
                   <StatLabel>활성 회원</StatLabel>
                   <StatNumber>{stats?.active.toLocaleString() || 0}</StatNumber>
@@ -81,8 +82,8 @@ const MembersPage = () => {
             </Card>
           </GridItem>
           <GridItem>
-            <Card>
-              <CardBody>
+            <Card h='100%'>
+              <CardBody minH='120px'>
                 <Stat>
                   <StatLabel>신규 가입</StatLabel>
                   <StatNumber>{stats?.recent.toLocaleString() || 0}</StatNumber>
@@ -117,7 +118,7 @@ const MembersPage = () => {
       </VStack>
 
       <MemberDetailModal isOpen={isOpen} onClose={onClose} memberId={selectedMemberId} />
-    </Box>
+    </Container>
   )
 }
 

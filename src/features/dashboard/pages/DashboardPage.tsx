@@ -48,6 +48,11 @@ const DashboardPage = () => {
   const statCards = useMemo(() => {
     if (!stats) return []
 
+    const safePercentChange = (current: number, previous: number) => {
+      if (!isFinite(previous) || previous <= 0) return 0
+      return Math.round(((current - previous) / previous) * 100)
+    }
+
     const prevMembers = stats.totalMembers * 0.95 // 임시 이전 데이터
     const prevFacilities = stats.totalFacilities * 0.98
     const prevAdmins = stats.totalAdmins
@@ -58,7 +63,7 @@ const DashboardPage = () => {
         label: '전체 회원',
         value: stats.totalMembers.toLocaleString(),
         subValue: `오늘 활동: ${stats.activeMembersToday}명`,
-        change: Math.round(((stats.totalMembers - prevMembers) / prevMembers) * 100),
+        change: safePercentChange(stats.totalMembers, prevMembers),
         icon: FiUsers,
         color: 'blue',
       },
@@ -66,7 +71,7 @@ const DashboardPage = () => {
         label: '시설',
         value: stats.activeFacilities.toLocaleString(),
         subValue: `전체: ${stats.totalFacilities.toLocaleString()}개`,
-        change: Math.round(((stats.totalFacilities - prevFacilities) / prevFacilities) * 100),
+        change: safePercentChange(stats.totalFacilities, prevFacilities),
         icon: FiMapPin,
         color: 'green',
       },
@@ -74,7 +79,7 @@ const DashboardPage = () => {
         label: '관리자',
         value: stats.activeAdmins.toLocaleString(),
         subValue: `전체: ${stats.totalAdmins}명`,
-        change: Math.round(((stats.totalAdmins - prevAdmins) / prevAdmins) * 100),
+        change: safePercentChange(stats.totalAdmins, prevAdmins),
         icon: FiShield,
         color: 'purple',
       },
@@ -82,7 +87,7 @@ const DashboardPage = () => {
         label: '오늘 활동',
         value: stats.todayActivities.toLocaleString(),
         subValue: `최근 7일: ${stats.recentActivities.toLocaleString()}건`,
-        change: Math.round(((stats.todayActivities - prevActivities) / prevActivities) * 100),
+        change: safePercentChange(stats.todayActivities, prevActivities),
         icon: FiActivity,
         color: 'orange',
       },
@@ -160,8 +165,8 @@ const DashboardPage = () => {
           ) : (
             statCards.map((stat, index) => (
               <GridItem key={index}>
-                <Card>
-                  <CardBody>
+                <Card h='100%'>
+                  <CardBody minH='120px'>
                     <HStack justify='space-between' align='start'>
                       <Stat>
                         <StatLabel color='gray.600'>{stat.label}</StatLabel>

@@ -152,7 +152,8 @@ const SidebarContent = ({ onClose, isOpen }: { onClose?: () => void; isOpen?: bo
 }
 
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
-  const isMobile = useBreakpointValue({ base: true, md: false })
+  // Treat md (tablet) and below as mobile (Drawer behavior)
+  const isMobile = useBreakpointValue({ base: true, md: true, lg: false })
 
   if (isMobile) {
     return (
