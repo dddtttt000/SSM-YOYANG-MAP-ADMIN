@@ -173,6 +173,21 @@ export interface Database {
         >
         Update: Partial<Database['public']['Tables']['announcements']['Insert']>
       }
+      questions: {
+        Row: {
+          id: number
+          title: string
+          content: string
+          category: string
+          created_at: string
+          updated_at: string | null
+        }
+        Insert: Omit<
+          Database['public']['Tables']['questions']['Row'],
+          'id' | 'created_at' | 'updated_at'
+        >
+        Update: Partial<Database['public']['Tables']['questions']['Insert']>
+      }
     }
     Views: {
       [_ in never]: never
@@ -192,6 +207,7 @@ export type Facility = Database['public']['Tables']['facilities_ssmn_basic_full'
 export type FacilityNonBenefit = Database['public']['Tables']['facilities_ssmn_etc_nonbenefit']['Row']
 export type FacilityProgram = Database['public']['Tables']['facilities_ssmn_etc_program']['Row']
 export type Announcement = Database['public']['Tables']['announcements']['Row']
+export type Question = Database['public']['Tables']['questions']['Row']
 
 // Permission 인터페이스는 현재 테이블 구조에서 사용되지 않음
 // 향후 권한 시스템 구현 시 사용 가능
