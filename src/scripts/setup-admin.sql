@@ -19,7 +19,7 @@ INSERT INTO admin_users (
   created_at,
   updated_at
 ) VALUES (
-  'admin@example.com',
+  'admin@test.com',
   crypt('admin123456', gen_salt('bf')), -- bcrypt로 비밀번호 해시
   '시스템 관리자',
   'super_admin', -- 최고 관리자 권한
@@ -36,12 +36,12 @@ INSERT INTO admin_users (
 -- 3. 생성된 관리자 확인
 SELECT id, email, name, role, is_active, created_at 
 FROM admin_users 
-WHERE email = 'admin@example.com';
+WHERE email = 'admin@test.com';
 
 -- 4. 로그인 테스트용 쿼리 (선택사항)
 -- 비밀번호가 맞는지 확인
 SELECT email, name, role 
 FROM admin_users 
-WHERE email = 'admin@example.com' 
+WHERE email = 'admin@test.com' 
   AND password_digest = crypt('admin123456', password_digest)
   AND is_active = true;

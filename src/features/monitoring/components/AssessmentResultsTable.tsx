@@ -25,7 +25,6 @@ interface AssessmentResultsTableProps {
 }
 
 const AssessmentResultsTable = ({ data, isLoading }: AssessmentResultsTableProps) => {
-  console.log('data', data)
   // 유니크한 user_id 추출
   const userIds = useMemo(() => [...new Set(data.map(item => item.user_id))], [data])
 

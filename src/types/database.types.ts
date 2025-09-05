@@ -1,10 +1,4 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export interface Database {
   public: {
@@ -137,7 +131,10 @@ export interface Database {
           updated_at: string | null
           created_at: string | null
         }
-        Insert: Omit<Database['public']['Tables']['facilities_ssmn_etc_nonbenefit']['Row'], 'id' | 'created_at' | 'updated_at'>
+        Insert: Omit<
+          Database['public']['Tables']['facilities_ssmn_etc_nonbenefit']['Row'],
+          'id' | 'created_at' | 'updated_at'
+        >
         Update: Partial<Database['public']['Tables']['facilities_ssmn_etc_nonbenefit']['Insert']>
       }
       facilities_ssmn_etc_program: {
@@ -152,8 +149,29 @@ export interface Database {
           updated_at: string | null
           created_at: string | null
         }
-        Insert: Omit<Database['public']['Tables']['facilities_ssmn_etc_program']['Row'], 'id' | 'created_at' | 'updated_at'>
+        Insert: Omit<
+          Database['public']['Tables']['facilities_ssmn_etc_program']['Row'],
+          'id' | 'created_at' | 'updated_at'
+        >
         Update: Partial<Database['public']['Tables']['facilities_ssmn_etc_program']['Row']>
+      }
+      announcements: {
+        Row: {
+          id: number
+          title: string
+          content: string
+          category: string
+          is_important: boolean
+          is_active: boolean
+          created_at: string
+          updated_at: string
+          created_by: number
+        }
+        Insert: Omit<
+          Database['public']['Tables']['announcements']['Row'],
+          'id' | 'created_at' | 'updated_at' | 'created_by'
+        >
+        Update: Partial<Database['public']['Tables']['announcements']['Insert']>
       }
     }
     Views: {
@@ -173,6 +191,7 @@ export type Member = Database['public']['Tables']['members']['Row']
 export type Facility = Database['public']['Tables']['facilities_ssmn_basic_full']['Row']
 export type FacilityNonBenefit = Database['public']['Tables']['facilities_ssmn_etc_nonbenefit']['Row']
 export type FacilityProgram = Database['public']['Tables']['facilities_ssmn_etc_program']['Row']
+export type Announcement = Database['public']['Tables']['announcements']['Row']
 
 // Permission 인터페이스는 현재 테이블 구조에서 사용되지 않음
 // 향후 권한 시스템 구현 시 사용 가능

@@ -105,6 +105,8 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 - TypeScript rule들로 설정된 ESLint
 - build 전에 엄격한 TypeScript compilation 필요
 - 일관성을 위해 모든 import들이 path alias (@/) 사용
+- 가능하면 함수형 프로그래밍
+- 주석은 최소화, 코드로 설명
 
 ## Git 커밋 규칙
 
@@ -115,3 +117,8 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 - refactor: 코드 리팩토링 (기능 변경 없음)
 - test: 테스트 추가 또는 수정
 - chore: 빌드 프로세스 또는 보조 도구 변경
+
+## 💡 권장사항
+
+- 새로운 라이브러리 도입 전 팀 논의
+- 성능 최적화는 측정 후 진행
