@@ -16,19 +16,31 @@ import {
   Spinner,
   Alert,
   AlertIcon,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from '@chakra-ui/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AddIcon } from '@chakra-ui/icons'
 import AnnouncementFormModal from '../components/AnnouncementFormModal'
 import { useState } from 'react'
-import { announcementService, type CreateAnnouncementData, type UpdateAnnouncementData } from '../services/announcementService'
+import {
+  announcementService,
+  type CreateAnnouncementData,
+  type UpdateAnnouncementData,
+} from '../services/announcementService'
 import type { Announcement } from '@/types/database.types'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
 
 const AnnouncementsPage = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
   const toast = useToast()
   const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null)
+  const [deletingAnnouncementId, setDeletingAnnouncementId] = useState<number | null>(null)
   const { user } = useAuth()
   const queryClient = useQueryClient()
 
@@ -135,9 +147,21 @@ const AnnouncementsPage = () => {
   }
 
   const handleDelete = (announcementId: number) => {
-    if (confirm('정말로 이 공지사항을 삭제하시겠습니까?')) {
-      deleteMutation.mutate(announcementId)
+    setDeletingAnnouncementId(announcementId)
+    onDeleteOpen()
+  }
+
+  const confirmDelete = () => {
+    if (deletingAnnouncementId) {
+      deleteMutation.mutate(deletingAnnouncementId)
     }
+    onDeleteClose()
+    setDeletingAnnouncementId(null)
+  }
+
+  const cancelDelete = () => {
+    onDeleteClose()
+    setDeletingAnnouncementId(null)
   }
 
   return (
@@ -190,6 +214,9 @@ const AnnouncementsPage = () => {
                                 중요
                               </Badge>
                             )}
+                            <Badge colorScheme={'gray'} variant='subtle'>
+                              {announcement.category}
+                            </Badge>
                             <Badge colorScheme={announcement.is_active ? 'green' : 'gray'} variant='subtle'>
                               {announcement.is_active ? '게시중' : '비활성'}
                             </Badge>
@@ -230,7 +257,9 @@ const AnnouncementsPage = () => {
                             </VStack>
                           </HStack>
 
-                          <Text color='gray.700'>{announcement.content}</Text>
+                          <Text color='gray.700' whiteSpace='pre-line'>
+                            {announcement.content}
+                          </Text>
 
                           {user && (
                             <Flex justify='flex-end'>
@@ -273,6 +302,26 @@ const AnnouncementsPage = () => {
         onSubmit={handleSubmit}
         editData={editingAnnouncement}
       />
+
+      <Modal isOpen={isDeleteOpen} onClose={cancelDelete} isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>공지사항 삭제</ModalHeader>
+          <ModalBody>
+            <Text>정말 삭제하시겠습니까?</Text>
+          </ModalBody>
+          <ModalFooter>
+            <HStack spacing={3}>
+              <Button variant='outline' onClick={cancelDelete}>
+                취소
+              </Button>
+              <Button colorScheme='red' onClick={confirmDelete}>
+                삭제
+              </Button>
+            </HStack>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Container>
   )
 }
