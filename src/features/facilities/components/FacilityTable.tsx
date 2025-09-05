@@ -54,7 +54,7 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
   if (isLoading) {
     return (
       <TableContainer>
-        <Table variant="simple">
+        <Table variant='simple'>
           <Thead>
             <Tr>
               <Th>시설명</Th>
@@ -64,20 +64,36 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
               <Th>평가 등급</Th>
               <Th>설치일</Th>
               <Th>연락처</Th>
-              <Th width="100px">작업</Th>
+              <Th width='100px'>작업</Th>
             </Tr>
           </Thead>
           <Tbody>
             {[...Array(5)].map((_, index) => (
               <Tr key={index}>
-                <Td><Skeleton height="20px" /></Td>
-                <Td><Skeleton height="20px" /></Td>
-                <Td><Skeleton height="20px" /></Td>
-                <Td><Skeleton height="20px" /></Td>
-                <Td><Skeleton height="20px" /></Td>
-                <Td><Skeleton height="20px" width="80px" /></Td>
-                <Td><Skeleton height="20px" width="100px" /></Td>
-                <Td><Skeleton height="20px" width="40px" /></Td>
+                <Td>
+                  <Skeleton height='20px' />
+                </Td>
+                <Td>
+                  <Skeleton height='20px' />
+                </Td>
+                <Td>
+                  <Skeleton height='20px' />
+                </Td>
+                <Td>
+                  <Skeleton height='20px' />
+                </Td>
+                <Td>
+                  <Skeleton height='20px' />
+                </Td>
+                <Td>
+                  <Skeleton height='20px' width='80px' />
+                </Td>
+                <Td>
+                  <Skeleton height='20px' width='100px' />
+                </Td>
+                <Td>
+                  <Skeleton height='20px' width='40px' />
+                </Td>
               </Tr>
             ))}
           </Tbody>
@@ -89,7 +105,7 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
   if (facilities.length === 0) {
     return (
       <TableContainer>
-        <Table variant="simple">
+        <Table variant='simple'>
           <Thead>
             <Tr>
               <Th>시설명</Th>
@@ -99,13 +115,13 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
               <Th>평가 등급</Th>
               <Th>설치일</Th>
               <Th>연락처</Th>
-              <Th width="100px">작업</Th>
+              <Th width='100px'>작업</Th>
             </Tr>
           </Thead>
           <Tbody>
             <Tr>
               <Td colSpan={8}>
-                <Text textAlign="center" color="gray.500" py="8">
+                <Text textAlign='center' color='gray.500' py='8'>
                   등록된 시설이 없습니다.
                 </Text>
               </Td>
@@ -118,7 +134,7 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
 
   return (
     <TableContainer>
-      <Table variant="simple">
+      <Table variant='simple'>
         <Thead>
           <Tr>
             <Th>시설명</Th>
@@ -128,49 +144,43 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
             <Th>평가 등급</Th>
             <Th>설치일</Th>
             <Th>연락처</Th>
-            <Th width="100px">작업</Th>
+            <Th width='100px'>작업</Th>
           </Tr>
         </Thead>
         <Tbody>
-          {facilities.map((facility) => (
+          {facilities.map(facility => (
             <Tr key={facility.admin_code}>
-              <Td fontWeight="medium">{facility.admin_name || '시설명 없음'}</Td>
+              <Td fontWeight='medium'>{facility.admin_name || '시설명 없음'}</Td>
               <Td>
                 {facility.admin_type_code && (
-                  <Tooltip 
+                  <Tooltip
                     label={`${facility.admin_type_code} - ${getFacilityTypeLabel(facility.admin_type_code)}`}
-                    placement="top"
+                    placement='top'
                     hasArrow
                   >
-                    <Badge colorScheme="blue" size="sm" cursor="help">
+                    <Badge colorScheme='blue' size='sm' cursor='help'>
                       {facility.admin_type_code}
                     </Badge>
                   </Tooltip>
                 )}
               </Td>
               <Td>
-                <Text fontSize="sm">
-                  {facility.address || '-'}
-                </Text>
+                <Text fontSize='sm'>{facility.address || '-'}</Text>
               </Td>
               <Td>
-                <Text fontSize="sm">
-                  {facility.capacity || 0}명
-                </Text>
+                <Text fontSize='sm'>{facility.capacity || 0}명</Text>
               </Td>
               <Td>
                 {facility.final_rating && (
-                  <Badge colorScheme={getRatingBadgeColor(facility.final_rating)}>
-                    {facility.final_rating}
-                  </Badge>
+                  <Badge colorScheme={getRatingBadgeColor(facility.final_rating)}>{facility.final_rating}</Badge>
                 )}
               </Td>
               <Td>
-                {facility.install_date 
+                {facility.install_date
                   ? new Date(facility.install_date).toLocaleDateString('ko-KR', {
                       year: 'numeric',
                       month: '2-digit',
-                      day: '2-digit'
+                      day: '2-digit',
                     })
                   : '-'}
               </Td>
@@ -180,9 +190,9 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
                   <MenuButton
                     as={IconButton}
                     icon={<FiMoreVertical />}
-                    variant="ghost"
-                    size="sm"
-                    aria-label="작업 메뉴"
+                    variant='ghost'
+                    size='sm'
+                    aria-label='작업 메뉴'
                   />
                   <MenuList>
                     <MenuItem icon={<FiEye />} onClick={() => onView(facility)}>
@@ -194,11 +204,7 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
                       </MenuItem>
                     )}
                     {canDelete('facilities') && (
-                      <MenuItem 
-                        icon={<FiTrash2 />} 
-                        onClick={() => onDelete(facility)}
-                        color="red.500"
-                      >
+                      <MenuItem icon={<FiTrash2 />} onClick={() => onDelete(facility)} color='red.500'>
                         삭제
                       </MenuItem>
                     )}

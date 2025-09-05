@@ -27,9 +27,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const checkAuth = async () => {
     try {
       setIsLoading(true)
+      setError(null)
+      console.log('🔍 AuthContext: checkAuth 시작')
+      
       const adminUser = await authService.checkSession()
+      console.log('✅ AuthContext: checkSession 결과:', adminUser)
+      
       setUser(adminUser)
     } catch (err) {
+      console.error('❌ AuthContext: checkAuth 에러:', err)
       setError(err instanceof Error ? err.message : '인증 확인 중 오류가 발생했습니다.')
       setUser(null)
     } finally {
@@ -41,15 +47,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setIsLoading(true)
       setError(null)
+      console.log('🔍 AuthContext: login 시작', credentials.email)
 
       const adminUser = await authService.login(credentials)
-      
-      // 로컬 스토리지에 사용자 정보 저장
-      localStorage.setItem('admin_user', JSON.stringify(adminUser))
+      console.log('✅ AuthContext: login 성공', adminUser)
       
       setUser(adminUser)
+      console.log('🚀 AuthContext: 대시보드로 이동')
       navigate('/dashboard')
     } catch (err) {
+      console.error('❌ AuthContext: login 에러:', err)
       setError(err instanceof Error ? err.message : '로그인 중 오류가 발생했습니다.')
       throw err
     } finally {

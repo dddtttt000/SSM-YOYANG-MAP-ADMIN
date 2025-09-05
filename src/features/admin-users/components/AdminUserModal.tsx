@@ -150,23 +150,21 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="md">
+    <Modal isOpen={isOpen} onClose={handleClose} size='md'>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>
-          {isEditMode ? '관리자 정보 수정' : '새 관리자 추가'}
-        </ModalHeader>
+        <ModalHeader>{isEditMode ? '관리자 정보 수정' : '새 관리자 추가'}</ModalHeader>
         <ModalCloseButton />
-        
+
         <ModalBody>
-          <VStack spacing="4">
+          <VStack spacing='4'>
             <FormControl isInvalid={!!errors.email} isDisabled={isEditMode}>
               <FormLabel>이메일</FormLabel>
               <Input
-                type="email"
+                type='email'
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="admin@example.com"
+                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                placeholder='admin@example.com'
               />
               <FormErrorMessage>{errors.email}</FormErrorMessage>
             </FormControl>
@@ -175,8 +173,8 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
               <FormLabel>이름</FormLabel>
               <Input
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="관리자 이름"
+                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                placeholder='관리자 이름'
               />
               <FormErrorMessage>{errors.name}</FormErrorMessage>
             </FormControl>
@@ -185,16 +183,14 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
               <FormLabel>역할</FormLabel>
               <Select
                 value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
+                onChange={e => setFormData({ ...formData, role: e.target.value as any })}
                 isDisabled={currentUser?.role !== 'super_admin'}
               >
-                <option value="admin">관리자</option>
-                {currentUser?.role === 'super_admin' && (
-                  <option value="super_admin">최고 관리자</option>
-                )}
+                <option value='admin'>관리자</option>
+                {currentUser?.role === 'super_admin' && <option value='super_admin'>최고 관리자</option>}
               </Select>
               {formData.role === 'admin' && (
-                <Text fontSize="sm" color="gray.500" mt="2">
+                <Text fontSize='sm' color='gray.500' mt='2'>
                   관리자는 별도로 권한을 설정해야 합니다.
                 </Text>
               )}
@@ -208,16 +204,16 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
                     <Input
                       type={showPassword ? 'text' : 'password'}
                       value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      placeholder="6자 이상"
+                      onChange={e => setFormData({ ...formData, password: e.target.value })}
+                      placeholder='6자 이상'
                     />
                     <InputRightElement>
                       <IconButton
                         aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 표시'}
                         icon={showPassword ? <FiEyeOff /> : <FiEye />}
                         onClick={() => setShowPassword(!showPassword)}
-                        variant="ghost"
-                        size="sm"
+                        variant='ghost'
+                        size='sm'
                       />
                     </InputRightElement>
                   </InputGroup>
@@ -229,8 +225,8 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
                   <Input
                     type={showPassword ? 'text' : 'password'}
                     value={formData.confirmPassword}
-                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                    placeholder="비밀번호 재입력"
+                    onChange={e => setFormData({ ...formData, confirmPassword: e.target.value })}
+                    placeholder='비밀번호 재입력'
                   />
                   <FormErrorMessage>{errors.confirmPassword}</FormErrorMessage>
                 </FormControl>
@@ -240,11 +236,11 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
         </ModalBody>
 
         <ModalFooter>
-          <Button variant="ghost" mr={3} onClick={handleClose}>
+          <Button variant='ghost' mr={3} onClick={handleClose}>
             취소
           </Button>
           <Button
-            colorScheme="brand"
+            colorScheme='brand'
             onClick={handleSubmit}
             isLoading={createAdminUser.isPending || updateAdminUser.isPending}
           >

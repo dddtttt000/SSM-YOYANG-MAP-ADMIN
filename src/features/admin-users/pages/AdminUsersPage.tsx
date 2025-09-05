@@ -1,14 +1,4 @@
-import {
-  Box,
-  Heading,
-  Text,
-  Button,
-  Card,
-  CardBody,
-  VStack,
-  HStack,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { Box, Heading, Text, Button, Card, CardBody, VStack, HStack, useDisclosure } from '@chakra-ui/react'
 import { FiPlus } from 'react-icons/fi'
 import { useState } from 'react'
 import { useAdminUsers } from '../hooks/useAdminUsers'
@@ -24,13 +14,9 @@ const AdminUsersPage = () => {
   const { canCreate } = usePermission()
   const [filters, setFilters] = useState<Filters>({})
   const { data: adminUsers, isLoading } = useAdminUsers(filters)
-  
-  const {
-    isOpen: isUserModalOpen,
-    onOpen: onUserModalOpen,
-    onClose: onUserModalClose,
-  } = useDisclosure()
-  
+
+  const { isOpen: isUserModalOpen, onOpen: onUserModalOpen, onClose: onUserModalClose } = useDisclosure()
+
   const {
     isOpen: isPermissionModalOpen,
     onOpen: onPermissionModalOpen,
@@ -56,22 +42,16 @@ const AdminUsersPage = () => {
 
   return (
     <Box>
-      <VStack align="stretch" spacing="6">
-        <HStack justify="space-between">
+      <VStack align='stretch' spacing='6'>
+        <HStack justify='space-between'>
           <Box>
-            <Heading size="lg" mb="2">
+            <Heading size='lg' mb='2'>
               관리자 관리
             </Heading>
-            <Text color="gray.600">
-              시스템 관리자를 추가하고 권한을 설정할 수 있습니다.
-            </Text>
+            <Text color='gray.600'>시스템 관리자를 추가하고 권한을 설정할 수 있습니다.</Text>
           </Box>
           {canCreate('admin_users') && (
-            <Button
-              colorScheme="brand"
-              leftIcon={<FiPlus />}
-              onClick={handleAddUser}
-            >
+            <Button colorScheme='brand' leftIcon={<FiPlus />} onClick={handleAddUser}>
               관리자 추가
             </Button>
           )}
@@ -79,12 +59,9 @@ const AdminUsersPage = () => {
 
         <Card>
           <CardBody>
-            <VStack align="stretch" spacing="4">
-              <AdminUserFilters
-                filters={filters}
-                onFiltersChange={setFilters}
-              />
-              
+            <VStack align='stretch' spacing='4'>
+              <AdminUserFilters filters={filters} onFiltersChange={setFilters} />
+
               <AdminUserTable
                 adminUsers={adminUsers || []}
                 isLoading={isLoading}
@@ -96,17 +73,9 @@ const AdminUsersPage = () => {
         </Card>
       </VStack>
 
-      <AdminUserModal
-        isOpen={isUserModalOpen}
-        onClose={onUserModalClose}
-        user={selectedUser}
-      />
+      <AdminUserModal isOpen={isUserModalOpen} onClose={onUserModalClose} user={selectedUser} />
 
-      <PermissionModal
-        isOpen={isPermissionModalOpen}
-        onClose={onPermissionModalClose}
-        user={selectedUser}
-      />
+      <PermissionModal isOpen={isPermissionModalOpen} onClose={onPermissionModalClose} user={selectedUser} />
     </Box>
   )
 }
