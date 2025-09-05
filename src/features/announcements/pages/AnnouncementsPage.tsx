@@ -27,12 +27,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AddIcon } from '@chakra-ui/icons'
 import AnnouncementFormModal from '../components/AnnouncementFormModal'
 import { useState } from 'react'
-import {
-  announcementService,
-  type CreateAnnouncementData,
-  type UpdateAnnouncementData,
-} from '../services/announcementService'
+import { announcementService } from '../services/announcementService'
 import type { Announcement } from '@/types/database.types'
+import type { CreateAnnouncementData, UpdateAnnouncementData } from '../types'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
 
 const AnnouncementsPage = () => {
