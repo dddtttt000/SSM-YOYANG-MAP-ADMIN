@@ -12,7 +12,7 @@ import {
   Divider,
 } from '@chakra-ui/react'
 import { Link, useLocation } from 'react-router-dom'
-import { FiHome, FiUsers, FiShield, FiMapPin, FiX, FiActivity, FiBell } from 'react-icons/fi'
+import { FiHome, FiUsers, FiShield, FiMapPin, FiX, FiActivity, FiBell, FiHelpCircle } from 'react-icons/fi'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
 import { usePermission } from '@/hooks/usePermission'
 
@@ -56,6 +56,12 @@ const navItems: NavItem[] = [
     path: '/announcements',
     icon: FiBell,
     requiredPermission: { resource: 'announcements', action: 'read' },
+  },
+  {
+    name: '자주 묻는 질문',
+    path: '/questions',
+    icon: FiHelpCircle,
+    requiredPermission: { resource: 'questions', action: 'read' },
   },
   {
     name: '모니터링',
