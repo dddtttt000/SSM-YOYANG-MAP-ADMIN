@@ -12,7 +12,7 @@ import {
   Divider,
 } from '@chakra-ui/react'
 import { Link, useLocation } from 'react-router-dom'
-import { FiHome, FiUsers, FiShield, FiMapPin, FiX, FiActivity, FiBell, FiHelpCircle } from 'react-icons/fi'
+import { FiHome, FiUsers, FiShield, FiMapPin, FiX, FiActivity, FiBell, FiHelpCircle, FiMessageSquare } from 'react-icons/fi'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
 import { usePermission } from '@/hooks/usePermission'
 
@@ -62,6 +62,12 @@ const navItems: NavItem[] = [
     path: '/questions',
     icon: FiHelpCircle,
     requiredPermission: { resource: 'questions', action: 'read' },
+  },
+  {
+    name: '서비스 문의',
+    path: '/service-inquiries',
+    icon: FiMessageSquare,
+    requiredPermission: { resource: 'service_inquiries', action: 'read' },
   },
   {
     name: '모니터링',
@@ -117,7 +123,8 @@ const SidebarContent = ({ onClose, isOpen }: { onClose?: () => void; isOpen?: bo
 
       <VStack spacing='1' align='stretch' mt='8'>
         {filteredNavItems.map(item => {
-          const isActive = location.pathname === item.path
+          const isActive = location.pathname === item.path || 
+            (item.path === '/service-inquiries' && location.pathname.startsWith('/service-inquiries'))
           return (
             <Link key={item.path} to={item.path}>
               <Flex

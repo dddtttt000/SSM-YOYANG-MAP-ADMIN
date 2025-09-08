@@ -1,30 +1,15 @@
 import { supabase } from '@/lib/supabase'
 import type { Announcement, Database } from '@/types/database.types'
+import type {
+  CreateAnnouncementData,
+  UpdateAnnouncementData,
+  AnnouncementFilters,
+  AnnouncementError,
+  AnnouncementCategory,
+} from '../types'
 
 type AnnouncementInsert = Database['public']['Tables']['announcements']['Insert']
 type AnnouncementUpdate = Database['public']['Tables']['announcements']['Update']
-
-export interface CreateAnnouncementData {
-  title: string
-  content: string
-  category: string
-  isImportant: boolean
-  isActive?: boolean
-}
-
-export interface UpdateAnnouncementData {
-  title: string
-  content: string
-  category: string
-  isImportant: boolean
-  isActive?: boolean
-}
-
-export interface AnnouncementFilters {
-  isActive?: boolean
-  isImportant?: boolean
-  search?: string
-}
 
 class AnnouncementService {
   /**
@@ -47,11 +32,19 @@ class AnnouncementService {
         query = query.or(`title.ilike.%${filters.search}%,content.ilike.%${filters.search}%`)
       }
 
+      if (filters?.category) {
+        query = query.eq('category', filters.category)
+      }
+
       const { data, error } = await query
 
       if (error) {
         console.error('공지사항 목록 조회 오류:', error)
-        throw new Error('공지사항 목록을 불러오는데 실패했습니다.')
+        const announcementError: AnnouncementError = {
+          message: '공지사항 목록을 불러오는데 실패했습니다.',
+          code: error.code,
+        }
+        throw announcementError
       }
 
       return data || []
@@ -173,7 +166,7 @@ class AnnouncementService {
       return await this.updateAnnouncement(id, {
         title: current.title,
         content: current.content,
-        category: current.category,
+        category: current.category as AnnouncementCategory,
         isImportant: current.is_important,
         isActive: newStatus,
       })

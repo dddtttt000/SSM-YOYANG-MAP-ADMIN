@@ -9,7 +9,6 @@ import {
   Button,
   useDisclosure,
   HStack,
-  Badge,
   Flex,
   Spacer,
   useToast,
@@ -26,13 +25,12 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AddIcon } from '@chakra-ui/icons'
 import AnnouncementFormModal from '../components/AnnouncementFormModal'
+import AnnouncementTable from '../components/AnnouncementTable'
+import AnnouncementFiltersComponent from '../components/AnnouncementFilters'
 import { useState } from 'react'
-import {
-  announcementService,
-  type CreateAnnouncementData,
-  type UpdateAnnouncementData,
-} from '../services/announcementService'
+import { announcementService } from '../services/announcementService'
 import type { Announcement } from '@/types/database.types'
+import type { CreateAnnouncementData, UpdateAnnouncementData, AnnouncementFilters } from '../types'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
 
 const AnnouncementsPage = () => {
@@ -41,6 +39,7 @@ const AnnouncementsPage = () => {
   const toast = useToast()
   const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null)
   const [deletingAnnouncementId, setDeletingAnnouncementId] = useState<number | null>(null)
+  const [filters, setFilters] = useState<AnnouncementFilters>({})
   const { user } = useAuth()
   const queryClient = useQueryClient()
 
@@ -50,8 +49,8 @@ const AnnouncementsPage = () => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ['announcements'],
-    queryFn: () => announcementService.getAnnouncements(),
+    queryKey: ['announcements', filters],
+    queryFn: () => announcementService.getAnnouncements(filters),
   })
 
   // 공통 Mutation 에러 핸들러
@@ -164,6 +163,10 @@ const AnnouncementsPage = () => {
     setDeletingAnnouncementId(null)
   }
 
+  const handleFiltersChange = (newFilters: AnnouncementFilters) => {
+    setFilters(newFilters)
+  }
+
   return (
     <Container maxW='container.xl' py='8'>
       <VStack align='stretch' spacing='8'>
@@ -182,6 +185,17 @@ const AnnouncementsPage = () => {
           )}
         </Flex>
 
+        {/* 필터 */}
+        <Card>
+          <CardBody>
+            <AnnouncementFiltersComponent 
+              onFiltersChange={handleFiltersChange} 
+              initialFilters={filters}
+            />
+          </CardBody>
+        </Card>
+
+        {/* 공지사항 목록 */}
         <Card>
           <CardBody>
             {isLoading ? (
@@ -198,98 +212,19 @@ const AnnouncementsPage = () => {
               </Alert>
             ) : (
               <VStack align='stretch' spacing='4'>
-                {announcementsData?.length === 0 ? (
-                  <Box textAlign='center' py='12'>
-                    <Text color='gray.500'>등록된 공지사항이 없습니다.</Text>
+                {announcementsData && announcementsData.length > 0 && (
+                  <Box>
+                    <Text fontSize='sm' color='gray.600' mb='4'>
+                      총 {announcementsData.length}개의 공지사항
+                    </Text>
                   </Box>
-                ) : (
-                  announcementsData?.map(announcement => (
-                    <Card key={announcement.id} variant='outline'>
-                      <CardBody>
-                        <VStack align='stretch' spacing='3'>
-                          <HStack>
-                            <Heading size='md'>{announcement.title}</Heading>
-                            {announcement.is_important && (
-                              <Badge colorScheme='red' variant='solid'>
-                                중요
-                              </Badge>
-                            )}
-                            <Badge colorScheme={'gray'} variant='subtle'>
-                              {announcement.category}
-                            </Badge>
-                            <Badge colorScheme={announcement.is_active ? 'green' : 'gray'} variant='subtle'>
-                              {announcement.is_active ? '게시중' : '비활성'}
-                            </Badge>
-                            <Spacer />
-                            <VStack align='flex-end' spacing='1'>
-                              <Text fontSize='sm' color='gray.500'>
-                                작성일시:{' '}
-                                {new Date(announcement.created_at)
-                                  .toLocaleString('ko-KR', {
-                                    year: 'numeric',
-                                    month: '2-digit',
-                                    day: '2-digit',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: false,
-                                  })
-                                  .replace(/\. /g, '-')
-                                  .replace('.', '')
-                                  .replace(', ', ' ')}
-                              </Text>
-                              {announcement.updated_at && announcement.updated_at !== announcement.created_at && (
-                                <Text fontSize='sm' color='gray.500'>
-                                  수정일시:{' '}
-                                  {new Date(announcement.updated_at)
-                                    .toLocaleString('ko-KR', {
-                                      year: 'numeric',
-                                      month: '2-digit',
-                                      day: '2-digit',
-                                      hour: '2-digit',
-                                      minute: '2-digit',
-                                      hour12: false,
-                                    })
-                                    .replace(/\. /g, '-')
-                                    .replace('.', '')
-                                    .replace(', ', ' ')}
-                                </Text>
-                              )}
-                            </VStack>
-                          </HStack>
-
-                          <Text color='gray.700' whiteSpace='pre-line'>
-                            {announcement.content}
-                          </Text>
-
-                          {user && (
-                            <Flex justify='flex-end'>
-                              <HStack spacing='2'>
-                                <Button size='sm' variant='outline' onClick={() => handleEdit(announcement)}>
-                                  수정
-                                </Button>
-                                <Button
-                                  size='sm'
-                                  variant='outline'
-                                  colorScheme='red'
-                                  onClick={() => handleDelete(announcement.id)}
-                                >
-                                  삭제
-                                </Button>
-                                <Button
-                                  size='sm'
-                                  variant='ghost'
-                                  onClick={() => toggleStatusMutation.mutate(announcement.id)}
-                                >
-                                  {announcement.is_active ? '비활성화' : '활성화'}
-                                </Button>
-                              </HStack>
-                            </Flex>
-                          )}
-                        </VStack>
-                      </CardBody>
-                    </Card>
-                  ))
                 )}
+                <AnnouncementTable
+                  announcements={announcementsData || []}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onToggleStatus={(id) => toggleStatusMutation.mutate(id)}
+                />
               </VStack>
             )}
           </CardBody>

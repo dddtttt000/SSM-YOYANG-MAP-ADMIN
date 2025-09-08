@@ -19,7 +19,12 @@ import {
 } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
 import type { Announcement } from '@/types/database.types'
-import type { CreateAnnouncementData } from '../services/announcementService'
+import type {
+  CreateAnnouncementData,
+  AnnouncementFormData,
+  AnnouncementCategory,
+} from '../types'
+import { ANNOUNCEMENT_CATEGORIES, ANNOUNCEMENT_CONSTANTS } from '../types'
 
 interface AnnouncementFormModalProps {
   isOpen: boolean
@@ -29,7 +34,7 @@ interface AnnouncementFormModalProps {
 }
 
 const AnnouncementFormModal = ({ isOpen, onClose, onSubmit, editData }: AnnouncementFormModalProps) => {
-  const [formData, setFormData] = useState<CreateAnnouncementData>({
+  const [formData, setFormData] = useState<AnnouncementFormData>({
     title: '',
     content: '',
     category: '일반',
@@ -41,14 +46,14 @@ const AnnouncementFormModal = ({ isOpen, onClose, onSubmit, editData }: Announce
       setFormData({
         title: editData.title,
         content: editData.content,
-        category: editData.category,
+        category: editData.category as AnnouncementCategory,
         isImportant: editData.is_important,
       })
     } else {
       setFormData({
         title: '',
         content: '',
-        category: '일반',
+        category: ANNOUNCEMENT_CONSTANTS.DEFAULT_CATEGORY,
         isImportant: false,
       })
     }
@@ -64,7 +69,7 @@ const AnnouncementFormModal = ({ isOpen, onClose, onSubmit, editData }: Announce
     setFormData({
       title: '',
       content: '',
-      category: '일반',
+      category: ANNOUNCEMENT_CONSTANTS.DEFAULT_CATEGORY,
       isImportant: false,
     })
     onClose()
@@ -92,14 +97,14 @@ const AnnouncementFormModal = ({ isOpen, onClose, onSubmit, editData }: Announce
               <FormControl isRequired>
                 <FormLabel>카테고리</FormLabel>
                 <Select
-                  value={formData.category ?? '일반'}
-                  onChange={e => setFormData({ ...formData, category: e.target.value })}
+                  value={formData.category ?? ANNOUNCEMENT_CONSTANTS.DEFAULT_CATEGORY}
+                  onChange={e => setFormData({ ...formData, category: e.target.value as AnnouncementCategory })}
                 >
-                  <option value='일반'>일반</option>
-                  <option value='중요'>중요</option>
-                  <option value='긴급'>긴급</option>
-                  <option value='시스템'>시스템</option>
-                  <option value='공지'>공지</option>
+                  {ANNOUNCEMENT_CATEGORIES.map(category => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
                 </Select>
               </FormControl>
 

@@ -188,6 +188,39 @@ export interface Database {
         >
         Update: Partial<Database['public']['Tables']['questions']['Insert']>
       }
+      service_inquiries: {
+        Row: {
+          id: number
+          title: string
+          content: string
+          email: string
+          phone: string
+          status: 'pending' | 'answered'
+          created_at: string
+          updated_at: string
+        }
+        Insert: Omit<
+          Database['public']['Tables']['service_inquiries']['Row'],
+          'id' | 'created_at' | 'updated_at'
+        >
+        Update: Partial<Database['public']['Tables']['service_inquiries']['Insert']>
+      }
+      inquiry_responses: {
+        Row: {
+          id: number
+          inquiry_id: number
+          title: string
+          content: string
+          admin_user_id: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: Omit<
+          Database['public']['Tables']['inquiry_responses']['Row'],
+          'id' | 'created_at' | 'updated_at'
+        >
+        Update: Partial<Database['public']['Tables']['inquiry_responses']['Insert']>
+      }
     }
     Views: {
       [_ in never]: never
@@ -208,6 +241,8 @@ export type FacilityNonBenefit = Database['public']['Tables']['facilities_ssmn_e
 export type FacilityProgram = Database['public']['Tables']['facilities_ssmn_etc_program']['Row']
 export type Announcement = Database['public']['Tables']['announcements']['Row']
 export type Question = Database['public']['Tables']['questions']['Row']
+export type ServiceInquiry = Database['public']['Tables']['service_inquiries']['Row']
+export type InquiryResponse = Database['public']['Tables']['inquiry_responses']['Row']
 
 // Permission 인터페이스는 현재 테이블 구조에서 사용되지 않음
 // 향후 권한 시스템 구현 시 사용 가능
