@@ -13,6 +13,8 @@ const MembersPage = lazy(() => import('@/features/members/pages/MembersPage'))
 const FacilitiesPage = lazy(() => import('@/features/facilities/pages/FacilitiesPage'))
 const AnnouncementsPage = lazy(() => import('@/features/announcements/pages/AnnouncementsPage'))
 const QuestionsPage = lazy(() => import('@/features/questions/pages/QuestionsPage'))
+const ServiceInquiriesPage = lazy(() => import('@/features/service-inquiries/pages/ServiceInquiriesPage'))
+const ServiceInquiryDetailPage = lazy(() => import('@/features/service-inquiries/pages/ServiceInquiryDetailPage'))
 const MonitoringPage = lazy(() => import('@/features/monitoring/pages/MonitoringPage'))
 
 const LoadingFallback = () => (
@@ -43,6 +45,8 @@ function App() {
               <Route path='facilities' element={<FacilitiesPage />} />
               <Route path='announcements' element={<AnnouncementsPage />} />
               <Route path='questions' element={<QuestionsPage />} />
+              <Route path='service-inquiries' element={<ServiceInquiriesPage />} />
+              <Route path='service-inquiries/:id' element={<ServiceInquiryDetailPage />} />
               <Route path='monitoring' element={<MonitoringPage />} />
             </Route>
           </Routes>
