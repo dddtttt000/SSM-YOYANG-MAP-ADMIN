@@ -173,8 +173,6 @@ const FacilitiesPage = () => {
                 isLoading={isLoading}
                 viewMode={viewMode}
                 onView={handleViewDetails}
-                onEdit={handleEditFacility}
-                onDelete={handleDeleteFacility}
               />
 
               {facilitiesData && (
@@ -197,6 +195,7 @@ const FacilitiesPage = () => {
         onClose={onDetailModalClose}
         facilityId={selectedFacilityAdminCode}
         onEdit={handleEditFacility}
+        onDelete={handleDeleteFacility}
       />
 
       <FacilityFormModal isOpen={isFormModalOpen} onClose={onFormModalClose} facility={selectedFacility} />

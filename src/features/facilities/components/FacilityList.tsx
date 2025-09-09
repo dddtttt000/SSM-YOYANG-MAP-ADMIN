@@ -8,19 +8,15 @@ interface FacilityListProps {
   isLoading: boolean
   viewMode: 'card' | 'table'
   onView: (facility: Facility) => void
-  onEdit: (facility: Facility) => void
-  onDelete: (facility: Facility) => void
 }
 
-const FacilityList = ({ facilities, isLoading, viewMode, onView, onEdit, onDelete }: FacilityListProps) => {
+const FacilityList = ({ facilities, isLoading, viewMode, onView }: FacilityListProps) => {
   if (viewMode === 'table') {
     return (
       <FacilityTable
         facilities={facilities}
         isLoading={isLoading}
         onView={onView}
-        onEdit={onEdit}
-        onDelete={onDelete}
       />
     )
   }
@@ -54,7 +50,7 @@ const FacilityList = ({ facilities, isLoading, viewMode, onView, onEdit, onDelet
     <Grid templateColumns='repeat(auto-fill, minmax(350px, 1fr))' gap='6'>
       {facilities.map(facility => (
         <GridItem key={facility.admin_code}>
-          <FacilityCard facility={facility} onView={onView} onEdit={onEdit} onDelete={onDelete} />
+          <FacilityCard facility={facility} onView={onView} />
         </GridItem>
       ))}
     </Grid>
