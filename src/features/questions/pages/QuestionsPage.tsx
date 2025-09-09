@@ -103,21 +103,6 @@ const QuestionsPage = () => {
     setFilters(newFilters)
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString)
-      .toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      })
-      .replace(/\. /g, '-')
-      .replace('.', '')
-      .replace(', ', ' ')
-      .replace(/-(\d{2}:\d{2})/, ' $1')
-  }
 
   const getCategoryColor = (category: string) => {
     const colorMap: Record<string, string> = {

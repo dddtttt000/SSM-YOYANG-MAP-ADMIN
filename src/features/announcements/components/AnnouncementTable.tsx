@@ -9,42 +9,19 @@ import {
   Badge,
   Box,
   VStack,
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
 } from '@chakra-ui/react'
-import { FiEdit2, FiTrash2, FiMoreVertical, FiEye, FiEyeOff } from 'react-icons/fi'
+import { formatDate } from '@/utils/date'
 import type { Announcement } from '@/types/database.types'
 
 interface AnnouncementTableProps {
   announcements: Announcement[]
   onEdit: (announcement: Announcement) => void
-  onDelete: (id: number) => void
-  onToggleStatus: (id: number) => void
 }
 
 const AnnouncementTable = ({ 
   announcements, 
-  onEdit, 
-  onDelete, 
-  onToggleStatus 
+  onEdit
 }: AnnouncementTableProps) => {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString)
-      .toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      })
-      .replace(/\. /g, '-')
-      .replace('.', '')
-      .replace(', ', ' ')
-  }
 
   const getCategoryColor = (category: string) => {
     const colorMap: Record<string, string> = {
@@ -72,16 +49,19 @@ const AnnouncementTable = ({
           <Tr>
             <Th width="120px">카테고리</Th>
             <Th>제목</Th>
-            <Th>내용</Th>
             <Th width="100px">상태</Th>
             <Th width="150px">등록일시</Th>
             <Th width="150px">수정일시</Th>
-            <Th width="100px">작업</Th>
           </Tr>
         </Thead>
         <Tbody>
           {announcements.map(announcement => (
-            <Tr key={announcement.id}>
+            <Tr 
+              key={announcement.id}
+              cursor="pointer"
+              _hover={{ bg: 'gray.50' }}
+              onClick={() => onEdit(announcement)}
+            >
               <Td>
                 <VStack spacing="1">
                   <Badge colorScheme={getCategoryColor(announcement.category)} variant="subtle">
@@ -97,17 +77,6 @@ const AnnouncementTable = ({
               <Td>
                 <Text fontWeight="medium" fontSize="sm">
                   {announcement.title}
-                </Text>
-              </Td>
-              <Td>
-                <Text
-                  fontSize="sm"
-                  color="gray.600"
-                  noOfLines={2}
-                  maxWidth="300px"
-                  whiteSpace="pre-line"
-                >
-                  {announcement.content}
                 </Text>
               </Td>
               <Td>
@@ -130,35 +99,6 @@ const AnnouncementTable = ({
                     : '-'
                   }
                 </Text>
-              </Td>
-              <Td>
-                <Menu>
-                  <MenuButton
-                    as={IconButton}
-                    icon={<FiMoreVertical />}
-                    variant="ghost"
-                    size="sm"
-                    aria-label="작업 메뉴"
-                  />
-                  <MenuList>
-                    <MenuItem icon={<FiEdit2 />} onClick={() => onEdit(announcement)}>
-                      수정
-                    </MenuItem>
-                    <MenuItem 
-                      icon={announcement.is_active ? <FiEyeOff /> : <FiEye />} 
-                      onClick={() => onToggleStatus(announcement.id)}
-                    >
-                      {announcement.is_active ? '비활성화' : '활성화'}
-                    </MenuItem>
-                    <MenuItem 
-                      icon={<FiTrash2 />} 
-                      onClick={() => onDelete(announcement.id)}
-                      color="red.500"
-                    >
-                      삭제
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
               </Td>
             </Tr>
           ))}

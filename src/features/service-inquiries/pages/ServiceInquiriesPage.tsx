@@ -30,6 +30,7 @@ import { useState } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon, ViewIcon } from '@chakra-ui/icons'
 import { useNavigate } from 'react-router-dom'
 import { inquiryService } from '../services/inquiryService'
+import { formatDate } from '@/utils/date'
 import type { InquiryFilters, InquirySorting } from '../types/inquiry.types'
 
 const ServiceInquiriesPage = () => {
@@ -91,20 +92,6 @@ const ServiceInquiriesPage = () => {
     navigate(`/service-inquiries/${inquiryId}`)
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString)
-      .toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      })
-      .replace(/\. /g, '-')
-      .replace('.', '')
-      .replace(', ', ' ')
-  }
 
   const getStatusBadge = (status: string) => {
     return status === 'answered' ? (
@@ -207,24 +194,23 @@ const ServiceInquiriesPage = () => {
                         <Th cursor="pointer" onClick={() => handleSort('id')}>
                           ID
                         </Th>
+                        <Th cursor="pointer" onClick={() => handleSort('status')}>
+                          상태
+                        </Th>
                         <Th cursor="pointer" onClick={() => handleSort('title')}>
                           제목
                         </Th>
                         <Th>이메일</Th>
                         <Th>휴대폰</Th>
-                        <Th cursor="pointer" onClick={() => handleSort('status')}>
-                          상태
-                        </Th>
                         <Th cursor="pointer" onClick={() => handleSort('created_at')}>
                           문의일시
                         </Th>
-                        <Th>작업</Th>
                       </Tr>
                     </Thead>
                     <Tbody>
                       {inquiriesData?.data.length === 0 ? (
                         <Tr>
-                          <Td colSpan={7}>
+                          <Td colSpan={6}>
                             <Box textAlign="center" py="12">
                               <Text color="gray.500">등록된 서비스 문의가 없습니다.</Text>
                             </Box>
@@ -232,21 +218,18 @@ const ServiceInquiriesPage = () => {
                         </Tr>
                       ) : (
                         inquiriesData?.data.map((inquiry) => (
-                          <Tr key={inquiry.id}>
+                          <Tr 
+                            key={inquiry.id}
+                            cursor="pointer" 
+                            _hover={{ bg: 'gray.50' }}
+                            onClick={() => handleViewDetail(inquiry.id)}
+                          >
                             <Td>{inquiry.id}</Td>
+                            <Td>{getStatusBadge(inquiry.status)}</Td>
                             <Td maxW="200px" isTruncated>{inquiry.title}</Td>
                             <Td>{inquiry.email}</Td>
                             <Td>{inquiry.phone}</Td>
-                            <Td>{getStatusBadge(inquiry.status)}</Td>
                             <Td>{formatDate(inquiry.created_at)}</Td>
-                            <Td>
-                              <IconButton
-                                aria-label="상세보기"
-                                icon={<ViewIcon />}
-                                size="sm"
-                                onClick={() => handleViewDetail(inquiry.id)}
-                              />
-                            </Td>
                           </Tr>
                         ))
                       )}

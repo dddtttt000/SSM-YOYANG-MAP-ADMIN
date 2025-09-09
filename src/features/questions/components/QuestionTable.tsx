@@ -1,4 +1,5 @@
 import { Table, Thead, Tbody, Tr, Th, Td, Text, Badge, Box, VStack } from '@chakra-ui/react'
+import { formatDate } from '@/utils/date'
 import type { Question } from '../types'
 
 interface QuestionTableProps {
@@ -7,21 +8,6 @@ interface QuestionTableProps {
 }
 
 const QuestionTable = ({ questions, onEdit }: QuestionTableProps) => {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString)
-      .toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      })
-      .replace(/\. /g, '-')
-      .replace('.', '')
-      .replace(', ', ' ')
-      .replace(/-(\d{2}:\d{2})/, ' $1')
-  }
 
   const getCategoryColor = (category: string) => {
     const colorMap: Record<string, string> = {

@@ -35,6 +35,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { inquiryService } from '../services/inquiryService'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
+import { formatDate } from '@/utils/date'
 
 interface ResponseFormData {
   title: string
@@ -164,20 +165,6 @@ const ServiceInquiryDetailPage = () => {
     responseUpsertMutation.mutate(data)
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString)
-      .toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-      })
-      .replace(/\. /g, '-')
-      .replace('.', '')
-      .replace(', ', ' ')
-  }
 
   const getStatusBadge = (status: string) => {
     return status === 'answered' ? (
