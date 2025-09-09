@@ -20,7 +20,6 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  Badge,
 } from '@chakra-ui/react'
 import { AddIcon } from '@chakra-ui/icons'
 import { useState } from 'react'
@@ -104,16 +103,6 @@ const QuestionsPage = () => {
   }
 
 
-  const getCategoryColor = (category: string) => {
-    const colorMap: Record<string, string> = {
-      회원: 'blue',
-      서비스: 'green',
-      AI추천: 'purple',
-      시설정보: 'orange',
-      기타: 'gray',
-    }
-    return colorMap[category] || 'gray'
-  }
 
   return (
     <Container maxW='container.xl' py='8'>

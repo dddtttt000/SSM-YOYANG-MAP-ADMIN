@@ -27,7 +27,7 @@ import {
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import { ChevronLeftIcon, ChevronRightIcon, ViewIcon } from '@chakra-ui/icons'
+import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { useNavigate } from 'react-router-dom'
 import { inquiryService } from '../services/inquiryService'
 import { formatDate } from '@/utils/date'
