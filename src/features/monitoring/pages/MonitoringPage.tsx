@@ -36,6 +36,7 @@ import AssessmentResultsTable from '../components/AssessmentResultsTable'
 import CallEventsTable from '../components/CallEventsTable'
 import FavoriteFacilitiesTable from '../components/FavoriteFacilitiesTable'
 import { firestore } from '@/lib/firebase'
+import { logger } from '@/utils/logger'
 
 const MonitoringPage = () => {
   const [filters, setFilters] = useState<MonitoringFilters>({
@@ -47,7 +48,7 @@ const MonitoringPage = () => {
 
   // Firebase 연결 상태 확인
   useEffect(() => {
-    console.log('Firebase 연결 상태:', {
+    logger.log('Firebase 연결 상태:', {
       firestore: !!firestore,
       // Firestore 인스턴스가 있으면 연결됨
       connected: !!firestore,
@@ -89,7 +90,7 @@ const MonitoringPage = () => {
       await createTestData()
       alert('테스트 데이터가 생성되었습니다. 페이지를 새로고침해주세요.')
     } catch (error) {
-      console.error('테스트 데이터 생성 실패:', error)
+      logger.error('테스트 데이터 생성 실패:', error)
       alert('테스트 데이터 생성에 실패했습니다.')
     }
   }

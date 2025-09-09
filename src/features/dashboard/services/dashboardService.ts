@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { firestore } from '@/lib/firebase'
 import { collection, query, where, getDocs, orderBy, limit, Timestamp } from 'firebase/firestore'
+import { logger } from '@/utils/logger'
 
 export interface DashboardStats {
   totalMembers: number
@@ -115,7 +116,7 @@ class DashboardService {
         todayActivities,
       }
     } catch (error) {
-      console.error('Error fetching dashboard stats:', error)
+      logger.error('Error fetching dashboard stats:', error)
       throw error
     }
   }
@@ -248,7 +249,7 @@ class DashboardService {
 
       return limitedActivities
     } catch (error) {
-      console.error('Error fetching recent activities:', error)
+      logger.error('Error fetching recent activities:', error)
       throw error
     }
   }
@@ -279,7 +280,7 @@ class DashboardService {
         },
       }
     } catch (error) {
-      console.error('Error checking system status:', error)
+      logger.error('Error checking system status:', error)
       return {
         database: 'error',
         api: 'error',

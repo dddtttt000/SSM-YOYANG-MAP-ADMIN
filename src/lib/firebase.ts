@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
+import { logger } from '@/utils/logger'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
@@ -14,9 +15,9 @@ const firebaseConfig = {
 const hasFirebaseConfig = firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.appId
 
 if (!hasFirebaseConfig) {
-  console.error('🚨 Firebase 환경 변수가 설정되지 않았습니다!')
-  console.error('다음 환경 변수들을 .env.local 파일에 추가해주세요:')
-  console.error(`
+  logger.error('🚨 Firebase 환경 변수가 설정되지 않았습니다!')
+  logger.error('다음 환경 변수들을 .env.local 파일에 추가해주세요:')
+  logger.error(`
 VITE_FIREBASE_API_KEY=your-api-key
 VITE_FIREBASE_AUTH_DOMAIN=your-auth-domain
 VITE_FIREBASE_PROJECT_ID=your-project-id
@@ -24,9 +25,9 @@ VITE_FIREBASE_STORAGE_BUCKET=your-storage-bucket
 VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
 VITE_FIREBASE_APP_ID=your-app-id
   `)
-  console.error('Firebase Console에서 이 값들을 확인할 수 있습니다.')
+  logger.error('Firebase Console에서 이 값들을 확인할 수 있습니다.')
 } else {
-  console.log('✅ Firebase 설정 로드됨:', {
+  logger.log('✅ Firebase 설정 로드됨:', {
     projectId: firebaseConfig.projectId,
     authDomain: firebaseConfig.authDomain,
     hasApiKey: !!firebaseConfig.apiKey,
@@ -39,10 +40,10 @@ let app
 try {
   app = initializeApp(firebaseConfig)
   if (hasFirebaseConfig) {
-    console.log('✅ Firebase 초기화 성공')
+    logger.log('✅ Firebase 초기화 성공')
   }
 } catch (error) {
-  console.error('❌ Firebase 초기화 실패:', error)
+  logger.error('❌ Firebase 초기화 실패:', error)
   throw error
 }
 

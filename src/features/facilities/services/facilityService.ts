@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { logger } from '@/utils/logger'
 import { Facility, FacilityNonBenefit, FacilityProgram } from '@/types/database.types'
 
 export interface FacilityFilters {
@@ -147,8 +148,8 @@ class FacilityService {
     if (type_codes && type_codes.length > 0) {
       // 복수 유형 코드를 가진 시설도 포함하기 위해 OR 조건 사용
       const typeFilters = type_codes.map(code => `admin_type_code.ilike.%${code}%`).join(',')
-      console.log('[getFacilities] 시설 유형 필터 적용:', type_codes)
-      console.log('[getFacilities] 생성된 필터 조건:', typeFilters)
+      logger.log('[getFacilities] 시설 유형 필터 적용:', type_codes)
+      logger.log('[getFacilities] 생성된 필터 조건:', typeFilters)
       countQuery = countQuery.or(typeFilters)
       dataQuery = dataQuery.or(typeFilters)
     }
@@ -181,7 +182,7 @@ class FacilityService {
       throw new Error('시설을 찾을 수 없습니다.')
     }
     if (facilities.length > 1) {
-      console.error(`중복된 admin_code 발견: ${adminCode}, 개수: ${facilities.length}`)
+      logger.error(`중복된 admin_code 발견: ${adminCode}, 개수: ${facilities.length}`)
       throw new Error('중복된 시설 코드가 발견되었습니다.')
     }
     
@@ -243,7 +244,7 @@ class FacilityService {
       throw new Error('시설을 찾을 수 없습니다.')
     }
     if (existingData.length > 1) {
-      console.error(`중복된 admin_code 발견: ${adminCode}, 개수: ${existingData.length}`)
+      logger.error(`중복된 admin_code 발견: ${adminCode}, 개수: ${existingData.length}`)
       throw new Error('중복된 시설 코드가 발견되었습니다.')
     }
 
@@ -404,14 +405,15 @@ class FacilityService {
   }
 
   async getFacilityTypesWithCount() {
-    console.log('[getFacilityTypesWithCount] 시작')
+    logger.log('[getFacilityTypesWithCount] 시작')
     
     // Supabase는 기본적으로 1000개만 반환하므로 모든 데이터를 가져오기 위해 페이지네이션 사용
     const allData: any[] = []
     const limit = 1000
     let offset = 0
     
-    while (true) {
+    let hasMoreData = true
+    while (hasMoreData) {
       const { data, error } = await supabase
         .from('facilities_ssmn_basic_full')
         .select('admin_type_code')
@@ -419,25 +421,31 @@ class FacilityService {
         .range(offset, offset + limit - 1)
       
       if (error) {
-        console.error('[getFacilityTypesWithCount] 쿼리 에러:', error)
+        logger.error('[getFacilityTypesWithCount] 쿼리 에러:', error)
         throw error
       }
       
-      if (!data || data.length === 0) break
+      if (!data || data.length === 0) {
+        hasMoreData = false
+        break
+      }
       
       allData.push(...data)
       
-      if (data.length < limit) break
-      offset += limit
+      if (data.length < limit) {
+        hasMoreData = false
+      } else {
+        offset += limit
+      }
     }
 
-    console.log('[getFacilityTypesWithCount] 조회된 데이터 수:', allData.length)
+    logger.log('[getFacilityTypesWithCount] 조회된 데이터 수:', allData.length)
     
     // 샘플 데이터 출력 (처음 5개)
     if (allData && allData.length > 0) {
-      console.log('[getFacilityTypesWithCount] 샘플 데이터 (처음 5개):')
+      logger.log('[getFacilityTypesWithCount] 샘플 데이터 (처음 5개):')
       allData.slice(0, 5).forEach((item, index) => {
-        console.log(`  [${index + 1}] admin_type_code:`, item.admin_type_code)
+        logger.log(`  [${index + 1}] admin_type_code:`, item.admin_type_code)
       })
     }
 
@@ -452,14 +460,14 @@ class FacilityService {
       }
     })
 
-    console.log('[getFacilityTypesWithCount] 고유한 유형 수:', typeCounts.size)
-    console.log('[getFacilityTypesWithCount] 유형별 카운트:', Object.fromEntries(typeCounts))
+    logger.log('[getFacilityTypesWithCount] 고유한 유형 수:', typeCounts.size)
+    logger.log('[getFacilityTypesWithCount] 유형별 카운트:', Object.fromEntries(typeCounts))
 
     const result = Array.from(typeCounts.entries())
       .map(([code, count]) => ({ code, count }))
       .sort((a, b) => a.code.localeCompare(b.code))
     
-    console.log('[getFacilityTypesWithCount] 최종 결과:', result)
+    logger.log('[getFacilityTypesWithCount] 최종 결과:', result)
     
     return result
   }

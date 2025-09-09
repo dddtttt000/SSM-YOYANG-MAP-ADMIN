@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { logger } from '@/utils/logger'
 import type { Announcement, Database } from '@/types/database.types'
 import type {
   CreateAnnouncementData,
@@ -39,7 +40,7 @@ class AnnouncementService {
       const { data, error } = await query
 
       if (error) {
-        console.error('공지사항 목록 조회 오류:', error)
+        logger.error('공지사항 목록 조회 오류:', error)
         const announcementError: AnnouncementError = {
           message: '공지사항 목록을 불러오는데 실패했습니다.',
           code: error.code,
@@ -49,7 +50,7 @@ class AnnouncementService {
 
       return data || []
     } catch (error) {
-      console.error('공지사항 목록 조회 중 오류 발생:', error)
+      logger.error('공지사항 목록 조회 중 오류 발생:', error)
       throw error
     }
   }
@@ -62,13 +63,13 @@ class AnnouncementService {
       const { data, error } = await supabase.from('announcements').select('*').eq('id', id).single()
 
       if (error) {
-        console.error('공지사항 상세 조회 오류:', error)
+        logger.error('공지사항 상세 조회 오류:', error)
         throw new Error('공지사항을 불러오는데 실패했습니다.')
       }
 
       return data
     } catch (error) {
-      console.error('공지사항 상세 조회 중 오류 발생:', error)
+      logger.error('공지사항 상세 조회 중 오류 발생:', error)
       throw error
     }
   }
@@ -89,13 +90,13 @@ class AnnouncementService {
       const { data: result, error } = await supabase.from('announcements').insert(insertData).select().single()
 
       if (error) {
-        console.error('공지사항 생성 오류:', error)
+        logger.error('공지사항 생성 오류:', error)
         throw new Error('공지사항 생성에 실패했습니다.')
       }
 
       return result
     } catch (error) {
-      console.error('공지사항 생성 중 오류 발생:', error)
+      logger.error('공지사항 생성 중 오류 발생:', error)
       throw error
     }
   }
@@ -121,13 +122,13 @@ class AnnouncementService {
         .single()
 
       if (error) {
-        console.error('공지사항 수정 오류:', error)
+        logger.error('공지사항 수정 오류:', error)
         throw new Error('공지사항 수정에 실패했습니다.')
       }
 
       return result
     } catch (error) {
-      console.error('공지사항 수정 중 오류 발생:', error)
+      logger.error('공지사항 수정 중 오류 발생:', error)
       throw error
     }
   }
@@ -140,11 +141,11 @@ class AnnouncementService {
       const { error } = await supabase.from('announcements').delete().eq('id', id)
 
       if (error) {
-        console.error('공지사항 삭제 오류:', error)
+        logger.error('공지사항 삭제 오류:', error)
         throw new Error('공지사항 삭제에 실패했습니다.')
       }
     } catch (error) {
-      console.error('공지사항 삭제 중 오류 발생:', error)
+      logger.error('공지사항 삭제 중 오류 발생:', error)
       throw error
     }
   }
@@ -171,7 +172,7 @@ class AnnouncementService {
         isActive: newStatus,
       })
     } catch (error) {
-      console.error('공지사항 상태 변경 중 오류 발생:', error)
+      logger.error('공지사항 상태 변경 중 오류 발생:', error)
       throw error
     }
   }
@@ -189,13 +190,13 @@ class AnnouncementService {
         .order('created_at', { ascending: false })
 
       if (error) {
-        console.error('활성 공지사항 조회 오류:', error)
+        logger.error('활성 공지사항 조회 오류:', error)
         throw new Error('공지사항을 불러오는데 실패했습니다.')
       }
 
       return data || []
     } catch (error) {
-      console.error('활성 공지사항 조회 중 오류 발생:', error)
+      logger.error('활성 공지사항 조회 중 오류 발생:', error)
       throw error
     }
   }

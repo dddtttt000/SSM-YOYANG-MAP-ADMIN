@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { AuthContextType, LoginCredentials } from '@/types/auth.types'
 import { AdminUser } from '@/types/database.types'
 import { authService } from '../services/authService'
+import { logger } from '@/utils/logger'
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
@@ -28,14 +29,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setIsLoading(true)
       setError(null)
-      console.log('🔍 AuthContext: checkAuth 시작')
+      logger.log('🔍 AuthContext: checkAuth 시작')
       
       const adminUser = await authService.checkSession()
-      console.log('✅ AuthContext: checkSession 결과:', adminUser)
+      logger.log('✅ AuthContext: checkSession 결과:', adminUser)
       
       setUser(adminUser)
     } catch (err) {
-      console.error('❌ AuthContext: checkAuth 에러:', err)
+      logger.error('❌ AuthContext: checkAuth 에러:', err)
       setError(err instanceof Error ? err.message : '인증 확인 중 오류가 발생했습니다.')
       setUser(null)
     } finally {
@@ -47,16 +48,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setIsLoading(true)
       setError(null)
-      console.log('🔍 AuthContext: login 시작', credentials.email)
+      logger.log('🔍 AuthContext: login 시작', credentials.email)
 
       const adminUser = await authService.login(credentials)
-      console.log('✅ AuthContext: login 성공', adminUser)
+      logger.log('✅ AuthContext: login 성공', adminUser)
       
       setUser(adminUser)
-      console.log('🚀 AuthContext: 대시보드로 이동')
+      logger.log('🚀 AuthContext: 대시보드로 이동')
       navigate('/dashboard')
     } catch (err) {
-      console.error('❌ AuthContext: login 에러:', err)
+      logger.error('❌ AuthContext: login 에러:', err)
       setError(err instanceof Error ? err.message : '로그인 중 오류가 발생했습니다.')
       throw err
     } finally {

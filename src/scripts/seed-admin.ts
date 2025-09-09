@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { logger } from '@/utils/logger'
 
 // Supabase 설정 (Service Role Key 필요)
 const supabaseUrl = 'https://gfclxscgsoyochbnzipo.supabase.co'
@@ -21,11 +22,11 @@ async function createAdminUser() {
     })
 
     if (authError) {
-      console.error('Auth 사용자 생성 실패:', authError)
+      logger.error('Auth 사용자 생성 실패:', authError)
       return
     }
 
-    console.log('Auth 사용자 생성 성공:', authData.user?.email)
+    logger.log('Auth 사용자 생성 성공:', authData.user?.email)
 
     // 2. admin_users 테이블에 정보 추가
     const { data, error } = await supabase
@@ -40,17 +41,17 @@ async function createAdminUser() {
       .select()
 
     if (error) {
-      console.error('관리자 정보 추가 실패:', error)
+      logger.error('관리자 정보 추가 실패:', error)
       return
     }
 
-    console.log('관리자 계정 생성 완료:', data)
-    console.log('\n로그인 정보:')
-    console.log('이메일: admin@example.com')
-    console.log('비밀번호: admin123456')
+    logger.log('관리자 계정 생성 완료:', data)
+    logger.log('\n로그인 정보:')
+    logger.log('이메일: admin@example.com')
+    logger.log('비밀번호: admin123456')
     
   } catch (error) {
-    console.error('오류 발생:', error)
+    logger.error('오류 발생:', error)
   }
 }
 
