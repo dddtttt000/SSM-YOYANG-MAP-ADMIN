@@ -52,6 +52,19 @@ export const useQuestionMutations = () => {
       })
       return
     }
+    
+    // Primary key 중복 오류 처리
+    if (error instanceof Error && error.message.includes('duplicate key value violates unique constraint')) {
+      toast({
+        title: 'FAQ 등록 오류',
+        description: '데이터베이스 동기화 문제가 발생했습니다. 잠시 후 다시 시도하거나 관리자에게 문의해주세요.',
+        status: 'error',
+        duration: 7000,
+        isClosable: true,
+      })
+      return
+    }
+    
     toast({
       title: '오류가 발생했습니다.',
       description: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.',

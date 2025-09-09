@@ -34,14 +34,14 @@ const QuestionsPage = () => {
   const { user } = useAuth()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
-  
+
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null)
   const [deletingQuestionId, setDeletingQuestionId] = useState<number | null>(null)
   const [filters, setFilters] = useState<QuestionFiltersType>({})
 
   // FAQ 목록 조회
   const { data: questionsData, isLoading, error } = useQuestions(filters)
-  
+
   // FAQ Mutations
   const { createMutation, updateMutation, deleteMutation } = useQuestionMutations()
 
@@ -81,6 +81,7 @@ const QuestionsPage = () => {
 
   const handleDelete = (questionId: number) => {
     setDeletingQuestionId(questionId)
+    onClose()
     onDeleteOpen()
   }
 
@@ -101,22 +102,22 @@ const QuestionsPage = () => {
     setFilters(newFilters)
   }
 
+
+
   return (
-    <Container maxW="container.xl" py="8">
-      <VStack align="stretch" spacing="8">
+    <Container maxW='container.xl' py='8'>
+      <VStack align='stretch' spacing='8'>
         {/* 헤더 */}
         <Flex>
           <Box>
-            <Heading size="lg" mb="2">
+            <Heading size='lg' mb='2'>
               자주 묻는 질문 관리
             </Heading>
-            <Text color="gray.600">
-              사용자들이 자주 묻는 질문과 답변을 관리할 수 있습니다.
-            </Text>
+            <Text color='gray.600'>사용자들이 자주 묻는 질문과 답변을 관리할 수 있습니다.</Text>
           </Box>
           <Spacer />
           {user && (
-            <Button leftIcon={<AddIcon />} colorScheme="blue" onClick={handleCreate}>
+            <Button leftIcon={<AddIcon />} colorScheme='blue' onClick={handleCreate}>
               FAQ 등록
             </Button>
           )}
@@ -125,10 +126,7 @@ const QuestionsPage = () => {
         {/* 필터 */}
         <Card>
           <CardBody>
-            <QuestionFilters 
-              onFiltersChange={handleFiltersChange} 
-              initialFilters={filters}
-            />
+            <QuestionFilters onFiltersChange={handleFiltersChange} initialFilters={filters} />
           </CardBody>
         </Card>
 
@@ -136,31 +134,27 @@ const QuestionsPage = () => {
         <Card>
           <CardBody>
             {isLoading ? (
-              <Box textAlign="center" py="12">
-                <Spinner size="lg" />
-                <Text mt="4" color="gray.500">
+              <Box textAlign='center' py='12'>
+                <Spinner size='lg' />
+                <Text mt='4' color='gray.500'>
                   FAQ를 불러오는 중...
                 </Text>
               </Box>
             ) : error ? (
-              <Alert status="error">
+              <Alert status='error'>
                 <AlertIcon />
                 {error instanceof Error ? error.message : 'FAQ를 불러오는데 실패했습니다.'}
               </Alert>
             ) : (
-              <VStack align="stretch" spacing="4">
+              <VStack align='stretch' spacing='4'>
                 {questionsData && questionsData.length > 0 && (
                   <Box>
-                    <Text fontSize="sm" color="gray.600" mb="4">
+                    <Text fontSize='sm' color='gray.600' mb='4'>
                       총 {questionsData.length}개의 FAQ
                     </Text>
                   </Box>
                 )}
-                <QuestionTable
-                  questions={questionsData || []}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                />
+                <QuestionTable questions={questionsData || []} onEdit={handleEdit} />
               </VStack>
             )}
           </CardBody>
@@ -172,9 +166,11 @@ const QuestionsPage = () => {
         isOpen={isOpen}
         onClose={handleClose}
         onSubmit={handleSubmit}
+        onDelete={editingQuestion ? () => handleDelete(editingQuestion.id) : undefined}
         editData={editingQuestion}
         isSubmitting={createMutation.isPending || updateMutation.isPending}
       />
+
 
       {/* 삭제 확인 모달 */}
       <Modal isOpen={isDeleteOpen} onClose={cancelDelete} isCentered>
@@ -183,20 +179,20 @@ const QuestionsPage = () => {
           <ModalHeader>FAQ 삭제</ModalHeader>
           <ModalBody>
             <Text>정말 삭제하시겠습니까?</Text>
-            <Text fontSize="sm" color="gray.600" mt="2">
+            <Text fontSize='sm' color='gray.600' mt='2'>
               삭제된 FAQ는 복구할 수 없습니다.
             </Text>
           </ModalBody>
           <ModalFooter>
-            <HStack spacing="3">
-              <Button variant="outline" onClick={cancelDelete}>
+            <HStack spacing='3'>
+              <Button variant='outline' onClick={cancelDelete}>
                 취소
               </Button>
-              <Button 
-                colorScheme="red" 
+              <Button
+                colorScheme='red'
                 onClick={confirmDelete}
                 isLoading={deleteMutation.isPending}
-                loadingText="삭제 중..."
+                loadingText='삭제 중...'
               >
                 삭제
               </Button>

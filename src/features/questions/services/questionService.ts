@@ -60,30 +60,62 @@ class QuestionService {
   }
 
   /**
-   * FAQ 생성
+   * FAQ 생성 (재시도 로직 포함)
    */
   async createQuestion(data: CreateQuestionData): Promise<Question> {
-    try {
-      const { data: result, error } = await supabase
-        .from('questions')
-        .insert({
-          title: data.title,
-          content: data.content,
-          category: data.category,
-        })
-        .select()
-        .single()
+    const maxRetries = 3
+    let lastError: unknown
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const { data: result, error } = await supabase
+          .from('questions')
+          .insert({
+            title: data.title,
+            content: data.content,
+            category: data.category,
+          })
+          .select()
+          .single()
 
-      if (error) {
-        console.error('FAQ 생성 오류:', error)
-        throw new Error('FAQ 생성에 실패했습니다.')
+        if (error) {
+          lastError = error
+          
+          // Primary key 중복 오류인 경우 재시도
+          if (error.message.includes('duplicate key value violates unique constraint')) {
+            console.warn(`FAQ 생성 재시도 ${attempt}/${maxRetries}:`, error.message)
+            
+            if (attempt < maxRetries) {
+              // 짧은 지연 후 재시도
+              await new Promise(resolve => setTimeout(resolve, 100 * attempt))
+              continue
+            }
+          }
+          
+          console.error('FAQ 생성 오류:', error)
+          throw error
+        }
+
+        return result
+      } catch (error) {
+        lastError = error
+        console.error(`FAQ 생성 시도 ${attempt} 실패:`, error)
+        
+        if (attempt === maxRetries) {
+          break
+        }
+        
+        // 재시도 전 대기
+        await new Promise(resolve => setTimeout(resolve, 100 * attempt))
       }
-
-      return result
-    } catch (error) {
-      console.error('FAQ 생성 중 오류 발생:', error)
-      throw error
     }
+    
+    // 모든 재시도 실패
+    console.error('FAQ 생성 최종 실패:', lastError)
+    if (lastError instanceof Error && lastError.message.includes('duplicate key value violates unique constraint')) {
+      throw new Error('데이터베이스 동기화 문제로 FAQ 생성에 실패했습니다. 관리자에게 문의해주세요.')
+    }
+    throw new Error('FAQ 생성에 실패했습니다.')
   }
 
   /**

@@ -24,6 +24,7 @@ interface QuestionFormModalProps {
   isOpen: boolean
   onClose: () => void
   onSubmit: (data: CreateQuestionData) => void
+  onDelete?: () => void
   editData?: Question | null
   isSubmitting?: boolean
 }
@@ -32,6 +33,7 @@ const QuestionFormModal = ({
   isOpen,
   onClose,
   onSubmit,
+  onDelete,
   editData,
   isSubmitting = false,
 }: QuestionFormModalProps) => {
@@ -157,7 +159,16 @@ const QuestionFormModal = ({
           </VStack>
         </ModalBody>
 
-        <ModalFooter>
+        <ModalFooter justifyContent={editData ? 'space-between' : 'flex-end'}>
+          {editData && onDelete && (
+            <Button
+              colorScheme="red"
+              variant="outline"
+              onClick={onDelete}
+            >
+              삭제
+            </Button>
+          )}
           <HStack spacing="3">
             <Button variant="outline" onClick={onClose}>
               취소

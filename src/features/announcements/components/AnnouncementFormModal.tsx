@@ -30,10 +30,12 @@ interface AnnouncementFormModalProps {
   isOpen: boolean
   onClose: () => void
   onSubmit: (data: CreateAnnouncementData) => void
+  onDelete?: () => void
+  onToggleStatus?: () => void
   editData?: Announcement | null
 }
 
-const AnnouncementFormModal = ({ isOpen, onClose, onSubmit, editData }: AnnouncementFormModalProps) => {
+const AnnouncementFormModal = ({ isOpen, onClose, onSubmit, onDelete, onToggleStatus, editData }: AnnouncementFormModalProps) => {
   const [formData, setFormData] = useState<AnnouncementFormData>({
     title: '',
     content: '',
@@ -131,13 +133,37 @@ const AnnouncementFormModal = ({ isOpen, onClose, onSubmit, editData }: Announce
             </VStack>
           </ModalBody>
 
-          <ModalFooter>
-            <Button variant='ghost' mr='3' onClick={handleClose}>
-              취소
-            </Button>
-            <Button type='submit' colorScheme='blue' isDisabled={!formData.title.trim() || !formData.content.trim() || !formData.category.trim()}>
-              {editData ? '수정' : '등록'}
-            </Button>
+          <ModalFooter justifyContent={editData ? 'space-between' : 'flex-end'}>
+            {editData && (
+              <HStack spacing='2'>
+                {onDelete && (
+                  <Button
+                    variant='outline'
+                    colorScheme='red'
+                    onClick={onDelete}
+                  >
+                    삭제
+                  </Button>
+                )}
+                {onToggleStatus && (
+                  <Button
+                    variant='outline'
+                    colorScheme={editData.is_active ? 'orange' : 'green'}
+                    onClick={onToggleStatus}
+                  >
+                    {editData.is_active ? '비활성화' : '활성화'}
+                  </Button>
+                )}
+              </HStack>
+            )}
+            <HStack spacing='3'>
+              <Button variant='ghost' onClick={handleClose}>
+                취소
+              </Button>
+              <Button type='submit' colorScheme='blue' isDisabled={!formData.title.trim() || !formData.content.trim() || !formData.category.trim()}>
+                {editData ? '수정' : '등록'}
+              </Button>
+            </HStack>
           </ModalFooter>
         </form>
       </ModalContent>

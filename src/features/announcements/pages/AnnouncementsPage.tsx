@@ -147,7 +147,21 @@ const AnnouncementsPage = () => {
 
   const handleDelete = (announcementId: number) => {
     setDeletingAnnouncementId(announcementId)
+    onClose() // 편집 모달 닫기
     onDeleteOpen()
+  }
+
+  const handleModalDelete = () => {
+    if (editingAnnouncement) {
+      handleDelete(editingAnnouncement.id)
+    }
+  }
+
+  const handleToggleStatus = () => {
+    if (editingAnnouncement) {
+      toggleStatusMutation.mutate(editingAnnouncement.id)
+      onClose() // 모달 닫기
+    }
   }
 
   const confirmDelete = () => {
@@ -222,8 +236,6 @@ const AnnouncementsPage = () => {
                 <AnnouncementTable
                   announcements={announcementsData || []}
                   onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onToggleStatus={(id) => toggleStatusMutation.mutate(id)}
                 />
               </VStack>
             )}
@@ -235,6 +247,8 @@ const AnnouncementsPage = () => {
         isOpen={isOpen}
         onClose={handleClose}
         onSubmit={handleSubmit}
+        onDelete={editingAnnouncement ? handleModalDelete : undefined}
+        onToggleStatus={editingAnnouncement ? handleToggleStatus : undefined}
         editData={editingAnnouncement}
       />
 

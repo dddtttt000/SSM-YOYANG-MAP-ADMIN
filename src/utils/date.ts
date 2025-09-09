@@ -18,4 +18,10 @@ export const formatDateTime = (dateString?: string | null): string => {
     .replace(/\. /g, '-')
     .replace('.', '')
     .replace(', ', ' ')
+    .replace(/-(\d{2}:\d{2})/, ' $1')
 }
+
+/**
+ * formatDate 별칭 - 기존 코드와의 호환성을 위해 제공
+ */
+export const formatDate = formatDateTime
