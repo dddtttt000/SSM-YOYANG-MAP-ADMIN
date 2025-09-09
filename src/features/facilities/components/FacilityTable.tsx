@@ -1,3 +1,4 @@
+import React, { useMemo } from 'react'
 import {
   Table,
   Thead,
@@ -48,8 +49,18 @@ const getRatingBadgeColor = (rating: string | null) => {
   }
 }
 
-const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: FacilityTableProps) => {
+const FacilityTable = React.memo(({ facilities, isLoading, onView, onEdit, onDelete }: FacilityTableProps) => {
   const { canUpdate, canDelete } = usePermission()
+
+  // 렌더링 최적화를 위한 memoization
+  const facilitiesWithFormatting = useMemo(() => 
+    facilities.map(facility => ({
+      ...facility,
+      formattedPhone: formatPhoneNumber(facility),
+      typeLabel: facility.admin_type_code ? getFacilityTypeLabel(facility.admin_type_code) : '',
+      ratingColor: getRatingBadgeColor(facility.final_rating)
+    })), [facilities]
+  )
 
   if (isLoading) {
     return (
@@ -148,13 +159,13 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
           </Tr>
         </Thead>
         <Tbody>
-          {facilities.map(facility => (
+          {facilitiesWithFormatting.map(facility => (
             <Tr key={facility.admin_code}>
               <Td fontWeight='medium'>{facility.admin_name || '시설명 없음'}</Td>
               <Td>
                 {facility.admin_type_code && (
                   <Tooltip
-                    label={`${facility.admin_type_code} - ${getFacilityTypeLabel(facility.admin_type_code)}`}
+                    label={`${facility.admin_type_code} - ${facility.typeLabel}`}
                     placement='top'
                     hasArrow
                   >
@@ -172,7 +183,7 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
               </Td>
               <Td>
                 {facility.final_rating && (
-                  <Badge colorScheme={getRatingBadgeColor(facility.final_rating)}>{facility.final_rating}</Badge>
+                  <Badge colorScheme={facility.ratingColor}>{facility.final_rating}</Badge>
                 )}
               </Td>
               <Td>
@@ -184,7 +195,7 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
                     })
                   : '-'}
               </Td>
-              <Td>{formatPhoneNumber(facility)}</Td>
+              <Td>{facility.formattedPhone}</Td>
               <Td>
                 <Menu>
                   <MenuButton
@@ -217,6 +228,6 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
       </Table>
     </TableContainer>
   )
-}
+})
 
 export default FacilityTable

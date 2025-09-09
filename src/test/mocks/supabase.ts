@@ -3,8 +3,8 @@ import { mockAdminUsers, mockSupabaseAuthUser } from '../fixtures/adminUsers'
 import { mockFacility } from '../fixtures/facilities'
 
 // Mock query builder with chainable methods
-export const createMockQueryBuilder = (tableName: string) => {
-  const mockQueryBuilder = {
+export const createMockQueryBuilder = (tableName: string): any => {
+  const mockQueryBuilder: any = {
     select: vi.fn().mockReturnThis(),
     insert: vi.fn().mockReturnThis(),
     update: vi.fn().mockReturnThis(),
@@ -34,7 +34,7 @@ export const createMockQueryBuilder = (tableName: string) => {
 }
 
 // Table-specific default behaviors
-function getTableDefaults(tableName: string) {
+function getTableDefaults(tableName: string): any {
   switch (tableName) {
     case 'admin_users':
       return {

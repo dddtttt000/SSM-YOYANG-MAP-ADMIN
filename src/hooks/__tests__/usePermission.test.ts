@@ -1,8 +1,7 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook } from '@testing-library/react'
 import { usePermission } from '../usePermission'
 import { mockAdminUsers } from '@/test/fixtures/adminUsers'
-import { renderWithAuth } from '@/test/helpers/authTestUtils'
 
 // Mock the AuthContext to avoid external dependencies
 vi.mock('@/features/auth/contexts/AuthContext', () => ({
