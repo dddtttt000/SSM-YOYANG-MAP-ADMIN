@@ -19,6 +19,18 @@
 - `npm run lint` - TypeScript rules로 ESLint 실행
 - `npm run preview` - build된 application을 locally preview
 
+### Testing
+
+- `npm test` - 대화형 모드로 테스트 실행 (watch mode)
+- `npm run test:run` - 한 번만 테스트 실행 (CI 환경용)
+- `npm run test:coverage` - 테스트 커버리지 리포트 생성 (HTML, JSON, 텍스트)
+- `npm run test:ui` - Vitest UI로 테스트 실행
+
+#### 테스트 커버리지 리포트
+- 커버리지 리포트는 `coverage/` 디렉토리에 생성됩니다
+- `coverage/index.html`을 브라우저에서 열어 상세한 커버리지 리포트 확인 가능
+- 제외된 파일: `node_modules/`, `src/test/`, `**/*.d.ts`, `src/scripts/`, `**/*.test.*`, `**/*.spec.*`
+
 ## Architecture 개요
 
 이것은 Supabase를 backend로 사용하는 React + TypeScript admin system이며, Vite와 Chakra UI v2로 구축되었습니다.

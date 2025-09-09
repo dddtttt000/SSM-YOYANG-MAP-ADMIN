@@ -408,7 +408,7 @@ class FacilityService {
     logger.log('[getFacilityTypesWithCount] 시작')
     
     // Supabase는 기본적으로 1000개만 반환하므로 모든 데이터를 가져오기 위해 페이지네이션 사용
-    const allData: any[] = []
+    const allData: { admin_type_code: string | null }[] = []
     const limit = 1000
     let offset = 0
     
