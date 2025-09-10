@@ -1,5 +1,4 @@
 import { supabase } from '@/lib/supabase'
-import { logger } from '@/utils/logger'
 import type { 
   ServiceInquiryWithResponse, 
   ServiceInquiryDetail,
@@ -48,7 +47,7 @@ class InquiryService {
       const { data, error, count } = await query
 
       if (error) {
-        logger.error('서비스 문의 목록 조회 오류:', error)
+        console.error('서비스 문의 목록 조회 오류:', error)
         throw new Error('서비스 문의 목록을 불러오는데 실패했습니다.')
       }
 
@@ -76,7 +75,7 @@ class InquiryService {
 
       return { data: dataWithResponseCount, pagination }
     } catch (error) {
-      logger.error('서비스 문의 목록 조회 중 오류 발생:', error)
+      console.error('서비스 문의 목록 조회 중 오류 발생:', error)
       throw error
     }
   }
@@ -103,13 +102,13 @@ class InquiryService {
         .single()
 
       if (error) {
-        logger.error('서비스 문의 상세 조회 오류:', error)
+        console.error('서비스 문의 상세 조회 오류:', error)
         throw new Error('서비스 문의를 불러오는데 실패했습니다.')
       }
 
       return data as ServiceInquiryDetail
     } catch (error) {
-      logger.error('서비스 문의 상세 조회 중 오류 발생:', error)
+      console.error('서비스 문의 상세 조회 중 오류 발생:', error)
       throw error
     }
   }
@@ -132,12 +131,12 @@ class InquiryService {
         .single()
 
       if (responseError) {
-        logger.error('답변 생성 오류:', responseError)
+        console.error('답변 생성 오류:', responseError)
         throw new Error('답변 생성에 실패했습니다.')
       }
 
       // 문의 상태를 'answered'로 업데이트
-      logger.log('💡 상태 업데이트 시도:', { inquiryId, status: 'answered' })
+      console.log('💡 상태 업데이트 시도:', { inquiryId, status: 'answered' })
       const { error: updateError } = await supabase
         .from('service_inquiries')
         .update({ 
@@ -147,13 +146,13 @@ class InquiryService {
         .eq('id', inquiryId)
 
       if (updateError) {
-        logger.error('문의 상태 업데이트 오류:', updateError)
+        console.error('문의 상태 업데이트 오류:', updateError)
         throw new Error('문의 상태 업데이트에 실패했습니다.')
       }
 
       return response
     } catch (error) {
-      logger.error('답변 생성 중 오류 발생:', error)
+      console.error('답변 생성 중 오류 발생:', error)
       throw error
     }
   }
@@ -175,13 +174,13 @@ class InquiryService {
         .single()
 
       if (error) {
-        logger.error('답변 수정 오류:', error)
+        console.error('답변 수정 오류:', error)
         throw new Error('답변 수정에 실패했습니다.')
       }
 
       return data
     } catch (error) {
-      logger.error('답변 수정 중 오류 발생:', error)
+      console.error('답변 수정 중 오류 발생:', error)
       throw error
     }
   }
@@ -198,7 +197,7 @@ class InquiryService {
         .eq('id', responseId)
 
       if (deleteError) {
-        logger.error('답변 삭제 오류:', deleteError)
+        console.error('답변 삭제 오류:', deleteError)
         throw new Error('답변 삭제에 실패했습니다.')
       }
 
@@ -209,7 +208,7 @@ class InquiryService {
         .eq('inquiry_id', inquiryId)
 
       if (checkError) {
-        logger.error('답변 확인 오류:', checkError)
+        console.error('답변 확인 오류:', checkError)
         throw new Error('답변 상태 확인에 실패했습니다.')
       }
 
@@ -224,12 +223,12 @@ class InquiryService {
           .eq('id', inquiryId)
 
         if (updateError) {
-          logger.error('문의 상태 업데이트 오류:', updateError)
+          console.error('문의 상태 업데이트 오류:', updateError)
           throw new Error('문의 상태 업데이트에 실패했습니다.')
         }
       }
     } catch (error) {
-      logger.error('답변 삭제 중 오류 발생:', error)
+      console.error('답변 삭제 중 오류 발생:', error)
       throw error
     }
   }
@@ -244,7 +243,7 @@ class InquiryService {
         .select('status')
 
       if (error) {
-        logger.error('서비스 문의 통계 조회 오류:', error)
+        console.error('서비스 문의 통계 조회 오류:', error)
         throw new Error('서비스 문의 통계를 불러오는데 실패했습니다.')
       }
 
@@ -260,7 +259,7 @@ class InquiryService {
 
       return stats
     } catch (error) {
-      logger.error('서비스 문의 통계 조회 중 오류 발생:', error)
+      console.error('서비스 문의 통계 조회 중 오류 발생:', error)
       throw error
     }
   }

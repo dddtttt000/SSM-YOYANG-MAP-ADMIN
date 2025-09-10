@@ -1,6 +1,5 @@
 // 테스트 데이터 생성을 위한 유틸리티
 
-import { logger } from '@/utils/logger'
 import {
   collection,
   addDoc,
@@ -92,21 +91,21 @@ export const createTestData = async () => {
     }
 
     // 데이터 추가
-    logger.log('Adding test data to Firestore...')
+    console.log('Adding test data to Firestore...')
     
     await addDoc(collection(firestore, 'ai_facility_analyses'), aiAnalysisData)
     await addDoc(collection(firestore, 'assessment_results'), assessmentData)
     await addDoc(collection(firestore, 'call_events'), callEventData)
     await addDoc(collection(firestore, 'favorite_facilities'), favoriteData)
     
-    logger.log('Test data added successfully!')
+    console.log('Test data added successfully!')
   } catch (error) {
-    logger.error('Error adding test data:', error)
+    console.error('Error adding test data:', error)
   }
 }
 
 // 테스트 데이터 삭제 함수
 export const clearTestData = async () => {
   // 실제 구현은 필요시 추가
-  logger.log('Clear test data function - not implemented')
+  console.log('Clear test data function - not implemented')
 }

@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@chakra-ui/react'
-import { logger } from '@/utils/logger'
 import { 
   facilityService, 
   FacilityFilters, 
@@ -134,13 +133,13 @@ export const useFacilityTypesWithCount = () => {
   return useQuery({
     queryKey: ['facilityTypesWithCount'],
     queryFn: async () => {
-      logger.log('[useFacilityTypesWithCount] 쿼리 실행')
+      console.log('[useFacilityTypesWithCount] 쿼리 실행')
       try {
         const result = await facilityService.getFacilityTypesWithCount()
-        logger.log('[useFacilityTypesWithCount] 결과:', result)
+        console.log('[useFacilityTypesWithCount] 결과:', result)
         return result
       } catch (error) {
-        logger.error('[useFacilityTypesWithCount] 에러:', error)
+        console.error('[useFacilityTypesWithCount] 에러:', error)
         throw error
       }
     },

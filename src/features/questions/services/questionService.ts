@@ -1,5 +1,4 @@
 import { supabase } from '@/lib/supabase'
-import { logger } from '@/utils/logger'
 import type { Question, CreateQuestionData, UpdateQuestionData, QuestionFilters } from '../types'
 
 class QuestionService {
@@ -26,13 +25,13 @@ class QuestionService {
       const { data, error } = await query
 
       if (error) {
-        logger.error('FAQ 목록 조회 오류:', error)
+        console.error('FAQ 목록 조회 오류:', error)
         throw new Error('FAQ 목록을 불러오는데 실패했습니다.')
       }
 
       return data || []
     } catch (error) {
-      logger.error('FAQ 목록 조회 중 오류 발생:', error)
+      console.error('FAQ 목록 조회 중 오류 발생:', error)
       throw error
     }
   }
@@ -49,13 +48,13 @@ class QuestionService {
         .single()
 
       if (error) {
-        logger.error('FAQ 상세 조회 오류:', error)
+        console.error('FAQ 상세 조회 오류:', error)
         throw new Error('FAQ를 불러오는데 실패했습니다.')
       }
 
       return data
     } catch (error) {
-      logger.error('FAQ 상세 조회 중 오류 발생:', error)
+      console.error('FAQ 상세 조회 중 오류 발생:', error)
       throw error
     }
   }
@@ -84,7 +83,7 @@ class QuestionService {
           
           // Primary key 중복 오류인 경우 재시도
           if (error.message.includes('duplicate key value violates unique constraint')) {
-            logger.warn(`FAQ 생성 재시도 ${attempt}/${maxRetries}:`, error.message)
+            console.warn(`FAQ 생성 재시도 ${attempt}/${maxRetries}:`, error.message)
             
             if (attempt < maxRetries) {
               // 짧은 지연 후 재시도
@@ -93,14 +92,14 @@ class QuestionService {
             }
           }
           
-          logger.error('FAQ 생성 오류:', error)
+          console.error('FAQ 생성 오류:', error)
           throw error
         }
 
         return result
       } catch (error) {
         lastError = error
-        logger.error(`FAQ 생성 시도 ${attempt} 실패:`, error)
+        console.error(`FAQ 생성 시도 ${attempt} 실패:`, error)
         
         if (attempt === maxRetries) {
           break
@@ -112,7 +111,7 @@ class QuestionService {
     }
     
     // 모든 재시도 실패
-    logger.error('FAQ 생성 최종 실패:', lastError)
+    console.error('FAQ 생성 최종 실패:', lastError)
     if (lastError instanceof Error && lastError.message.includes('duplicate key value violates unique constraint')) {
       throw new Error('데이터베이스 동기화 문제로 FAQ 생성에 실패했습니다. 관리자에게 문의해주세요.')
     }
@@ -137,13 +136,13 @@ class QuestionService {
         .single()
 
       if (error) {
-        logger.error('FAQ 수정 오류:', error)
+        console.error('FAQ 수정 오류:', error)
         throw new Error('FAQ 수정에 실패했습니다.')
       }
 
       return result
     } catch (error) {
-      logger.error('FAQ 수정 중 오류 발생:', error)
+      console.error('FAQ 수정 중 오류 발생:', error)
       throw error
     }
   }
@@ -159,11 +158,11 @@ class QuestionService {
         .eq('id', id)
 
       if (error) {
-        logger.error('FAQ 삭제 오류:', error)
+        console.error('FAQ 삭제 오류:', error)
         throw new Error('FAQ 삭제에 실패했습니다.')
       }
     } catch (error) {
-      logger.error('FAQ 삭제 중 오류 발생:', error)
+      console.error('FAQ 삭제 중 오류 발생:', error)
       throw error
     }
   }
@@ -178,7 +177,7 @@ class QuestionService {
         .select('category')
 
       if (error) {
-        logger.error('FAQ 카테고리별 개수 조회 오류:', error)
+        console.error('FAQ 카테고리별 개수 조회 오류:', error)
         throw new Error('FAQ 통계를 불러오는데 실패했습니다.')
       }
 
@@ -189,7 +188,7 @@ class QuestionService {
 
       return counts
     } catch (error) {
-      logger.error('FAQ 카테고리별 개수 조회 중 오류 발생:', error)
+      console.error('FAQ 카테고리별 개수 조회 중 오류 발생:', error)
       throw error
     }
   }

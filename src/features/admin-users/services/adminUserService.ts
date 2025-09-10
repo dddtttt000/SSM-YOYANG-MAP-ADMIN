@@ -44,25 +44,29 @@ class AdminUserService {
     return data
   }
 
-  async getAdminUserById(id: string) {
+  async getAdminUserById(id: number | string) {
     const { data, error } = await supabase
       .from('admin_users')
       .select('*')
-      .eq('id', id)
-      .single()
+      .eq('id', Number(id))
+      .maybeSingle()
 
     if (error) throw error
+    if (!data) {
+      throw new Error('해당 관리자를 찾을 수 없습니다.')
+    }
     return data
   }
 
   async createAdminUser(dto: CreateAdminUserDto) {
     // 이메일 중복 확인
-    const { data: existingUser } = await supabase
+    const { data: existingUser, error: checkError } = await supabase
       .from('admin_users')
       .select('id')
       .eq('email', dto.email)
-      .single()
+      .maybeSingle()
 
+    if (checkError) throw checkError
     if (existingUser) {
       throw new Error('이미 존재하는 이메일입니다.')
     }
@@ -82,22 +86,25 @@ class AdminUserService {
     return data
   }
 
-  async updateAdminUser(id: string, dto: UpdateAdminUserDto) {
+  async updateAdminUser(id: number, dto: UpdateAdminUserDto) {
     const { data, error } = await supabase
-      .from('admin_users')
-      .update({
-        ...dto,
-        updated_at: new Date().toISOString(),
+      .rpc('update_admin_user', {
+        admin_id: id,
+        admin_name: dto.name,
+        admin_role: dto.role,
+        admin_is_active: dto.is_active ?? true
       })
-      .eq('id', id)
-      .select()
-      .single()
-
+    
     if (error) throw error
-    return data
+    
+    if (!data || data.length === 0) {
+      throw new Error('해당 관리자를 찾을 수 없습니다.')
+    }
+    
+    return data[0]
   }
 
-  async deleteAdminUser(id: string) {
+  async deleteAdminUser(id: number) {
     // 1. admin_users 테이블에서 삭제 (또는 비활성화)
     const { error: dbError } = await supabase
       .from('admin_users')

@@ -117,7 +117,7 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
     try {
       if (isEditMode && user) {
         await updateAdminUser.mutateAsync({
-          id: String(user.id),
+          id: user.id,
           dto: {
             name: formData.name,
             role: formData.role,

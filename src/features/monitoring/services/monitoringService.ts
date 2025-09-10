@@ -9,7 +9,6 @@ import {
   DocumentData,
 } from 'firebase/firestore'
 import { firestore } from '@/lib/firebase'
-import { logger } from '@/utils/logger'
 import {
   AIFacilityAnalysis,
   AssessmentResult,
@@ -34,7 +33,7 @@ class MonitoringService {
     try {
       // Firebase 설정 확인
       if (!firestore) {
-        logger.error('Firebase가 초기화되지 않았습니다.')
+        console.error('Firebase가 초기화되지 않았습니다.')
         return []
       }
 
@@ -54,14 +53,14 @@ class MonitoringService {
         constraints.push(where('facilityId', '==', filters.adminCode))
       }
 
-      logger.log('Fetching AI analyses:', {
+      console.log('Fetching AI analyses:', {
         collection: this.collections.aiAnalyses,
         constraints: constraints.length,
       })
       
       const q = query(collection(firestore, this.collections.aiAnalyses), ...constraints)
       const snapshot = await getDocs(q)
-      logger.log('AI analyses fetched:', snapshot.size, 'documents')
+      console.log('AI analyses fetched:', snapshot.size, 'documents')
 
       let results = snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
         id: doc.id,
@@ -92,7 +91,7 @@ class MonitoringService {
 
       return results
     } catch (error) {
-      logger.error('Error fetching AI analyses:', error)
+      console.error('Error fetching AI analyses:', error)
       throw error
     }
   }
@@ -110,10 +109,10 @@ class MonitoringService {
         constraints.push(where('user_id', '==', filters.userId))
       }
 
-      logger.log('Fetching assessment results')
+      console.log('Fetching assessment results')
       const q = query(collection(firestore, this.collections.assessmentResults), ...constraints)
       const snapshot = await getDocs(q)
-      logger.log('Assessment results fetched:', snapshot.size, 'documents')
+      console.log('Assessment results fetched:', snapshot.size, 'documents')
 
       let results = snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
         id: doc.id,
@@ -144,7 +143,7 @@ class MonitoringService {
 
       return results
     } catch (error) {
-      logger.error('Error fetching assessment results:', error)
+      console.error('Error fetching assessment results:', error)
       throw error
     }
   }
@@ -166,10 +165,10 @@ class MonitoringService {
         constraints.push(where('facilityId', '==', filters.adminCode))
       }
 
-      logger.log('Fetching call events')
+      console.log('Fetching call events')
       const q = query(collection(firestore, this.collections.callEvents), ...constraints)
       const snapshot = await getDocs(q)
-      logger.log('Call events fetched:', snapshot.size, 'documents')
+      console.log('Call events fetched:', snapshot.size, 'documents')
 
       let results = snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
         id: doc.id,
@@ -214,7 +213,7 @@ class MonitoringService {
 
       return results
     } catch (error) {
-      logger.error('Error fetching call events:', error)
+      console.error('Error fetching call events:', error)
       throw error
     }
   }
@@ -236,10 +235,10 @@ class MonitoringService {
         constraints.push(where('facilityId', '==', filters.adminCode))
       }
 
-      logger.log('Fetching favorite facilities')
+      console.log('Fetching favorite facilities')
       const q = query(collection(firestore, this.collections.favoriteFacilities), ...constraints)
       const snapshot = await getDocs(q)
-      logger.log('Favorite facilities fetched:', snapshot.size, 'documents')
+      console.log('Favorite facilities fetched:', snapshot.size, 'documents')
 
       let results = snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
         id: doc.id,
@@ -270,7 +269,7 @@ class MonitoringService {
 
       return results
     } catch (error) {
-      logger.error('Error fetching favorite facilities:', error)
+      console.error('Error fetching favorite facilities:', error)
       throw error
     }
   }
