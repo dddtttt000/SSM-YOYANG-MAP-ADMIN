@@ -15,7 +15,7 @@ const AdminUserFilters = ({ filters, onFiltersChange }: AdminUserFiltersProps) =
   const handleRoleChange = (value: string) => {
     onFiltersChange({
       ...filters,
-      role: value === 'all' ? undefined : (value as any),
+      role: value === 'all' ? undefined : (value as 'super_admin' | 'admin'),
     })
   }
 

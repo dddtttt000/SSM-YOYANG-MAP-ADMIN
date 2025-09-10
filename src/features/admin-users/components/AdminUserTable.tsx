@@ -75,6 +75,7 @@ const AdminUserTable = ({ adminUsers, isLoading, onEdit }: AdminUserTableProps) 
         dto: { is_active: true },
       })
     } catch (error) {
+      console.error('Failed to activate admin user:', error)
       // 에러는 훅에서 toast로 처리됨
     }
   }
