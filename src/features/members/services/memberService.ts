@@ -4,6 +4,7 @@ import { Member } from '@/types/database.types'
 export interface MemberFilters {
   status?: string
   search?: string
+  social_type?: string
   page?: number
   limit?: number
 }
@@ -17,7 +18,7 @@ export interface PaginatedResponse<T> {
 
 class MemberService {
   async getMembers(filters: MemberFilters = {}): Promise<PaginatedResponse<Member>> {
-    const { page = 1, limit = 10, status, search } = filters
+    const { page = 1, limit = 10, status, search, social_type } = filters
     const from = (page - 1) * limit
     const to = from + limit - 1
 
@@ -35,6 +36,11 @@ class MemberService {
     if (status && status !== 'all') {
       countQuery = countQuery.eq('status', status)
       dataQuery = dataQuery.eq('status', status)
+    }
+
+    if (social_type && social_type !== 'all') {
+      countQuery = countQuery.eq('social_type', social_type)
+      dataQuery = dataQuery.eq('social_type', social_type)
     }
 
     if (search) {

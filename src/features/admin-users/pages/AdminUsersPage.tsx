@@ -54,7 +54,6 @@ const AdminUsersPage = () => {
                 adminUsers={adminUsers || []}
                 isLoading={isLoading}
                 onEdit={handleEditUser}
-                onEditPermissions={handleEditUser}
               />
             </VStack>
           </CardBody>

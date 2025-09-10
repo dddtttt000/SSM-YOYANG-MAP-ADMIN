@@ -30,7 +30,6 @@ interface AdminUserTableProps {
   adminUsers: AdminUser[]
   isLoading: boolean
   onEdit: (user: AdminUser) => void
-  onEditPermissions: (user: AdminUser) => void
 }
 
 const getRoleBadgeColor = (role: string) => {
@@ -55,7 +54,7 @@ const getRoleLabel = (role: string) => {
   }
 }
 
-const AdminUserTable = ({ adminUsers, isLoading, onEdit, onEditPermissions }: AdminUserTableProps) => {
+const AdminUserTable = ({ adminUsers, isLoading, onEdit }: AdminUserTableProps) => {
   usePermission() // 권한 체크를 위해 유지 (미래 확장성)
   const { user: currentUser } = useAuth()
   const deleteAdminUser = useDeleteAdminUser()

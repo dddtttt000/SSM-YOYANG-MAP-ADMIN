@@ -1,22 +1,4 @@
-import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
-  Badge,
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Skeleton,
-  Text,
-  Select,
-} from '@chakra-ui/react'
-import { FiMoreVertical, FiEye } from 'react-icons/fi'
+import { Table, Thead, Tbody, Tr, Th, Td, TableContainer, Badge, Skeleton, Text, Select } from '@chakra-ui/react'
 import { Member } from '@/types/database.types'
 import { useUpdateMemberStatus } from '../hooks/useMembers'
 import { usePermission } from '@/hooks/usePermission'
@@ -97,6 +79,14 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
     await updateMemberStatus.mutateAsync({ id: memberId, status: newStatus })
   }
 
+  const handleRowClick = (member: Member, event: React.MouseEvent) => {
+    // Select나 Menu 클릭 시에는 행 클릭 이벤트를 무시
+    if ((event.target as HTMLElement).closest('select, [role="button"], button')) {
+      return
+    }
+    onViewDetails(member)
+  }
+
   if (isLoading) {
     return (
       <TableContainer overflowX='auto'>
@@ -110,7 +100,6 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
               <Th>이메일</Th>
               <Th>상태</Th>
               <Th>가입일</Th>
-              <Th width='100px'>작업</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -161,12 +150,11 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
               <Th>이메일</Th>
               <Th>상태</Th>
               <Th>가입일</Th>
-              <Th width='100px'>작업</Th>
             </Tr>
           </Thead>
           <Tbody>
             <Tr>
-              <Td colSpan={8}>
+              <Td colSpan={7}>
                 <Text textAlign='center' color='gray.500' py='8'>
                   등록된 회원이 없습니다.
                 </Text>
@@ -190,14 +178,17 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
             <Th whiteSpace='nowrap'>이메일</Th>
             <Th whiteSpace='nowrap'>상태</Th>
             <Th whiteSpace='nowrap'>가입일</Th>
-            <Th whiteSpace='nowrap' width='100px'>
-              작업
-            </Th>
           </Tr>
         </Thead>
         <Tbody>
           {members.map(member => (
-            <Tr key={member.id}>
+            <Tr
+              key={member.id}
+              onClick={e => handleRowClick(member, e)}
+              cursor='pointer'
+              _hover={{ bg: 'gray.50' }}
+              transition='background-color 0.2s'
+            >
               <Td whiteSpace='nowrap'>
                 <Text fontSize='sm' fontFamily='mono'>
                   {member.id}
@@ -235,22 +226,6 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
               </Td>
               <Td whiteSpace='nowrap'>
                 {member.created_at ? new Date(member.created_at).toLocaleDateString('ko-KR') : '-'}
-              </Td>
-              <Td whiteSpace='nowrap'>
-                <Menu>
-                  <MenuButton
-                    as={IconButton}
-                    icon={<FiMoreVertical />}
-                    variant='ghost'
-                    size='sm'
-                    aria-label='작업 메뉴'
-                  />
-                  <MenuList>
-                    <MenuItem icon={<FiEye />} onClick={() => onViewDetails(member)}>
-                      상세 보기
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
               </Td>
             </Tr>
           ))}

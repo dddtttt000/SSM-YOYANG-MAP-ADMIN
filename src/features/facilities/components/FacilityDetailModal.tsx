@@ -49,6 +49,7 @@ import { useRef } from 'react'
 import { useFacility } from '../hooks/useFacilities'
 import { usePermission } from '@/hooks/usePermission'
 import { FacilityWithRelations } from '../services/facilityService'
+import { formatPhoneNumber } from '../utils/formatters'
 import { getFacilityTypeLabel } from '../constants/facilityTypes'
 
 interface FacilityDetailModalProps {
@@ -78,7 +79,13 @@ const InfoItem = ({
       <Text fontSize='sm' color='gray.500'>
         {label}
       </Text>
-      <Text fontWeight='medium'>{value || '-'}</Text>
+      <Box fontWeight='medium'>
+        {typeof value === 'string' ? (
+          <Text>{value || '-'}</Text>
+        ) : (
+          value || '-'
+        )}
+      </Box>
     </Box>
   </HStack>
 )
@@ -252,7 +259,11 @@ const FacilityDetailModal = ({ isOpen, onClose, facilityId, onEdit, onDelete }: 
                         </GridItem>
 
                         <GridItem>
-                          <InfoItem icon={<FiPhone />} label='연락처' value={facility.phone_number || '연락처 없음'} />
+                          <InfoItem 
+                            icon={<FiPhone />} 
+                            label='연락처' 
+                            value={formatPhoneNumber(facility)}
+                          />
                         </GridItem>
 
                         <GridItem>

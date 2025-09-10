@@ -22,6 +22,13 @@ const MemberFilters = ({ filters, onFiltersChange }: MemberFiltersProps) => {
     })
   }
 
+  const handleSocialTypeChange = (value: string) => {
+    onFiltersChange({
+      ...filters,
+      social_type: value === 'all' ? undefined : value,
+    })
+  }
+
   const clearSearch = () => {
     onFiltersChange({ ...filters, search: '' })
   }
@@ -64,6 +71,14 @@ const MemberFilters = ({ filters, onFiltersChange }: MemberFiltersProps) => {
         <option value='inactive'>비활성</option>
         <option value='suspended'>정지</option>
         <option value='pending'>대기</option>
+      </Select>
+
+      <Select value={filters.social_type || 'all'} onChange={e => handleSocialTypeChange(e.target.value)} maxW='200px'>
+        <option value='all'>모든 소셜 타입</option>
+        <option value='kakao'>카카오</option>
+        <option value='naver'>네이버</option>
+        <option value='google'>구글</option>
+        <option value='apple'>애플</option>
       </Select>
 
       <Button
