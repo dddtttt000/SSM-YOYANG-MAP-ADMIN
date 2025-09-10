@@ -72,7 +72,7 @@ const AdminUserTable = ({ adminUsers, isLoading, onEdit, onEditPermissions }: Ad
 
   const confirmDelete = async () => {
     if (selectedUser) {
-      await deleteAdminUser.mutateAsync(String(selectedUser.id))
+      await deleteAdminUser.mutateAsync(selectedUser.id)
       onClose()
     }
   }

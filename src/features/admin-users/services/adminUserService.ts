@@ -44,25 +44,29 @@ class AdminUserService {
     return data
   }
 
-  async getAdminUserById(id: string) {
+  async getAdminUserById(id: number | string) {
     const { data, error } = await supabase
       .from('admin_users')
       .select('*')
-      .eq('id', id)
-      .single()
+      .eq('id', Number(id))
+      .maybeSingle()
 
     if (error) throw error
+    if (!data) {
+      throw new Error('해당 관리자를 찾을 수 없습니다.')
+    }
     return data
   }
 
   async createAdminUser(dto: CreateAdminUserDto) {
     // 이메일 중복 확인
-    const { data: existingUser } = await supabase
+    const { data: existingUser, error: checkError } = await supabase
       .from('admin_users')
       .select('id')
       .eq('email', dto.email)
-      .single()
+      .maybeSingle()
 
+    if (checkError) throw checkError
     if (existingUser) {
       throw new Error('이미 존재하는 이메일입니다.')
     }
@@ -82,35 +86,41 @@ class AdminUserService {
     return data
   }
 
-  async updateAdminUser(id: string, dto: UpdateAdminUserDto) {
+  async updateAdminUser(id: number, dto: UpdateAdminUserDto) {
     const { data, error } = await supabase
-      .from('admin_users')
-      .update({
-        ...dto,
-        updated_at: new Date().toISOString(),
+      .rpc('update_admin_user', {
+        admin_id: id,
+        admin_name: dto.name,
+        admin_role: dto.role,
+        admin_is_active: dto.is_active ?? true
       })
-      .eq('id', id)
-      .select()
-      .single()
-
+    
     if (error) throw error
-    return data
+    
+    if (!data || data.length === 0) {
+      throw new Error('해당 관리자를 찾을 수 없습니다.')
+    }
+    
+    return data[0]
   }
 
-  async deleteAdminUser(id: string) {
-    // 1. admin_users 테이블에서 삭제 (또는 비활성화)
-    const { error: dbError } = await supabase
-      .from('admin_users')
-      .update({ is_active: false })
-      .eq('id', id)
+  async deleteAdminUser(id: number) {
+    // RPC 함수를 사용하여 비활성화
+    const { data, error } = await supabase
+      .rpc('update_admin_user', {
+        admin_id: id,
+        admin_name: null,
+        admin_role: null,
+        admin_is_active: false
+      })
 
-    if (dbError) throw dbError
+    if (error) throw error
+    
+    if (!data || data.length === 0) {
+      throw new Error('해당 관리자를 찾을 수 없습니다.')
+    }
 
-    // 2. Supabase Auth에서도 사용자 삭제 (선택사항)
-    // const { error: authError } = await supabase.auth.admin.deleteUser(id)
-    // if (authError) throw authError
-
-    return true
+    return data[0]
   }
 
   // permissions 컬럼이 없으므로 이 메서드는 사용하지 않음

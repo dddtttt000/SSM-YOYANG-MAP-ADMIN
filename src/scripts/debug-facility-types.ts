@@ -67,7 +67,8 @@ async function debugFacilityTypes() {
     const limit = 1000
     let offset = 0
     
-    while (true) {
+    let hasMoreData = true
+    while (hasMoreData) {
       const { data, error } = await supabase
         .from('facilities_ssmn_basic_full')
         .select('admin_type_code')
@@ -79,12 +80,18 @@ async function debugFacilityTypes() {
         break
       }
       
-      if (!data || data.length === 0) break
+      if (!data || data.length === 0) {
+        hasMoreData = false
+        break
+      }
       
       allTypeData.push(...data)
       
-      if (data.length < limit) break
-      offset += limit
+      if (data.length < limit) {
+        hasMoreData = false
+      } else {
+        offset += limit
+      }
     }
     
     console.log(`📊 분석할 데이터 수: ${allTypeData.length}개`)

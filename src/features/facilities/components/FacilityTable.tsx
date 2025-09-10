@@ -1,3 +1,4 @@
+import React, { useMemo } from 'react'
 import {
   Table,
   Thead,
@@ -7,18 +8,11 @@ import {
   Td,
   TableContainer,
   Badge,
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
   Skeleton,
   Text,
   Tooltip,
 } from '@chakra-ui/react'
-import { FiMoreVertical, FiEye, FiEdit2, FiTrash2 } from 'react-icons/fi'
 import { Facility } from '@/types/database.types'
-import { usePermission } from '@/hooks/usePermission'
 import { getFacilityTypeLabel } from '../constants/facilityTypes'
 import { formatPhoneNumber } from '../utils/formatters'
 
@@ -26,8 +20,6 @@ interface FacilityTableProps {
   facilities: Facility[]
   isLoading: boolean
   onView: (facility: Facility) => void
-  onEdit: (facility: Facility) => void
-  onDelete: (facility: Facility) => void
 }
 
 const getRatingBadgeColor = (rating: string | null) => {
@@ -48,8 +40,17 @@ const getRatingBadgeColor = (rating: string | null) => {
   }
 }
 
-const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: FacilityTableProps) => {
-  const { canUpdate, canDelete } = usePermission()
+const FacilityTable = React.memo(({ facilities, isLoading, onView }: FacilityTableProps) => {
+
+  // 렌더링 최적화를 위한 memoization
+  const facilitiesWithFormatting = useMemo(() => 
+    facilities.map(facility => ({
+      ...facility,
+      formattedPhone: formatPhoneNumber(facility),
+      typeLabel: facility.admin_type_code ? getFacilityTypeLabel(facility.admin_type_code) : '',
+      ratingColor: getRatingBadgeColor(facility.final_rating)
+    })), [facilities]
+  )
 
   if (isLoading) {
     return (
@@ -64,7 +65,6 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
               <Th>평가 등급</Th>
               <Th>설치일</Th>
               <Th>연락처</Th>
-              <Th width='100px'>작업</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -91,9 +91,6 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
                 <Td>
                   <Skeleton height='20px' width='100px' />
                 </Td>
-                <Td>
-                  <Skeleton height='20px' width='40px' />
-                </Td>
               </Tr>
             ))}
           </Tbody>
@@ -115,12 +112,11 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
               <Th>평가 등급</Th>
               <Th>설치일</Th>
               <Th>연락처</Th>
-              <Th width='100px'>작업</Th>
             </Tr>
           </Thead>
           <Tbody>
             <Tr>
-              <Td colSpan={8}>
+              <Td colSpan={7}>
                 <Text textAlign='center' color='gray.500' py='8'>
                   등록된 시설이 없습니다.
                 </Text>
@@ -144,17 +140,16 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
             <Th>평가 등급</Th>
             <Th>설치일</Th>
             <Th>연락처</Th>
-            <Th width='100px'>작업</Th>
           </Tr>
         </Thead>
         <Tbody>
-          {facilities.map(facility => (
-            <Tr key={facility.admin_code}>
+          {facilitiesWithFormatting.map(facility => (
+            <Tr key={facility.admin_code} _hover={{ bg: 'gray.50', cursor: 'pointer' }} onClick={() => onView(facility)}>
               <Td fontWeight='medium'>{facility.admin_name || '시설명 없음'}</Td>
               <Td>
                 {facility.admin_type_code && (
                   <Tooltip
-                    label={`${facility.admin_type_code} - ${getFacilityTypeLabel(facility.admin_type_code)}`}
+                    label={`${facility.admin_type_code} - ${facility.typeLabel}`}
                     placement='top'
                     hasArrow
                   >
@@ -172,7 +167,7 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
               </Td>
               <Td>
                 {facility.final_rating && (
-                  <Badge colorScheme={getRatingBadgeColor(facility.final_rating)}>{facility.final_rating}</Badge>
+                  <Badge colorScheme={facility.ratingColor}>{facility.final_rating}</Badge>
                 )}
               </Td>
               <Td>
@@ -184,39 +179,13 @@ const FacilityTable = ({ facilities, isLoading, onView, onEdit, onDelete }: Faci
                     })
                   : '-'}
               </Td>
-              <Td>{formatPhoneNumber(facility)}</Td>
-              <Td>
-                <Menu>
-                  <MenuButton
-                    as={IconButton}
-                    icon={<FiMoreVertical />}
-                    variant='ghost'
-                    size='sm'
-                    aria-label='작업 메뉴'
-                  />
-                  <MenuList>
-                    <MenuItem icon={<FiEye />} onClick={() => onView(facility)}>
-                      상세 보기
-                    </MenuItem>
-                    {canUpdate('facilities') && (
-                      <MenuItem icon={<FiEdit2 />} onClick={() => onEdit(facility)}>
-                        수정
-                      </MenuItem>
-                    )}
-                    {canDelete('facilities') && (
-                      <MenuItem icon={<FiTrash2 />} onClick={() => onDelete(facility)} color='red.500'>
-                        삭제
-                      </MenuItem>
-                    )}
-                  </MenuList>
-                </Menu>
-              </Td>
+              <Td>{facility.formattedPhone}</Td>
             </Tr>
           ))}
         </Tbody>
       </Table>
     </TableContainer>
   )
-}
+})
 
 export default FacilityTable

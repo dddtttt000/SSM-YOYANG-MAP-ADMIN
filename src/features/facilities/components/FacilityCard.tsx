@@ -6,26 +6,18 @@ import {
   HStack,
   Text,
   Badge,
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
   Box,
   Progress,
   Image,
   Tooltip,
 } from '@chakra-ui/react'
-import { FiMoreVertical, FiEye, FiEdit2, FiTrash2, FiMapPin, FiPhone, FiUsers, FiAward } from 'react-icons/fi'
+import { FiMapPin, FiPhone, FiUsers, FiAward } from 'react-icons/fi'
 import { Facility } from '@/types/database.types'
-import { usePermission } from '@/hooks/usePermission'
 import { getFacilityTypeLabel } from '../constants/facilityTypes'
 
 interface FacilityCardProps {
   facility: Facility
   onView: (facility: Facility) => void
-  onEdit: (facility: Facility) => void
-  onDelete: (facility: Facility) => void
 }
 
 const getRatingBadgeColor = (rating: string | null) => {
@@ -46,8 +38,7 @@ const getRatingBadgeColor = (rating: string | null) => {
   }
 }
 
-const FacilityCard = ({ facility, onView, onEdit, onDelete }: FacilityCardProps) => {
-  const { canUpdate, canDelete } = usePermission()
+const FacilityCard = ({ facility, onView }: FacilityCardProps) => {
 
   // 입소율 계산
   const occupancyRate = facility.capacity
@@ -55,52 +46,37 @@ const FacilityCard = ({ facility, onView, onEdit, onDelete }: FacilityCardProps)
     : 0
 
   return (
-    <Card h='full' _hover={{ shadow: 'lg' }} transition='all 0.2s'>
+    <Card 
+      h='full' 
+      _hover={{ shadow: 'lg', cursor: 'pointer' }} 
+      transition='all 0.2s'
+      onClick={() => onView(facility)}
+    >
       <CardBody>
         <VStack align='stretch' spacing='3'>
-          <HStack justify='space-between' align='start'>
-            <Box flex='1'>
-              <Text fontSize='lg' fontWeight='semibold' noOfLines={1}>
-                {facility.admin_name || '시설명 없음'}
-              </Text>
-              <HStack spacing='2' mt='1'>
-                {facility.admin_type_code && (
-                  <Tooltip
-                    label={`${facility.admin_type_code} - ${getFacilityTypeLabel(facility.admin_type_code)}`}
-                    placement='top'
-                    hasArrow
-                  >
-                    <Badge colorScheme='blue' size='sm' cursor='help'>
-                      {facility.admin_type_code}
-                    </Badge>
-                  </Tooltip>
-                )}
-                {facility.final_rating && (
-                  <Badge colorScheme={getRatingBadgeColor(facility.final_rating)} size='sm'>
-                    {facility.final_rating}등급
+          <Box>
+            <Text fontSize='lg' fontWeight='semibold' noOfLines={1}>
+              {facility.admin_name || '시설명 없음'}
+            </Text>
+            <HStack spacing='2' mt='1'>
+              {facility.admin_type_code && (
+                <Tooltip
+                  label={`${facility.admin_type_code} - ${getFacilityTypeLabel(facility.admin_type_code)}`}
+                  placement='top'
+                  hasArrow
+                >
+                  <Badge colorScheme='blue' size='sm' cursor='help'>
+                    {facility.admin_type_code}
                   </Badge>
-                )}
-              </HStack>
-            </Box>
-            <Menu>
-              <MenuButton as={IconButton} icon={<FiMoreVertical />} variant='ghost' size='sm' aria-label='작업 메뉴' />
-              <MenuList>
-                <MenuItem icon={<FiEye />} onClick={() => onView(facility)}>
-                  상세 보기
-                </MenuItem>
-                {canUpdate('facilities') && (
-                  <MenuItem icon={<FiEdit2 />} onClick={() => onEdit(facility)}>
-                    수정
-                  </MenuItem>
-                )}
-                {canDelete('facilities') && (
-                  <MenuItem icon={<FiTrash2 />} onClick={() => onDelete(facility)} color='red.500'>
-                    삭제
-                  </MenuItem>
-                )}
-              </MenuList>
-            </Menu>
-          </HStack>
+                </Tooltip>
+              )}
+              {facility.final_rating && (
+                <Badge colorScheme={getRatingBadgeColor(facility.final_rating)} size='sm'>
+                  {facility.final_rating}등급
+                </Badge>
+              )}
+            </HStack>
+          </Box>
 
           {facility.thumbnail_url && (
             <Image

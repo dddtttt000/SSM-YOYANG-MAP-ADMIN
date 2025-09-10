@@ -3,9 +3,29 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react()],
+// Vite plugin for build-time console removal
+const consoleRemovalPlugin = () => {
+  return {
+    name: 'console-removal',
+    transform(code: string, id: string) {
+      if (process.env.NODE_ENV === 'production' && !id.includes('node_modules')) {
+        // Remove logger imports and calls completely in production
+        return code
+          .replace(/import\s+.*?from\s+['"`]@\/utils\/logger['"`];?\s*/g, '')
+          .replace(/logger\.(log|info|warn|error|debug)\([^)]*\);?\s*/g, '')
+          .replace(/console\.(log|info|warn|error|debug)\([^)]*\);?\s*/g, '')
+      }
+      return code
+    }
+  }
+}
+
+export default defineConfig(({ mode }) => ({
+  plugins: [
+    react(),
+    // Add console removal plugin for production builds
+    ...(mode === 'production' ? [consoleRemovalPlugin()] : [])
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -19,27 +39,24 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          // 라이브러리 분리
           'react-vendor': ['react', 'react-dom'],
           'chakra-ui': ['@chakra-ui/react', '@chakra-ui/icons'],
           'query': ['@tanstack/react-query'],
           'router': ['react-router-dom'],
           'supabase': ['@supabase/supabase-js'],
-          // Firebase는 자동 분리로 처리
         },
       },
     },
-    // 청크 크기 경고 임계값 증가
     chunkSizeWarningLimit: 1000,
-    // 소스맵 제거 (프로덕션)
     sourcemap: false,
-    // Terser 최적화 설정 추가
     minify: 'terser',
     terserOptions: {
       compress: {
-        // 프로덕션에서 console 및 logger 호출 제거
+        // Remove console statements in production
         drop_console: true,
         drop_debugger: true,
+        // Remove logger calls specifically
+        pure_funcs: ['logger.log', 'logger.info', 'logger.warn', 'logger.error', 'logger.debug']
       }
     }
   },
@@ -60,4 +77,4 @@ export default defineConfig({
       ],
     },
   },
-})
+}))
