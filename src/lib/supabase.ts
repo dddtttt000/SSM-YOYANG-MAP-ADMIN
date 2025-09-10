@@ -10,7 +10,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
-    persistSession: true,
-    autoRefreshToken: true,
+    persistSession: false, // 커스텀 세션 사용으로 비활성화
+    autoRefreshToken: false, // 커스텀 세션 사용으로 비활성화
+    detectSessionInUrl: false,
   },
 })

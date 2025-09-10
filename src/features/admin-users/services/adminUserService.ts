@@ -105,19 +105,22 @@ class AdminUserService {
   }
 
   async deleteAdminUser(id: number) {
-    // 1. admin_users 테이블에서 삭제 (또는 비활성화)
-    const { error: dbError } = await supabase
-      .from('admin_users')
-      .update({ is_active: false })
-      .eq('id', id)
+    // RPC 함수를 사용하여 비활성화
+    const { data, error } = await supabase
+      .rpc('update_admin_user', {
+        admin_id: id,
+        admin_name: null,
+        admin_role: null,
+        admin_is_active: false
+      })
 
-    if (dbError) throw dbError
+    if (error) throw error
+    
+    if (!data || data.length === 0) {
+      throw new Error('해당 관리자를 찾을 수 없습니다.')
+    }
 
-    // 2. Supabase Auth에서도 사용자 삭제 (선택사항)
-    // const { error: authError } = await supabase.auth.admin.deleteUser(id)
-    // if (authError) throw authError
-
-    return true
+    return data[0]
   }
 
   // permissions 컬럼이 없으므로 이 메서드는 사용하지 않음
