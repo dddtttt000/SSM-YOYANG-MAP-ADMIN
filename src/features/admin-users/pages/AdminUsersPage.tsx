@@ -5,7 +5,6 @@ import { useAdminUsers } from '../hooks/useAdminUsers'
 import { usePermission } from '@/hooks/usePermission'
 import AdminUserTable from '../components/AdminUserTable'
 import AdminUserModal from '../components/AdminUserModal'
-import PermissionModal from '../components/PermissionModal'
 import AdminUserFilters from '../components/AdminUserFilters'
 import { AdminUser } from '@/types/database.types'
 import { AdminUserFilters as Filters } from '../services/adminUserService'
@@ -17,12 +16,6 @@ const AdminUsersPage = () => {
 
   const { isOpen: isUserModalOpen, onOpen: onUserModalOpen, onClose: onUserModalClose } = useDisclosure()
 
-  const {
-    isOpen: isPermissionModalOpen,
-    onOpen: onPermissionModalOpen,
-    onClose: onPermissionModalClose,
-  } = useDisclosure()
-
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null)
 
   const handleAddUser = () => {
@@ -33,11 +26,6 @@ const AdminUsersPage = () => {
   const handleEditUser = (user: AdminUser) => {
     setSelectedUser(user)
     onUserModalOpen()
-  }
-
-  const handleEditPermissions = (user: AdminUser) => {
-    setSelectedUser(user)
-    onPermissionModalOpen()
   }
 
   return (
@@ -66,7 +54,7 @@ const AdminUsersPage = () => {
                 adminUsers={adminUsers || []}
                 isLoading={isLoading}
                 onEdit={handleEditUser}
-                onEditPermissions={handleEditPermissions}
+                onEditPermissions={handleEditUser}
               />
             </VStack>
           </CardBody>
@@ -74,8 +62,6 @@ const AdminUsersPage = () => {
       </VStack>
 
       <AdminUserModal isOpen={isUserModalOpen} onClose={onUserModalClose} user={selectedUser} />
-
-      <PermissionModal isOpen={isPermissionModalOpen} onClose={onPermissionModalClose} user={selectedUser} />
     </Box>
   )
 }

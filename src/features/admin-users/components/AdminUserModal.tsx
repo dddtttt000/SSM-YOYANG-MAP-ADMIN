@@ -17,10 +17,19 @@ import {
   InputRightElement,
   IconButton,
   Text,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
+  Box,
+  HStack,
+  Checkbox,
+  Divider,
 } from '@chakra-ui/react'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import { useState, useEffect } from 'react'
-import { AdminUser } from '@/types/database.types'
+import { AdminUser, Permission } from '@/types/database.types'
 import { useCreateAdminUser, useUpdateAdminUser } from '../hooks/useAdminUsers'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
 
@@ -45,6 +54,52 @@ interface FormErrors {
   confirmPassword?: string
 }
 
+interface ResourcePermission {
+  resource: string
+  label: string
+  description: string
+  actions: {
+    value: string
+    label: string
+  }[]
+}
+
+const resourcePermissions: ResourcePermission[] = [
+  {
+    resource: 'admin_users',
+    label: '관리자 관리',
+    description: '시스템 관리자 계정을 관리할 수 있습니다.',
+    actions: [
+      { value: 'create', label: '추가' },
+      { value: 'read', label: '조회' },
+      { value: 'update', label: '수정' },
+      { value: 'delete', label: '삭제' },
+    ],
+  },
+  {
+    resource: 'members',
+    label: '회원 관리',
+    description: '일반 회원 정보를 관리할 수 있습니다.',
+    actions: [
+      { value: 'create', label: '추가' },
+      { value: 'read', label: '조회' },
+      { value: 'update', label: '수정' },
+      { value: 'delete', label: '삭제' },
+    ],
+  },
+  {
+    resource: 'facilities',
+    label: '시설 관리',
+    description: '시설 정보를 관리할 수 있습니다.',
+    actions: [
+      { value: 'create', label: '추가' },
+      { value: 'read', label: '조회' },
+      { value: 'update', label: '수정' },
+      { value: 'delete', label: '삭제' },
+    ],
+  },
+]
+
 const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
   const { user: currentUser } = useAuth()
   const createAdminUser = useCreateAdminUser()
@@ -52,6 +107,7 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
   const isEditMode = !!user
 
   const [showPassword, setShowPassword] = useState(false)
+  const [permissions, setPermissions] = useState<Permission[]>([])
   const [formData, setFormData] = useState<FormData>({
     email: '',
     name: '',
@@ -70,6 +126,7 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
         password: '',
         confirmPassword: '',
       })
+      setPermissions([])
     } else {
       setFormData({
         email: '',
@@ -78,6 +135,7 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
         password: '',
         confirmPassword: '',
       })
+      setPermissions([])
     }
     setErrors({})
   }, [user])
@@ -137,6 +195,66 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
     }
   }
 
+  const isActionChecked = (resource: string, action: string) => {
+    const permission = permissions.find(p => p.resource === resource)
+    return permission ? permission.actions.includes(action as any) : false
+  }
+
+  const handleActionToggle = (resource: string, action: string, checked: boolean) => {
+    const existingPermission = permissions.find(p => p.resource === resource)
+
+    if (existingPermission) {
+      const newActions = checked
+        ? [...existingPermission.actions, action as any]
+        : existingPermission.actions.filter(a => a !== action)
+
+      if (newActions.length === 0) {
+        setPermissions(permissions.filter(p => p.resource !== resource))
+      } else {
+        setPermissions(permissions.map(p => (p.resource === resource ? { ...p, actions: newActions } : p)))
+      }
+    } else if (checked) {
+      setPermissions([...permissions, { resource, actions: [action as any] }])
+    }
+  }
+
+  const handleSelectAll = (resource: string) => {
+    const allActions = resourcePermissions.find(r => r.resource === resource)?.actions.map(a => a.value) || []
+
+    const existingPermission = permissions.find(p => p.resource === resource)
+    const hasAllActions = existingPermission?.actions.length === allActions.length
+
+    if (hasAllActions) {
+      setPermissions(permissions.filter(p => p.resource !== resource))
+    } else {
+      setPermissions(
+        permissions
+          .filter(p => p.resource !== resource)
+          .concat({
+            resource,
+            actions: allActions as any[],
+          })
+      )
+    }
+  }
+
+  const handleSavePermissions = async () => {
+    if (!user) return
+
+    // TODO: 향후 permissions 시스템 구현 시 활성화
+    // try {
+    //   await updatePermissions.mutateAsync({
+    //     id: String(user.id),
+    //     permissions,
+    //   })
+    // } catch (error) {
+    //   // 에러는 훅에서 toast로 처리됨
+    // }
+
+    // 현재는 권한 시스템이 구현되지 않아 저장하지 않음
+    console.log('권한 저장:', permissions)
+  }
+
   const handleClose = () => {
     setFormData({
       email: '',
@@ -145,12 +263,13 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
       password: '',
       confirmPassword: '',
     })
+    setPermissions([])
     setErrors({})
     onClose()
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size='md'>
+    <Modal isOpen={isOpen} onClose={handleClose} size='xl'>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{isEditMode ? '관리자 정보 수정' : '새 관리자 추가'}</ModalHeader>
@@ -232,6 +351,78 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
                 </FormControl>
               </>
             )}
+
+            {isEditMode && user && formData.role === 'admin' && currentUser?.role === 'super_admin' && (
+              <>
+                <Divider />
+                <Accordion allowToggle width='100%' p={2} borderRadius='md' border='1px solid' borderColor='gray.200'>
+                  <AccordionItem border='none'>
+                    <h2>
+                      <AccordionButton px={2} py={1} borderRadius='md' _hover={{ bg: 'gray.50' }}>
+                        <Box as='span' flex='1' textAlign='left' fontWeight='semibold'>
+                          관리자 권한 설정
+                        </Box>
+                        <AccordionIcon />
+                      </AccordionButton>
+                    </h2>
+                    <AccordionPanel pb={4} px={4} pt={4} bg='gray.50' borderRadius='md' mt={2}>
+                      <VStack spacing='6' align='stretch'>
+                        <Text fontSize='sm' color='gray.600'>
+                          관리자의 접근 권한을 세부적으로 설정할 수 있습니다.
+                        </Text>
+
+                        {resourcePermissions.map((resource, index) => (
+                          <Box key={resource.resource} width='100%'>
+                            {index > 0 && <Divider my='4' />}
+                            <VStack align='stretch' spacing='3' width='100%'>
+                              <HStack justify='space-between' width='100%'>
+                                <Box flex='1'>
+                                  <Text fontWeight='semibold'>{resource.label}</Text>
+                                  <Text fontSize='sm' color='gray.600'>
+                                    {resource.description}
+                                  </Text>
+                                </Box>
+                                <Button size='sm' variant='ghost' onClick={() => handleSelectAll(resource.resource)}>
+                                  전체 선택
+                                </Button>
+                              </HStack>
+
+                              <Box width='100%'>
+                                <HStack spacing='4' wrap='wrap' justify='flex-start'>
+                                  {resource.actions.map(action => (
+                                    <Checkbox
+                                      key={`${resource.resource}-${action.value}`}
+                                      isChecked={isActionChecked(resource.resource, action.value)}
+                                      onChange={e =>
+                                        handleActionToggle(resource.resource, action.value, e.target.checked)
+                                      }
+                                      minW='fit-content'
+                                    >
+                                      {action.label}
+                                    </Checkbox>
+                                  ))}
+                                </HStack>
+                              </Box>
+                            </VStack>
+                          </Box>
+                        ))}
+                        
+                        <Box pt={4} borderTop='1px solid' borderColor='gray.200' mt={6}>
+                          <Button 
+                            colorScheme='brand' 
+                            size='sm' 
+                            onClick={handleSavePermissions}
+                          >
+                            권한 저장
+                          </Button>
+                        </Box>
+                      </VStack>
+                    </AccordionPanel>
+                  </AccordionItem>
+                </Accordion>
+              </>
+            )}
+
           </VStack>
         </ModalBody>
 
