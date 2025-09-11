@@ -31,25 +31,31 @@ export const authService = {
     }
 
     // 2. Supabase Auth 계정 연결 상태 확인 (개발 환경에서는 유연하게 처리)
-    const isDevelopment = import.meta.env.MODE === 'development'
-    
-    if (!adminUser.supabase_user_id && !isDevelopment) {
-      throw new Error(
-        '계정 마이그레이션이 필요합니다. 관리자에게 문의하여 계정 설정을 완룼해주세요.'
-      )
+    const isDevEnvironment = import.meta.env.MODE === 'development'
+    const isDevSupabase =
+      import.meta.env.VITE_SUPABASE_URL?.includes('localhost') ||
+      import.meta.env.VITE_SUPABASE_URL?.includes('127.0.0.1') ||
+      import.meta.env.VITE_SUPABASE_URL?.includes('.localsupabase.') ||
+      import.meta.env.VITE_SUPABASE_URL?.includes('-dev.') ||
+      import.meta.env.VITE_SUPABASE_URL?.includes('staging')
+
+    const allowFlexibleAuth = isDevEnvironment || isDevSupabase
+
+    if (!adminUser.supabase_user_id && !allowFlexibleAuth) {
+      throw new Error('계정 마이그레이션이 필요합니다. 관리자에게 문의하여 계정 설정을 완료해주세요.')
     }
 
     // 3. 로그인 시간 업데이트
-    await supabase
-      .from('admin_users')
-      .update({ last_login_at: new Date().toISOString() })
-      .eq('id', adminUser.id)
+    await supabase.from('admin_users').update({ last_login_at: new Date().toISOString() }).eq('id', adminUser.id)
 
     // 4. Supabase Auth 세션 처리
     if (adminUser.supabase_user_id) {
       // Supabase Auth 계정이 연결된 경우
-      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser()
-      
+      const {
+        data: { user: currentUser },
+        error: userError,
+      } = await supabase.auth.getUser()
+
       if (userError) {
         // eslint-disable-next-line no-console
         console.warn('인증 상태 확인 실패:', userError.message)
@@ -62,17 +68,19 @@ export const authService = {
     }
 
     // 5. localStorage fallback 설정 (세션 없는 경우 대비)
-    localStorage.setItem('admin_user_fallback', JSON.stringify({
-      id: adminUser.id,
-      email: adminUser.email,
-      name: adminUser.name,
-      role: adminUser.role,
-      permissions: adminUser.permissions || [], // 기본값 처리
-      supabase_user_id: adminUser.supabase_user_id,
-      last_login_at: adminUser.last_login_at,
-      is_active: adminUser.is_active
-    }))
-
+    localStorage.setItem(
+      'admin_user_fallback',
+      JSON.stringify({
+        id: adminUser.id,
+        email: adminUser.email,
+        name: adminUser.name,
+        role: adminUser.role,
+        permissions: adminUser.permissions || [], // 기본값 처리
+        supabase_user_id: adminUser.supabase_user_id,
+        last_login_at: adminUser.last_login_at,
+        is_active: adminUser.is_active,
+      })
+    )
 
     return adminUser
   },
@@ -123,7 +131,7 @@ export const authService = {
             .eq('id', userData.id)
             .eq('is_active', true)
             .single()
-          
+
           if (!error && currentAdminUser) {
             return currentAdminUser
           } else {
