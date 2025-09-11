@@ -59,10 +59,6 @@ export const authService = {
       if (currentUser && currentUser.id === adminUser.supabase_user_id) {
         await this.syncUserMetadata(adminUser)
       }
-    } else if (isDevelopment) {
-      // 개발 환경: Supabase Auth 계정이 없어도 localStorage fallback로 로그인 허용
-      // eslint-disable-next-line no-console
-      console.warn('개발 환경: Supabase Auth 없이 localStorage fallback 사용')
     }
 
     // 5. localStorage fallback 설정 (세션 없는 경우 대비)
