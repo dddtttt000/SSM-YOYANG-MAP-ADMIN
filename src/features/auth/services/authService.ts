@@ -32,12 +32,7 @@ export const authService = {
 
     // 2. Supabase Auth 계정 연결 상태 확인 (개발 환경에서는 유연하게 처리)
     const isDevEnvironment = import.meta.env.MODE === 'development'
-    const isDevSupabase =
-      import.meta.env.VITE_SUPABASE_URL?.includes('localhost') ||
-      import.meta.env.VITE_SUPABASE_URL?.includes('127.0.0.1') ||
-      import.meta.env.VITE_SUPABASE_URL?.includes('.localsupabase.') ||
-      import.meta.env.VITE_SUPABASE_URL?.includes('-dev.') ||
-      import.meta.env.VITE_SUPABASE_URL?.includes('staging')
+    const isDevSupabase = import.meta.env.VITE_SUPABASE_URL?.includes('gfclxscgsoyochbnzipo.supabase.co')
 
     const allowFlexibleAuth = isDevEnvironment || isDevSupabase
 
