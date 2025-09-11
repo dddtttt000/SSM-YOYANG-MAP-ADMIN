@@ -79,7 +79,7 @@ export const authService = {
         email: adminUser.email,
         name: adminUser.name,
         role: adminUser.role,
-        permissions: adminUser.permissions || [], // 기본값 처리
+        permissions: [], // 현재 DB에 없으므로 빈 배열로 처리
         supabase_user_id: adminUser.supabase_user_id,
         last_login_at: adminUser.last_login_at,
         is_active: adminUser.is_active,
@@ -96,7 +96,7 @@ export const authService = {
         admin_user_id: adminUser.id,
         email: adminUser.email,
         role: adminUser.role,
-        permissions: adminUser.permissions || [], // 기본값 처리
+        permissions: [], // 현재 DB에 없으므로 빈 배열로 처리
         full_name: adminUser.name,
       }
 
@@ -131,7 +131,7 @@ export const authService = {
           // admin_users 테이블에서 최신 상태 확인 (password_digest 제외)
           const { data: currentAdminUser, error } = await supabase
             .from('admin_users')
-            .select('id, email, name, role, permissions, supabase_user_id, last_login_at, is_active, created_at, updated_at')
+            .select('id, email, name, role, supabase_user_id, last_login_at, is_active, created_at, updated_at')
             .eq('id', userData.id)
             .eq('is_active', true)
             .single()
@@ -182,7 +182,7 @@ export const authService = {
     // 5. 최신 admin 사용자 정보 조회 (password_digest 제외)
     const { data: currentAdminUser, error } = await supabase
       .from('admin_users')
-      .select('id, email, name, role, permissions, supabase_user_id, last_login_at, is_active, created_at, updated_at')
+      .select('id, email, name, role, supabase_user_id, last_login_at, is_active, created_at, updated_at')
       .eq('id', adminUserId)
       .eq('is_active', true)
       .single()
@@ -197,14 +197,14 @@ export const authService = {
       !metadata ||
       metadata.admin_user_id !== currentAdminUser.id ||
       metadata.role !== currentAdminUser.role ||
-      JSON.stringify(metadata.permissions || []) !== JSON.stringify(currentAdminUser.permissions || [])
+      JSON.stringify(metadata.permissions || []) !== JSON.stringify([]) // permissions는 현재 DB에 없으므로 빈 배열로 처리
 
     if (needsMetadataUpdate) {
       const updatedMetadata: AdminUserMetadata = {
         admin_user_id: currentAdminUser.id,
         email: currentAdminUser.email,
         role: currentAdminUser.role,
-        permissions: currentAdminUser.permissions || [], // 기본값 처리
+        permissions: [], // 현재 DB에 없으므로 빈 배열로 처리
         full_name: currentAdminUser.name,
       }
 

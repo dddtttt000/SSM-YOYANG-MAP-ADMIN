@@ -16,7 +16,7 @@ export const migrationService = {
   async getAdminsForMigration(): Promise<AdminUser[]> {
     const { data, error } = await supabase
       .from('admin_users')
-      .select('id, email, name, role, permissions, supabase_user_id, last_login_at, is_active, created_at, updated_at')
+      .select('id, email, name, role, supabase_user_id, last_login_at, is_active, created_at, updated_at')
       .eq('is_active', true)
       .is('supabase_user_id', null) // 아직 Supabase Auth와 연결되지 않은 계정들
 
