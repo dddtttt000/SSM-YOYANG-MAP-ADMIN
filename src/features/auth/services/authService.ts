@@ -45,20 +45,29 @@ export const authService = {
 
     // 4. Supabase Auth 세션 처리
     if (adminUser.supabase_user_id) {
-      // Supabase Auth 계정이 연결된 경우
-      const {
-        data: { user: currentUser },
-        error: userError,
-      } = await supabase.auth.getUser()
+      // Supabase Auth 계정이 연결된 경우 - 실제 로그인 수행
+      try {
+        const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: adminUser.email,
+          password: credentials.password,
+        })
 
-      if (userError) {
+        if (signInError) {
+          // eslint-disable-next-line no-console
+          console.warn('Supabase Auth 로그인 실패:', signInError.message)
+          // Supabase Auth 로그인 실패해도 admin_users 테이블 인증이 성공했으므로 계속 진행
+          // 사용자에게 비밀번호 업데이트가 필요함을 알림
+          console.warn('힌트: 마이그레이션된 계정의 경우 Supabase Auth 비밀번호 업데이트가 필요할 수 있습니다.')
+        } else if (authData.user && authData.user.id === adminUser.supabase_user_id) {
+          // 로그인 성공 시 JWT 메타데이터 동기화
+          await this.syncUserMetadata(adminUser)
+          // eslint-disable-next-line no-console
+          console.log('Supabase Auth 로그인 성공 - JWT 토큰이 생성되었습니다.')
+        }
+      } catch (error) {
         // eslint-disable-next-line no-console
-        console.warn('인증 상태 확인 실패:', userError.message)
-      }
-
-      // 세션이 있고 올바른 사용자인 경우 JWT 메타데이터 동기화
-      if (currentUser && currentUser.id === adminUser.supabase_user_id) {
-        await this.syncUserMetadata(adminUser)
+        console.warn('Supabase Auth 로그인 중 오류:', error)
+        // 오류가 발생해도 admin_users 테이블 인증이 성공했으므로 계속 진행
       }
     }
 
@@ -119,10 +128,10 @@ export const authService = {
       if (fallbackUser) {
         try {
           const userData = JSON.parse(fallbackUser)
-          // admin_users 테이블에서 최신 상태 확인
+          // admin_users 테이블에서 최신 상태 확인 (password_digest 제외)
           const { data: currentAdminUser, error } = await supabase
             .from('admin_users')
-            .select('*')
+            .select('id, email, name, role, permissions, supabase_user_id, last_login_at, is_active, created_at, updated_at')
             .eq('id', userData.id)
             .eq('is_active', true)
             .single()
@@ -170,10 +179,10 @@ export const authService = {
       return null
     }
 
-    // 5. 최신 admin 사용자 정보 조회
+    // 5. 최신 admin 사용자 정보 조회 (password_digest 제외)
     const { data: currentAdminUser, error } = await supabase
       .from('admin_users')
-      .select('*')
+      .select('id, email, name, role, permissions, supabase_user_id, last_login_at, is_active, created_at, updated_at')
       .eq('id', adminUserId)
       .eq('is_active', true)
       .single()
