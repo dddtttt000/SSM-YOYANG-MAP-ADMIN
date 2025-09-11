@@ -10,6 +10,8 @@ export interface Database {
           password_digest?: string
           name: string
           role: 'admin' | 'super_admin'
+          permissions?: string[] // TODO: DB에 컬럼 추가 예정
+          supabase_user_id?: string
           is_active: boolean
           last_login_at: string | null
           created_at: string

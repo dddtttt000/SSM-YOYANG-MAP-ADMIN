@@ -1,18 +1,18 @@
 import { supabase } from '@/lib/supabase'
 import { LoginCredentials } from '@/types/auth.types'
 import { AdminUser } from '@/types/database.types'
-import type { User, Session } from '@supabase/supabase-js'
+import type { Session } from '@supabase/supabase-js'
 
 interface AdminUserMetadata {
   admin_user_id: number
   email: string
   role: string
-  permissions: string[]
+  permissions?: string[] // TODO: DB 컬럼 추가 시 활성화
   full_name: string
 }
 
 export const authService = {
-  // Supabase Auth + JWT 메타데이터 기반 로그인
+  // 개선된 안전한 로그인 플로우
   async login(credentials: LoginCredentials): Promise<AdminUser> {
     // 1. admin_users 테이블에서 사용자 검증
     const { data: adminUsers, error: rpcError } = await supabase.rpc('verify_admin_password', {
@@ -30,139 +30,80 @@ export const authService = {
       throw new Error('비활성화된 계정입니다.')
     }
 
-    // 2. Supabase Auth에서 해당 사용자 확인/생성
-    let authUser: User | null = null
+    // 2. Supabase Auth 계정 연결 상태 확인 (개발 환경에서는 유연하게 처리)
+    const isDevelopment = import.meta.env.MODE === 'development'
+    
+    if (!adminUser.supabase_user_id && !isDevelopment) {
+      throw new Error(
+        '계정 마이그레이션이 필요합니다. 관리자에게 문의하여 계정 설정을 완룼해주세요.'
+      )
+    }
 
-    // 2-1. 기존 Supabase 사용자가 있는지 확인
+    // 3. 로그인 시간 업데이트
+    await supabase
+      .from('admin_users')
+      .update({ last_login_at: new Date().toISOString() })
+      .eq('id', adminUser.id)
+
+    // 4. Supabase Auth 세션 처리
     if (adminUser.supabase_user_id) {
-      const { data: existingSession } = await supabase.auth.getUser()
-      if (existingSession.user?.id === adminUser.supabase_user_id) {
-        authUser = existingSession.user
+      // Supabase Auth 계정이 연결된 경우
+      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser()
+      
+      if (userError) {
+        // eslint-disable-next-line no-console
+        console.warn('인증 상태 확인 실패:', userError.message)
       }
-    }
 
-    // 2-2. Supabase Auth 계정 생성/로그인
-    if (!authUser) {
-      // 고정된 임시 비밀번호로 Supabase Auth 계정 생성/로그인
-      const tempPassword = `temp_admin_${adminUser.id}_fixed_password`
-
-      // 유효한 이메일 형식으로 변환
-      const hasValidDomain =
-        adminUser.email.includes('@') && !adminUser.email.includes('@test.') && !adminUser.email.endsWith('.test')
-      const validEmail = hasValidDomain ? adminUser.email : `admin_${adminUser.id}@temp-domain.com`
-
-      // 먼저 로그인 시도 (계정이 이미 있을 가능성이 높음)
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: validEmail,
-        password: tempPassword,
-      })
-
-      if (signInError && signInError.message.includes('Invalid login credentials')) {
-        // 계정이 없으면 생성 시도
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          email: validEmail,
-          password: tempPassword,
-          options: {
-            emailRedirectTo: undefined, // 이메일 확인 비활성화
-            data: {
-              admin_user_id: adminUser.id,
-              email: adminUser.email, // 원본 이메일 유지
-              role: adminUser.role,
-              permissions: adminUser.permissions,
-              full_name: adminUser.name,
-            },
-          },
-        })
-
-        if (signUpError) {
-          throw new Error(`Supabase Auth 계정 생성 실패: ${signUpError.message}`)
-        }
-
-        // signUp 성공 시 바로 사용자 사용 (세션이 없어도 진행)
-        authUser = signUpData.user
-      } else if (signInError) {
-        throw new Error(`Supabase Auth 로그인 실패: ${signInError.message}`)
-      } else {
-        authUser = signInData.user
+      // 세션이 있고 올바른 사용자인 경우 JWT 메타데이터 동기화
+      if (currentUser && currentUser.id === adminUser.supabase_user_id) {
+        await this.syncUserMetadata(adminUser)
       }
+    } else if (isDevelopment) {
+      // 개발 환경: Supabase Auth 계정이 없어도 localStorage fallback로 로그인 허용
+      // eslint-disable-next-line no-console
+      console.warn('개발 환경: Supabase Auth 없이 localStorage fallback 사용')
     }
 
-    if (!authUser) {
-      throw new Error('Supabase Auth 사용자 생성/로그인 실패')
-    }
+    // 5. localStorage fallback 설정 (세션 없는 경우 대비)
+    localStorage.setItem('admin_user_fallback', JSON.stringify({
+      id: adminUser.id,
+      email: adminUser.email,
+      name: adminUser.name,
+      role: adminUser.role,
+      permissions: adminUser.permissions || [], // 기본값 처리
+      supabase_user_id: adminUser.supabase_user_id,
+      last_login_at: adminUser.last_login_at,
+      is_active: adminUser.is_active
+    }))
 
-    // 3. admin_users 테이블에 supabase_user_id 연결
-    if (!adminUser.supabase_user_id) {
-      await supabase
-        .from('admin_users')
-        .update({
-          supabase_user_id: authUser.id,
-          last_login_at: new Date().toISOString(),
-        })
-        .eq('id', adminUser.id)
 
-      adminUser.supabase_user_id = authUser.id
-    } else {
-      // 로그인 시간만 업데이트
-      await supabase.from('admin_users').update({ last_login_at: new Date().toISOString() }).eq('id', adminUser.id)
-    }
+    return adminUser
+  },
 
-    // 4. 세션 확인 (세션이 없어도 진행하도록 수정)
-    const { data: session } = await supabase.auth.getSession()
-
-    // 세션 확인 및 강제 생성
-    if (!session.session) {
-      // 세션 새로고침 시도
-      try {
-        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession()
-        if (refreshError || !refreshData.session) {
-          // localStorage fallback
-          localStorage.setItem('admin_user_fallback', JSON.stringify({
-            id: adminUser.id,
-            email: adminUser.email,
-            name: adminUser.name,
-            role: adminUser.role,
-            permissions: adminUser.permissions,
-            supabase_user_id: adminUser.supabase_user_id,
-            last_login_at: adminUser.last_login_at,
-            is_active: adminUser.is_active
-          }))
-        }
-      } catch (refreshError) {
-        // localStorage fallback
-        localStorage.setItem('admin_user_fallback', JSON.stringify({
-          id: adminUser.id,
-          email: adminUser.email,
-          name: adminUser.name,
-          role: adminUser.role,
-          permissions: adminUser.permissions,
-          supabase_user_id: adminUser.supabase_user_id,
-          last_login_at: adminUser.last_login_at,
-          is_active: adminUser.is_active
-        }))
-      }
-    }
-
-    // 5. JWT user_metadata 업데이트 (세션이 있을 때만)
-    if (session.session) {
+  // JWT 메타데이터 동기화
+  async syncUserMetadata(adminUser: AdminUser): Promise<void> {
+    try {
       const userMetadata: AdminUserMetadata = {
         admin_user_id: adminUser.id,
         email: adminUser.email,
         role: adminUser.role,
-        permissions: adminUser.permissions,
+        permissions: adminUser.permissions || [], // 기본값 처리
         full_name: adminUser.name,
       }
 
-      const { error: updateMetadataError } = await supabase.auth.updateUser({
+      const { error } = await supabase.auth.updateUser({
         data: userMetadata,
       })
 
-      if (updateMetadataError) {
-        // 메타데이터 업데이트 실패해도 로그인은 계속 진행
+      if (error) {
+        // eslint-disable-next-line no-console
+        console.warn('메타데이터 동기화 실패:', error.message)
       }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.warn('메타데이터 동기화 중 오류:', error)
     }
-
-    return adminUser
   },
 
   // JWT 세션 기반 사용자 확인
@@ -248,14 +189,14 @@ export const authService = {
       !metadata ||
       metadata.admin_user_id !== currentAdminUser.id ||
       metadata.role !== currentAdminUser.role ||
-      JSON.stringify(metadata.permissions) !== JSON.stringify(currentAdminUser.permissions)
+      JSON.stringify(metadata.permissions || []) !== JSON.stringify(currentAdminUser.permissions || [])
 
     if (needsMetadataUpdate) {
       const updatedMetadata: AdminUserMetadata = {
         admin_user_id: currentAdminUser.id,
         email: currentAdminUser.email,
         role: currentAdminUser.role,
-        permissions: currentAdminUser.permissions,
+        permissions: currentAdminUser.permissions || [], // 기본값 처리
         full_name: currentAdminUser.name,
       }
 
