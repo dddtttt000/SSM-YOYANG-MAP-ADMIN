@@ -7,11 +7,6 @@ import {
   Td,
   TableContainer,
   Badge,
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
   Skeleton,
   Text,
   useDisclosure,
@@ -23,17 +18,18 @@ import {
   AlertDialogOverlay,
   Button,
 } from '@chakra-ui/react'
-import { FiEdit2, FiTrash2, FiMoreVertical, FiShield } from 'react-icons/fi'
+import { FiTrash2, FiRotateCw } from 'react-icons/fi'
 import { AdminUser } from '@/types/database.types'
 import { useRef, useState } from 'react'
-import { useDeleteAdminUser } from '../hooks/useAdminUsers'
+import { useDeleteAdminUser, useUpdateAdminUser } from '../hooks/useAdminUsers'
 import { usePermission } from '@/hooks/usePermission'
+import { useAuth } from '@/features/auth/contexts/AuthContext'
+import { formatDateTime } from '@/utils/date'
 
 interface AdminUserTableProps {
   adminUsers: AdminUser[]
   isLoading: boolean
   onEdit: (user: AdminUser) => void
-  onEditPermissions: (user: AdminUser) => void
 }
 
 const getRoleBadgeColor = (role: string) => {
@@ -58,9 +54,11 @@ const getRoleLabel = (role: string) => {
   }
 }
 
-const AdminUserTable = ({ adminUsers, isLoading, onEdit, onEditPermissions }: AdminUserTableProps) => {
-  const { canUpdate, canDelete } = usePermission()
+const AdminUserTable = ({ adminUsers, isLoading, onEdit }: AdminUserTableProps) => {
+  usePermission() // 권한 체크를 위해 유지 (미래 확장성)
+  const { user: currentUser } = useAuth()
   const deleteAdminUser = useDeleteAdminUser()
+  const updateAdminUser = useUpdateAdminUser()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const cancelRef = useRef<HTMLButtonElement>(null)
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null)
@@ -68,6 +66,18 @@ const AdminUserTable = ({ adminUsers, isLoading, onEdit, onEditPermissions }: Ad
   const handleDelete = (user: AdminUser) => {
     setSelectedUser(user)
     onOpen()
+  }
+
+  const handleActivate = async (user: AdminUser) => {
+    try {
+      await updateAdminUser.mutateAsync({
+        id: user.id,
+        dto: { is_active: true },
+      })
+    } catch (error) {
+      console.error('Failed to activate admin user:', error)
+      // 에러는 훅에서 toast로 처리됨
+    }
   }
 
   const confirmDelete = async () => {
@@ -88,7 +98,7 @@ const AdminUserTable = ({ adminUsers, isLoading, onEdit, onEditPermissions }: Ad
               <Th>역할</Th>
               <Th>상태</Th>
               <Th>가입일</Th>
-              <Th width='100px'>작업</Th>
+              <Th width='100px'>계정관리</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -131,7 +141,7 @@ const AdminUserTable = ({ adminUsers, isLoading, onEdit, onEditPermissions }: Ad
               <Th>역할</Th>
               <Th>상태</Th>
               <Th>가입일</Th>
-              <Th width='100px'>작업</Th>
+              <Th width='100px'>계정관리</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -159,12 +169,12 @@ const AdminUserTable = ({ adminUsers, isLoading, onEdit, onEditPermissions }: Ad
               <Th>역할</Th>
               <Th>상태</Th>
               <Th>가입일</Th>
-              <Th width='100px'>작업</Th>
+              <Th width='100px'>계정관리</Th>
             </Tr>
           </Thead>
           <Tbody>
             {adminUsers.map(user => (
-              <Tr key={user.id}>
+              <Tr key={user.id} _hover={{ bg: 'gray.50' }} cursor='pointer' onClick={() => onEdit(user)}>
                 <Td fontWeight='medium'>{user.name}</Td>
                 <Td>{user.email}</Td>
                 <Td>
@@ -173,34 +183,43 @@ const AdminUserTable = ({ adminUsers, isLoading, onEdit, onEditPermissions }: Ad
                 <Td>
                   <Badge colorScheme={user.is_active ? 'green' : 'gray'}>{user.is_active ? '활성' : '비활성'}</Badge>
                 </Td>
-                <Td>{new Date(user.created_at).toLocaleDateString('ko-KR')}</Td>
+                <Td>{formatDateTime(user.created_at)}</Td>
                 <Td>
-                  <Menu>
-                    <MenuButton
-                      as={IconButton}
-                      icon={<FiMoreVertical />}
-                      variant='ghost'
-                      size='sm'
-                      aria-label='작업 메뉴'
-                    />
-                    <MenuList>
-                      {canUpdate('admin_users') && (
-                        <MenuItem icon={<FiEdit2 />} onClick={() => onEdit(user)}>
-                          정보 수정
-                        </MenuItem>
-                      )}
-                      {canUpdate('admin_users') && user.role === 'admin' && (
-                        <MenuItem icon={<FiShield />} onClick={() => onEditPermissions(user)}>
-                          권한 설정
-                        </MenuItem>
-                      )}
-                      {canDelete('admin_users') && user.role !== 'super_admin' && (
-                        <MenuItem icon={<FiTrash2 />} onClick={() => handleDelete(user)} color='red.500'>
-                          비활성화
-                        </MenuItem>
-                      )}
-                    </MenuList>
-                  </Menu>
+                  {user.role !== 'super_admin' ? (
+                    user.is_active ? (
+                      <Button
+                        leftIcon={<FiTrash2 />}
+                        colorScheme='red'
+                        variant='outline'
+                        size='sm'
+                        isDisabled={currentUser?.role !== 'super_admin'}
+                        onClick={e => {
+                          e.stopPropagation()
+                          handleDelete(user)
+                        }}
+                      >
+                        비활성화
+                      </Button>
+                    ) : (
+                      <Button
+                        leftIcon={<FiRotateCw />}
+                        colorScheme='gray'
+                        variant='outline'
+                        size='sm'
+                        isDisabled={currentUser?.role !== 'super_admin'}
+                        onClick={e => {
+                          e.stopPropagation()
+                          handleActivate(user)
+                        }}
+                      >
+                        활성화
+                      </Button>
+                    )
+                  ) : (
+                    <Text fontSize='sm' color='gray.400'>
+                      -
+                    </Text>
+                  )}
                 </Td>
               </Tr>
             ))}

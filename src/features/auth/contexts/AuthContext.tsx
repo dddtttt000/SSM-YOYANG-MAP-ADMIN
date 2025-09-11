@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { AuthContextType, LoginCredentials } from '@/types/auth.types'
 import { AdminUser } from '@/types/database.types'
 import { authService } from '../services/authService'
+import type { Session } from '@supabase/supabase-js'
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
@@ -24,15 +25,94 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // Supabase Auth 세션 상태 리스너
+  useEffect(() => {
+    let mounted = true
+
+    const {
+      data: { subscription },
+    } = authService.onAuthStateChange(async (session: Session | null) => {
+      if (!mounted) return
+
+      try {
+        setIsLoading(true)
+        setError(null)
+
+        if (session) {
+          // 세션이 있으면 admin 사용자 정보 확인
+          const adminUser = await authService.checkSession()
+          if (mounted) {
+            setUser(adminUser)
+          }
+        } else {
+          // 세션이 없을 때 - 로그인 직후에는 세션이 없을 수 있으므로 사용자 상태 유지
+          if (mounted) {
+            setUser(currentUser => {
+              if (currentUser) {
+                return currentUser
+              } else {
+                // 세션도 없고 사용자도 없을 때만 로그인 페이지로 리다이렉트
+                if (window.location.pathname !== '/login') {
+                  navigate('/login')
+                }
+                return null
+              }
+            })
+          }
+        }
+      } catch (err) {
+        if (mounted) {
+          setError(err instanceof Error ? err.message : '인증 상태 확인 중 오류가 발생했습니다.')
+          setUser(null)
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false)
+        }
+      }
+    })
+
+    // 초기 세션 확인
+    const checkInitialAuth = async () => {
+      try {
+        setIsLoading(true)
+        setError(null)
+
+        const adminUser = await authService.checkSession()
+        if (mounted) {
+          setUser(adminUser)
+        }
+      } catch (err) {
+        if (mounted) {
+          // 초기 로딩 시 에러는 조용히 처리
+          if (err instanceof Error && !err.message.includes('Auth session missing')) {
+            setError(err.message)
+          }
+          setUser(null)
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    checkInitialAuth()
+
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
+  }, [navigate])
+
   const checkAuth = async () => {
     try {
       setIsLoading(true)
       setError(null)
-      
+
       const adminUser = await authService.checkSession()
       setUser(adminUser)
     } catch (err) {
-      // 세션 관련 에러는 조용히 처리 (페이지 새로고침 시 정상 동작)
       if (err instanceof Error && err.message === 'Auth session missing!') {
         setUser(null)
         if (window.location.pathname !== '/login') {
@@ -56,8 +136,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUser(adminUser)
       navigate('/dashboard')
     } catch (err) {
-      setError(err instanceof Error ? err.message : '로그인 중 오류가 발생했습니다.')
-      throw err
+      const errorMessage = err instanceof Error ? err.message : '로그인 중 오류가 발생했습니다.'
+      setError(errorMessage)
+      throw new Error(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -68,17 +149,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setIsLoading(true)
       await authService.logout()
       setUser(null)
+      setError(null)
       navigate('/login')
     } catch (err) {
       setError(err instanceof Error ? err.message : '로그아웃 중 오류가 발생했습니다.')
+      // 로그아웃 에러가 발생해도 사용자 상태는 초기화
+      setUser(null)
+      navigate('/login')
     } finally {
       setIsLoading(false)
     }
   }
-
-  useEffect(() => {
-    checkAuth()
-  }, [])
 
   const value: AuthContextType = {
     user,

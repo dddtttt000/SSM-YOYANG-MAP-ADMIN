@@ -21,6 +21,7 @@ import MemberDetailModal from '../components/MemberDetailModal'
 import MemberFilters from '../components/MemberFilters'
 import Pagination from '@/components/common/Pagination'
 import { MemberFilters as Filters } from '../services/memberService'
+import { Member } from '@/types/database.types'
 
 const MembersPage = () => {
   const [filters, setFilters] = useState<Filters>({
@@ -42,7 +43,7 @@ const MembersPage = () => {
     setFilters({ ...filters, page: 1, limit })
   }
 
-  const handleViewDetails = (member: any) => {
+  const handleViewDetails = (member: Member) => {
     setSelectedMemberId(member.id)
     onOpen()
   }
