@@ -283,8 +283,13 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
                 type='email'
                 value={formData.email}
                 onChange={e => setFormData({ ...formData, email: e.target.value })}
-                placeholder='admin@example.com'
+                placeholder='admin@anl.kr'
               />
+              {!isEditMode && (
+                <Text marginTop={'1.5'} marginLeft={'1.5'}>
+                  최초 1회 이메일 인증이 필요합니다.
+                </Text>
+              )}
               <FormErrorMessage>{errors.email}</FormErrorMessage>
             </FormControl>
 
@@ -406,13 +411,9 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
                             </VStack>
                           </Box>
                         ))}
-                        
+
                         <Box pt={4} borderTop='1px solid' borderColor='gray.200' mt={6}>
-                          <Button 
-                            colorScheme='brand' 
-                            size='sm' 
-                            onClick={handleSavePermissions}
-                          >
+                          <Button colorScheme='brand' size='sm' onClick={handleSavePermissions}>
                             권한 저장
                           </Button>
                         </Box>
@@ -422,7 +423,6 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
                 </Accordion>
               </>
             )}
-
           </VStack>
         </ModalBody>
 
