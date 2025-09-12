@@ -34,6 +34,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { inquiryService } from '../services/inquiryService'
+import type { ServiceInquiryDetail } from '../types/inquiry.types'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
 import { formatDate } from '@/utils/date'
 
@@ -135,7 +136,7 @@ const ServiceInquiryDetailPage = () => {
     onOpen()
   }
 
-  const handleEditResponse = (response: any) => {
+  const handleEditResponse = (response: ServiceInquiryDetail['inquiry_responses'][0]) => {
     setEditingResponseId(response.id)
     setValue('title', response.title)
     setValue('content', response.content)
@@ -167,7 +168,7 @@ const ServiceInquiryDetailPage = () => {
 
 
   const getStatusBadge = (status: string) => {
-    return status === 'answered' ? (
+    return status === 'completed' ? (
       <Badge colorScheme='green' variant='solid'>
         답변 완료
       </Badge>
