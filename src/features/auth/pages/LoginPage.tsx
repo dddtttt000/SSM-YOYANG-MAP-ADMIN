@@ -53,6 +53,7 @@ const LoginPage = () => {
 
     try {
       await login({ email, password })
+      
       toast({
         title: '로그인 성공',
         description: '관리자 대시보드로 이동합니다.',
@@ -70,6 +71,7 @@ const LoginPage = () => {
       })
     }
   }
+
 
   return (
     <Container maxW='lg' py={{ base: '12', md: '24' }} px={{ base: '0', sm: '8' }}>

@@ -25,7 +25,9 @@ describe('usePermission', () => {
         error: null,
         login: vi.fn(),
         logout: vi.fn(),
-        checkAuth: vi.fn()
+        checkAuth: vi.fn(),
+        syncSupabasePassword: vi.fn(),
+        isMigrationAccount: vi.fn()
       })
     })
 
@@ -64,7 +66,9 @@ describe('usePermission', () => {
         error: null,
         login: vi.fn(),
         logout: vi.fn(),
-        checkAuth: vi.fn()
+        checkAuth: vi.fn(),
+        syncSupabasePassword: vi.fn(),
+        isMigrationAccount: vi.fn()
       })
     })
 
@@ -138,7 +142,9 @@ describe('usePermission', () => {
         error: null,
         login: vi.fn(),
         logout: vi.fn(),
-        checkAuth: vi.fn()
+        checkAuth: vi.fn(),
+        syncSupabasePassword: vi.fn(),
+        isMigrationAccount: vi.fn()
       })
     })
 
@@ -177,7 +183,9 @@ describe('usePermission', () => {
         error: null,
         login: vi.fn(),
         logout: vi.fn(),
-        checkAuth: vi.fn()
+        checkAuth: vi.fn(),
+        syncSupabasePassword: vi.fn(),
+        isMigrationAccount: vi.fn()
       })
     })
 
@@ -205,7 +213,9 @@ describe('usePermission', () => {
         error: null,
         login: vi.fn(),
         logout: vi.fn(),
-        checkAuth: vi.fn()
+        checkAuth: vi.fn(),
+        syncSupabasePassword: vi.fn(),
+        isMigrationAccount: vi.fn()
       })
     })
 
@@ -228,7 +238,9 @@ describe('usePermission', () => {
         error: null,
         login: vi.fn(),
         logout: vi.fn(),
-        checkAuth: vi.fn()
+        checkAuth: vi.fn(),
+        syncSupabasePassword: vi.fn(),
+        isMigrationAccount: vi.fn()
       })
 
       // Act
@@ -245,7 +257,9 @@ describe('usePermission', () => {
         error: null,
         login: vi.fn(),
         logout: vi.fn(),
-        checkAuth: vi.fn()
+        checkAuth: vi.fn(),
+        syncSupabasePassword: vi.fn(),
+        isMigrationAccount: vi.fn()
       })
       
       const { result: adminResult } = renderHook(() => usePermission())
@@ -261,7 +275,9 @@ describe('usePermission', () => {
         error: null,
         login: vi.fn(),
         logout: vi.fn(),
-        checkAuth: vi.fn()
+        checkAuth: vi.fn(),
+        syncSupabasePassword: vi.fn(),
+        isMigrationAccount: vi.fn()
       })
 
       // Act
@@ -279,7 +295,9 @@ describe('usePermission', () => {
         error: null,
         login: vi.fn(),
         logout: vi.fn(),
-        checkAuth: vi.fn()
+        checkAuth: vi.fn(),
+        syncSupabasePassword: vi.fn(),
+        isMigrationAccount: vi.fn()
       })
 
       // Act
@@ -303,7 +321,9 @@ describe('usePermission', () => {
         error: null,
         login: vi.fn(),
         logout: vi.fn(),
-        checkAuth: vi.fn()
+        checkAuth: vi.fn(),
+        syncSupabasePassword: vi.fn(),
+        isMigrationAccount: vi.fn()
       })
 
       // Act
@@ -329,7 +349,9 @@ describe('usePermission', () => {
         error: null,
         login: vi.fn(),
         logout: vi.fn(),
-        checkAuth: vi.fn()
+        checkAuth: vi.fn(),
+        syncSupabasePassword: vi.fn(),
+        isMigrationAccount: vi.fn()
       })
     })
 

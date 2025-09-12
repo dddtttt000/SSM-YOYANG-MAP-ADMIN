@@ -46,6 +46,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
     }
   }
 
+
   return (
     <Box px='6' py='4' bg='white' borderBottomWidth='1px' borderBottomColor='gray.200'>
       <Flex justify='space-between' align='center'>
@@ -60,16 +61,16 @@ const Header = ({ onMenuClick }: HeaderProps) => {
         </HStack>
 
         <Menu>
-          <MenuButton as={Button} variant='ghost' rightIcon={<FiChevronDown />} py='2'>
-            <HStack spacing='3'>
-              <Avatar size='sm' name={user?.name} />
-              <Box display={{ base: 'none', md: 'block' }}>
-                <Text fontSize='sm' fontWeight='medium'>
-                  {user?.name}
-                </Text>
-              </Box>
-            </HStack>
-          </MenuButton>
+            <MenuButton as={Button} variant='ghost' rightIcon={<FiChevronDown />} py='2'>
+              <HStack spacing='3'>
+                <Avatar size='sm' name={user?.name} />
+                <Box display={{ base: 'none', md: 'block' }}>
+                  <Text fontSize='sm' fontWeight='medium'>
+                    {user?.name}
+                  </Text>
+                </Box>
+              </HStack>
+            </MenuButton>
           <MenuList>
             <MenuItem icon={<FiUser />}>
               <Box>

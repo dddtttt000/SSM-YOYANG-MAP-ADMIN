@@ -15,6 +15,8 @@ export const createMockAuthContext = (overrides: Partial<AuthContextType> = {}):
   login: vi.fn(),
   logout: vi.fn(),
   checkAuth: vi.fn(),
+  syncSupabasePassword: vi.fn().mockResolvedValue({ success: true, message: 'Mock sync success' }),
+  isMigrationAccount: vi.fn().mockResolvedValue(false),
   ...overrides
 })
 
