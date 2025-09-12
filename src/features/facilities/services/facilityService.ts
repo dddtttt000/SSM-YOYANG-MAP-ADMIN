@@ -407,11 +407,12 @@ class FacilityService {
     console.log('[getFacilityTypesWithCount] 시작')
     
     // Supabase는 기본적으로 1000개만 반환하므로 모든 데이터를 가져오기 위해 페이지네이션 사용
-    const allData: any[] = []
+    const allData: { admin_type_code: string | null }[] = []
     const limit = 1000
     let offset = 0
     
-    while (true) {
+    let hasMoreData = true
+    while (hasMoreData) {
       const { data, error } = await supabase
         .from('facilities_ssmn_basic_full')
         .select('admin_type_code')
@@ -423,12 +424,18 @@ class FacilityService {
         throw error
       }
       
-      if (!data || data.length === 0) break
+      if (!data || data.length === 0) {
+        hasMoreData = false
+        break
+      }
       
       allData.push(...data)
       
-      if (data.length < limit) break
-      offset += limit
+      if (data.length < limit) {
+        hasMoreData = false
+      } else {
+        offset += limit
+      }
     }
 
     console.log('[getFacilityTypesWithCount] 조회된 데이터 수:', allData.length)

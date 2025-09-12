@@ -102,8 +102,8 @@ const MonitoringPage = () => {
 
   if (dataError) {
     return (
-      <Container maxW="container.xl" py="8">
-        <Alert status="error">
+      <Container maxW='container.xl' py='8'>
+        <Alert status='error'>
           <AlertIcon />
           모니터링 데이터를 불러오는 중 오류가 발생했습니다.
         </Alert>
@@ -112,22 +112,20 @@ const MonitoringPage = () => {
   }
 
   return (
-    <Container maxW="container.xl" py="8">
-      <VStack spacing="8" align="stretch">
+    <Container maxW='container.xl' py='8'>
+      <VStack spacing='8' align='stretch'>
         {/* 헤더 */}
         <Box>
-          <HStack justify="space-between" align="start">
+          <HStack justify='space-between' align='start'>
             <Box>
-              <Heading size="lg" mb="2">모니터링</Heading>
-              <Text color="gray.600">회원들의 서비스 이용 활동을 모니터링합니다.</Text>
+              <Heading size='lg' mb='2'>
+                모니터링
+              </Heading>
+              <Text color='gray.600'>회원들의 서비스 이용 활동을 모니터링합니다.</Text>
             </Box>
             {/* 개발 환경에서만 표시 */}
             {import.meta.env.DEV && (
-              <Button 
-                size="sm" 
-                colorScheme="purple" 
-                onClick={handleCreateTestData}
-              >
+              <Button size='sm' colorScheme='purple' onClick={handleCreateTestData}>
                 테스트 데이터 생성
               </Button>
             )}
@@ -137,42 +135,48 @@ const MonitoringPage = () => {
         {/* 필터 섹션 */}
         <Card>
           <CardBody>
-            <HStack spacing="4" wrap="wrap">
+            <HStack spacing='4' wrap='wrap'>
               <Box>
-                <Text fontSize="sm" mb="1" color="gray.600">시작일</Text>
+                <Text fontSize='sm' mb='1' color='gray.600'>
+                  시작일
+                </Text>
                 <Input
-                  type="date"
+                  type='date'
                   value={formatDate(filters.startDate)}
-                  onChange={(e) => handleDateChange('startDate', e.target.value)}
-                  size="sm"
+                  onChange={e => handleDateChange('startDate', e.target.value)}
+                  size='sm'
                 />
               </Box>
               <Box>
-                <Text fontSize="sm" mb="1" color="gray.600">종료일</Text>
+                <Text fontSize='sm' mb='1' color='gray.600'>
+                  종료일
+                </Text>
                 <Input
-                  type="date"
+                  type='date'
                   value={formatDate(filters.endDate)}
-                  onChange={(e) => handleDateChange('endDate', e.target.value)}
-                  size="sm"
+                  onChange={e => handleDateChange('endDate', e.target.value)}
+                  size='sm'
                 />
               </Box>
               <Box>
-                <Text fontSize="sm" mb="1" color="gray.600">활동 유형</Text>
+                <Text fontSize='sm' mb='1' color='gray.600'>
+                  활동 유형
+                </Text>
                 <Select
                   value={filters.activityType}
-                  onChange={(e) => handleActivityTypeChange(e.target.value)}
-                  size="sm"
-                  width="150px"
+                  onChange={e => handleActivityTypeChange(e.target.value)}
+                  size='sm'
+                  width='150px'
                 >
-                  <option value="all">전체</option>
-                  <option value="ai_analysis">AI 분석</option>
-                  <option value="assessment">등급 평가</option>
-                  <option value="call">상담 전화</option>
-                  <option value="favorite">즐겨찾기</option>
+                  <option value='all'>전체</option>
+                  <option value='ai_analysis'>AI 분석</option>
+                  <option value='assessment'>등급 평가</option>
+                  <option value='call'>상담 전화</option>
+                  <option value='favorite'>즐겨찾기</option>
                 </Select>
               </Box>
-              <Box alignSelf="flex-end">
-                <Button size="sm" onClick={handleResetFilters} variant="outline">
+              <Box alignSelf='flex-end'>
+                <Button size='sm' onClick={handleResetFilters} variant='outline'>
                   필터 초기화
                 </Button>
               </Box>
@@ -181,18 +185,18 @@ const MonitoringPage = () => {
         </Card>
 
         {/* 통계 카드 */}
-        <Grid templateColumns={{ base: '1fr', md: 'repeat(4, 1fr)' }} gap="6">
+        <Grid templateColumns={{ base: '1fr', md: 'repeat(4, 1fr)' }} gap='6'>
           <GridItem>
             <Card>
               <CardBody>
                 {isLoadingStats ? (
-                  <Skeleton height="80px" />
+                  <Skeleton height='80px' />
                 ) : (
                   <Stat>
                     <StatLabel>전체 활동</StatLabel>
                     <StatNumber>{stats?.totalActivities || 0}</StatNumber>
                     <StatHelpText>
-                      <StatArrow type="increase" />
+                      <StatArrow type='increase' />
                       최근 7일
                     </StatHelpText>
                   </Stat>
@@ -205,7 +209,7 @@ const MonitoringPage = () => {
             <Card>
               <CardBody>
                 {isLoadingStats ? (
-                  <Skeleton height="80px" />
+                  <Skeleton height='80px' />
                 ) : (
                   <Stat>
                     <StatLabel>활성 회원</StatLabel>
@@ -221,7 +225,7 @@ const MonitoringPage = () => {
             <Card>
               <CardBody>
                 {isLoadingStats ? (
-                  <Skeleton height="80px" />
+                  <Skeleton height='80px' />
                 ) : (
                   <Stat>
                     <StatLabel>이용 시설</StatLabel>
@@ -237,14 +241,12 @@ const MonitoringPage = () => {
             <Card>
               <CardBody>
                 {isLoadingStats ? (
-                  <Skeleton height="80px" />
+                  <Skeleton height='80px' />
                 ) : (
                   <Stat>
                     <StatLabel>평균 활동</StatLabel>
                     <StatNumber>
-                      {stats?.uniqueUsers 
-                        ? (stats.totalActivities / stats.uniqueUsers).toFixed(1)
-                        : 0}
+                      {stats?.uniqueUsers ? (stats.totalActivities / stats.uniqueUsers).toFixed(1) : 0}
                     </StatNumber>
                     <StatHelpText>회원당</StatHelpText>
                   </Stat>
@@ -257,28 +259,28 @@ const MonitoringPage = () => {
         {/* 활동 탭 */}
         <Card>
           <CardBody>
-            <Tabs variant="enclosed">
+            <Tabs variant='enclosed'>
               <TabList>
                 <Tab>
-                  <HStack spacing="2">
+                  <HStack spacing='2'>
                     <FiDatabase />
                     <Text>AI 분석 ({monitoringData?.aiAnalyses.length || 0})</Text>
                   </HStack>
                 </Tab>
                 <Tab>
-                  <HStack spacing="2">
+                  <HStack spacing='2'>
                     <FiActivity />
                     <Text>등급 평가 ({monitoringData?.assessmentResults.length || 0})</Text>
                   </HStack>
                 </Tab>
                 <Tab>
-                  <HStack spacing="2">
+                  <HStack spacing='2'>
                     <FiPhone />
                     <Text>상담 전화 ({monitoringData?.callEvents.length || 0})</Text>
                   </HStack>
                 </Tab>
                 <Tab>
-                  <HStack spacing="2">
+                  <HStack spacing='2'>
                     <FiStar />
                     <Text>즐겨찾기 ({monitoringData?.favoriteFacilities.length || 0})</Text>
                   </HStack>
@@ -287,28 +289,16 @@ const MonitoringPage = () => {
 
               <TabPanels>
                 <TabPanel>
-                  <AIAnalysisTable 
-                    data={monitoringData?.aiAnalyses || []} 
-                    isLoading={isLoadingData}
-                  />
+                  <AIAnalysisTable data={monitoringData?.aiAnalyses || []} isLoading={isLoadingData} />
                 </TabPanel>
                 <TabPanel>
-                  <AssessmentResultsTable 
-                    data={monitoringData?.assessmentResults || []} 
-                    isLoading={isLoadingData}
-                  />
+                  <AssessmentResultsTable data={monitoringData?.assessmentResults || []} isLoading={isLoadingData} />
                 </TabPanel>
                 <TabPanel>
-                  <CallEventsTable 
-                    data={monitoringData?.callEvents || []} 
-                    isLoading={isLoadingData}
-                  />
+                  <CallEventsTable data={monitoringData?.callEvents || []} isLoading={isLoadingData} />
                 </TabPanel>
                 <TabPanel>
-                  <FavoriteFacilitiesTable 
-                    data={monitoringData?.favoriteFacilities || []} 
-                    isLoading={isLoadingData}
-                  />
+                  <FavoriteFacilitiesTable data={monitoringData?.favoriteFacilities || []} isLoading={isLoadingData} />
                 </TabPanel>
               </TabPanels>
             </Tabs>

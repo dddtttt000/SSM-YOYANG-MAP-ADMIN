@@ -24,6 +24,7 @@ export type Database = {
           name: string
           password_digest: string
           role: string
+          supabase_user_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -35,6 +36,7 @@ export type Database = {
           name: string
           password_digest: string
           role: string
+          supabase_user_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -46,6 +48,7 @@ export type Database = {
           name?: string
           password_digest?: string
           role?: string
+          supabase_user_id?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -4226,6 +4229,7 @@ export type Database = {
           last_login_at: string
           created_at: string
           updated_at: string
+          supabase_user_id: string | null
         }[]
       }
     }

@@ -14,19 +14,19 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
 
   if (isLoading) {
     return (
-      <Center h="100vh">
-        <Spinner size="xl" color="brand.500" thickness="4px" />
+      <Center h='100vh'>
+        <Spinner size='xl' color='brand.500' thickness='4px' />
       </Center>
     )
   }
 
   if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />
+    return <Navigate to='/login' state={{ from: location }} replace />
   }
 
   // 역할 기반 접근 제어
   if (requiredRole && user.role !== 'super_admin' && user.role !== requiredRole) {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to='/dashboard' replace />
   }
 
   return <>{children}</>
