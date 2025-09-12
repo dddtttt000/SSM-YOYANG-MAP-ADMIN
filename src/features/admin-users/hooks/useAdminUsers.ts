@@ -51,7 +51,7 @@ export const useUpdateAdminUser = () => {
   const toast = useToast()
 
   return useMutation({
-    mutationFn: ({ id, dto }: { id: string; dto: UpdateAdminUserDto }) => 
+    mutationFn: ({ id, dto }: { id: number; dto: UpdateAdminUserDto }) => 
       adminUserService.updateAdminUser(id, dto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] })
@@ -81,7 +81,7 @@ export const useDeleteAdminUser = () => {
   const toast = useToast()
 
   return useMutation({
-    mutationFn: (id: string) => adminUserService.deleteAdminUser(id),
+    mutationFn: (id: number) => adminUserService.deleteAdminUser(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] })
       toast({

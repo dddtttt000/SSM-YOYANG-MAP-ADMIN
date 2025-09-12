@@ -39,22 +39,17 @@ class DashboardService {
   async getStats(): Promise<DashboardStats> {
     try {
       // 전체 회원 수
-      const { count: totalMembers } = await supabase
-        .from('members')
-        .select('*', { count: 'exact', head: true })
+      const { count: totalMembers } = await supabase.from('members').select('*', { count: 'exact', head: true })
 
       // 오늘 활동한 회원 수 (Firestore에서 조회)
       const today = new Date()
       today.setHours(0, 0, 0, 0)
-      
+
       const collections = ['ai_facility_analyses', 'assessment_results', 'call_events', 'favorite_facilities']
       const activeUserIds = new Set<string>()
 
       for (const collectionName of collections) {
-        const q = query(
-          collection(firestore, collectionName),
-          where('createdAt', '>=', Timestamp.fromDate(today))
-        )
+        const q = query(collection(firestore, collectionName), where('createdAt', '>=', Timestamp.fromDate(today)))
         const snapshot = await getDocs(q)
         snapshot.docs.forEach(doc => {
           const data = doc.data()
@@ -76,9 +71,7 @@ class DashboardService {
         .neq('admin_name', '')
 
       // 전체 관리자 수
-      const { count: totalAdmins } = await supabase
-        .from('admin_users')
-        .select('*', { count: 'exact', head: true })
+      const { count: totalAdmins } = await supabase.from('admin_users').select('*', { count: 'exact', head: true })
 
       // 활성 관리자 수
       const { count: activeAdmins } = await supabase
@@ -89,7 +82,7 @@ class DashboardService {
       // 최근 활동 수 (최근 7일)
       const sevenDaysAgo = new Date()
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-      
+
       let recentActivities = 0
       let todayActivities = 0
 
@@ -100,7 +93,7 @@ class DashboardService {
         )
         const snapshot = await getDocs(q)
         recentActivities += snapshot.size
-        
+
         // 오늘 활동 수
         snapshot.docs.forEach(doc => {
           const data = doc.data()
@@ -139,7 +132,7 @@ class DashboardService {
         limit(limitCount)
       )
       const aiSnapshot = await getDocs(aiAnalysesQuery)
-      
+
       for (const doc of aiSnapshot.docs) {
         const data = doc.data()
         activities.push({
@@ -159,7 +152,7 @@ class DashboardService {
         limit(limitCount)
       )
       const assessmentSnapshot = await getDocs(assessmentQuery)
-      
+
       for (const doc of assessmentSnapshot.docs) {
         const data = doc.data()
         activities.push({
@@ -172,20 +165,17 @@ class DashboardService {
       }
 
       // 상담 전화 활동
-      const callQuery = query(
-        collection(firestore, 'call_events'),
-        orderBy('createdAt', 'desc'),
-        limit(limitCount)
-      )
+      const callQuery = query(collection(firestore, 'call_events'), orderBy('createdAt', 'desc'), limit(limitCount))
       const callSnapshot = await getDocs(callQuery)
-      
+
       for (const doc of callSnapshot.docs) {
         const data = doc.data()
         activities.push({
           id: doc.id,
           type: 'call',
           description: '상담 전화',
-          timestamp: typeof data.createdAt === 'string' ? new Date(data.createdAt) : data.createdAt?.toDate?.() || new Date(),
+          timestamp:
+            typeof data.createdAt === 'string' ? new Date(data.createdAt) : data.createdAt?.toDate?.() || new Date(),
           userId: data.memberId,
           facilityId: data.facilityId,
         })
@@ -201,8 +191,13 @@ class DashboardService {
 
       // 사용자 정보 조회
       if (userIds.length > 0) {
-        const numericIds = userIds.filter(id => !isNaN(Number(id)))
-        const socialIds = userIds.filter(id => isNaN(Number(id)))
+        // 숫자처럼 보이는 값 중에서도 DB의 id(int4) 범위를 초과하는 큰 숫자(소셜ID 형태)는 social_id로 조회해야 함
+        const INT32_MAX = 2147483647
+        const isDigits = (v: unknown) => /^\d+$/.test(String(v))
+        const isValidIntId = (v: unknown) => isDigits(v) && Number(v) <= INT32_MAX
+
+        const numericIds = userIds.filter(id => isValidIntId(id))
+        const socialIds = userIds.filter(id => !isValidIntId(id))
 
         if (numericIds.length > 0) {
           const { data: membersByIds } = await supabase
@@ -263,10 +258,7 @@ class DashboardService {
     try {
       // 데이터베이스 상태 체크
       const dbStart = Date.now()
-      const { error: dbError } = await supabase
-        .from('admin_users')
-        .select('id')
-        .limit(1)
+      const { error: dbError } = await supabase.from('admin_users').select('id').limit(1)
       const dbResponseTime = Date.now() - dbStart
 
       // API 상태 체크

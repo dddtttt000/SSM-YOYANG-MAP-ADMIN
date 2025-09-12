@@ -2,7 +2,12 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { ChakraProvider, extendTheme } from '@chakra-ui/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+// DevTools는 개발 환경에서만 사용
+const ReactQueryDevtools = import.meta.env.DEV 
+  ? React.lazy(() => import('@tanstack/react-query-devtools').then(module => ({
+      default: module.ReactQueryDevtools
+    })))
+  : null
 import App from './App'
 
 // Chakra UI 테마 설정
@@ -44,8 +49,12 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <ChakraProvider theme={theme}>
       <QueryClientProvider client={queryClient}>
         <App />
-        <ReactQueryDevtools initialIsOpen={false} />
+        {import.meta.env.DEV && ReactQueryDevtools && (
+          <React.Suspense fallback={null}>
+            <ReactQueryDevtools initialIsOpen={false} />
+          </React.Suspense>
+        )}
       </QueryClientProvider>
     </ChakraProvider>
-  </React.StrictMode>,
+  </React.StrictMode>
 )

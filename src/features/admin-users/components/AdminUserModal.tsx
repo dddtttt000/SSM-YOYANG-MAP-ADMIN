@@ -17,10 +17,19 @@ import {
   InputRightElement,
   IconButton,
   Text,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
+  Box,
+  HStack,
+  Checkbox,
+  Divider,
 } from '@chakra-ui/react'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
 import { useState, useEffect } from 'react'
-import { AdminUser } from '@/types/database.types'
+import { AdminUser, Permission } from '@/types/database.types'
 import { useCreateAdminUser, useUpdateAdminUser } from '../hooks/useAdminUsers'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
 
@@ -45,6 +54,52 @@ interface FormErrors {
   confirmPassword?: string
 }
 
+interface ResourcePermission {
+  resource: string
+  label: string
+  description: string
+  actions: {
+    value: string
+    label: string
+  }[]
+}
+
+const resourcePermissions: ResourcePermission[] = [
+  {
+    resource: 'admin_users',
+    label: '관리자 관리',
+    description: '시스템 관리자 계정을 관리할 수 있습니다.',
+    actions: [
+      { value: 'create', label: '추가' },
+      { value: 'read', label: '조회' },
+      { value: 'update', label: '수정' },
+      { value: 'delete', label: '삭제' },
+    ],
+  },
+  {
+    resource: 'members',
+    label: '회원 관리',
+    description: '일반 회원 정보를 관리할 수 있습니다.',
+    actions: [
+      { value: 'create', label: '추가' },
+      { value: 'read', label: '조회' },
+      { value: 'update', label: '수정' },
+      { value: 'delete', label: '삭제' },
+    ],
+  },
+  {
+    resource: 'facilities',
+    label: '시설 관리',
+    description: '시설 정보를 관리할 수 있습니다.',
+    actions: [
+      { value: 'create', label: '추가' },
+      { value: 'read', label: '조회' },
+      { value: 'update', label: '수정' },
+      { value: 'delete', label: '삭제' },
+    ],
+  },
+]
+
 const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
   const { user: currentUser } = useAuth()
   const createAdminUser = useCreateAdminUser()
@@ -52,6 +107,7 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
   const isEditMode = !!user
 
   const [showPassword, setShowPassword] = useState(false)
+  const [permissions, setPermissions] = useState<Permission[]>([])
   const [formData, setFormData] = useState<FormData>({
     email: '',
     name: '',
@@ -70,6 +126,7 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
         password: '',
         confirmPassword: '',
       })
+      setPermissions([])
     } else {
       setFormData({
         email: '',
@@ -78,6 +135,7 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
         password: '',
         confirmPassword: '',
       })
+      setPermissions([])
     }
     setErrors({})
   }, [user])
@@ -117,7 +175,7 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
     try {
       if (isEditMode && user) {
         await updateAdminUser.mutateAsync({
-          id: String(user.id),
+          id: user.id,
           dto: {
             name: formData.name,
             role: formData.role,
@@ -137,6 +195,66 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
     }
   }
 
+  const isActionChecked = (resource: string, action: string) => {
+    const permission = permissions.find(p => p.resource === resource)
+    return permission ? permission.actions.includes(action as any) : false
+  }
+
+  const handleActionToggle = (resource: string, action: string, checked: boolean) => {
+    const existingPermission = permissions.find(p => p.resource === resource)
+
+    if (existingPermission) {
+      const newActions = checked
+        ? [...existingPermission.actions, action as any]
+        : existingPermission.actions.filter(a => a !== action)
+
+      if (newActions.length === 0) {
+        setPermissions(permissions.filter(p => p.resource !== resource))
+      } else {
+        setPermissions(permissions.map(p => (p.resource === resource ? { ...p, actions: newActions } : p)))
+      }
+    } else if (checked) {
+      setPermissions([...permissions, { resource, actions: [action as any] }])
+    }
+  }
+
+  const handleSelectAll = (resource: string) => {
+    const allActions = resourcePermissions.find(r => r.resource === resource)?.actions.map(a => a.value) || []
+
+    const existingPermission = permissions.find(p => p.resource === resource)
+    const hasAllActions = existingPermission?.actions.length === allActions.length
+
+    if (hasAllActions) {
+      setPermissions(permissions.filter(p => p.resource !== resource))
+    } else {
+      setPermissions(
+        permissions
+          .filter(p => p.resource !== resource)
+          .concat({
+            resource,
+            actions: allActions as any[],
+          })
+      )
+    }
+  }
+
+  const handleSavePermissions = async () => {
+    if (!user) return
+
+    // TODO: 향후 permissions 시스템 구현 시 활성화
+    // try {
+    //   await updatePermissions.mutateAsync({
+    //     id: String(user.id),
+    //     permissions,
+    //   })
+    // } catch (error) {
+    //   // 에러는 훅에서 toast로 처리됨
+    // }
+
+    // 현재는 권한 시스템이 구현되지 않아 저장하지 않음
+    console.log('권한 저장:', permissions)
+  }
+
   const handleClose = () => {
     setFormData({
       email: '',
@@ -145,29 +263,33 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
       password: '',
       confirmPassword: '',
     })
+    setPermissions([])
     setErrors({})
     onClose()
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="md">
+    <Modal isOpen={isOpen} onClose={handleClose} size='xl'>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>
-          {isEditMode ? '관리자 정보 수정' : '새 관리자 추가'}
-        </ModalHeader>
+        <ModalHeader>{isEditMode ? '관리자 정보 수정' : '새 관리자 추가'}</ModalHeader>
         <ModalCloseButton />
-        
+
         <ModalBody>
-          <VStack spacing="4">
+          <VStack spacing='4'>
             <FormControl isInvalid={!!errors.email} isDisabled={isEditMode}>
               <FormLabel>이메일</FormLabel>
               <Input
-                type="email"
+                type='email'
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="admin@example.com"
+                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                placeholder='admin@anl.kr'
               />
+              {!isEditMode && (
+                <Text marginTop={'1.5'} marginLeft={'1.5'}>
+                  최초 1회 이메일 인증이 필요합니다.
+                </Text>
+              )}
               <FormErrorMessage>{errors.email}</FormErrorMessage>
             </FormControl>
 
@@ -175,8 +297,8 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
               <FormLabel>이름</FormLabel>
               <Input
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="관리자 이름"
+                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                placeholder='관리자 이름'
               />
               <FormErrorMessage>{errors.name}</FormErrorMessage>
             </FormControl>
@@ -185,16 +307,14 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
               <FormLabel>역할</FormLabel>
               <Select
                 value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
+                onChange={e => setFormData({ ...formData, role: e.target.value as any })}
                 isDisabled={currentUser?.role !== 'super_admin'}
               >
-                <option value="admin">관리자</option>
-                {currentUser?.role === 'super_admin' && (
-                  <option value="super_admin">최고 관리자</option>
-                )}
+                <option value='admin'>관리자</option>
+                {currentUser?.role === 'super_admin' && <option value='super_admin'>최고 관리자</option>}
               </Select>
               {formData.role === 'admin' && (
-                <Text fontSize="sm" color="gray.500" mt="2">
+                <Text fontSize='sm' color='gray.500' mt='2'>
                   관리자는 별도로 권한을 설정해야 합니다.
                 </Text>
               )}
@@ -208,16 +328,16 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
                     <Input
                       type={showPassword ? 'text' : 'password'}
                       value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      placeholder="6자 이상"
+                      onChange={e => setFormData({ ...formData, password: e.target.value })}
+                      placeholder='6자 이상'
                     />
                     <InputRightElement>
                       <IconButton
                         aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 표시'}
                         icon={showPassword ? <FiEyeOff /> : <FiEye />}
                         onClick={() => setShowPassword(!showPassword)}
-                        variant="ghost"
-                        size="sm"
+                        variant='ghost'
+                        size='sm'
                       />
                     </InputRightElement>
                   </InputGroup>
@@ -229,22 +349,89 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
                   <Input
                     type={showPassword ? 'text' : 'password'}
                     value={formData.confirmPassword}
-                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                    placeholder="비밀번호 재입력"
+                    onChange={e => setFormData({ ...formData, confirmPassword: e.target.value })}
+                    placeholder='비밀번호 재입력'
                   />
                   <FormErrorMessage>{errors.confirmPassword}</FormErrorMessage>
                 </FormControl>
+              </>
+            )}
+
+            {isEditMode && user && formData.role === 'admin' && currentUser?.role === 'super_admin' && (
+              <>
+                <Divider />
+                <Accordion allowToggle width='100%' p={2} borderRadius='md' border='1px solid' borderColor='gray.200'>
+                  <AccordionItem border='none'>
+                    <h2>
+                      <AccordionButton px={2} py={1} borderRadius='md' _hover={{ bg: 'gray.50' }}>
+                        <Box as='span' flex='1' textAlign='left' fontWeight='semibold'>
+                          관리자 권한 설정
+                        </Box>
+                        <AccordionIcon />
+                      </AccordionButton>
+                    </h2>
+                    <AccordionPanel pb={4} px={4} pt={4} bg='gray.50' borderRadius='md' mt={2}>
+                      <VStack spacing='6' align='stretch'>
+                        <Text fontSize='sm' color='gray.600'>
+                          관리자의 접근 권한을 세부적으로 설정할 수 있습니다.
+                        </Text>
+
+                        {resourcePermissions.map((resource, index) => (
+                          <Box key={resource.resource} width='100%'>
+                            {index > 0 && <Divider my='4' />}
+                            <VStack align='stretch' spacing='3' width='100%'>
+                              <HStack justify='space-between' width='100%'>
+                                <Box flex='1'>
+                                  <Text fontWeight='semibold'>{resource.label}</Text>
+                                  <Text fontSize='sm' color='gray.600'>
+                                    {resource.description}
+                                  </Text>
+                                </Box>
+                                <Button size='sm' variant='ghost' onClick={() => handleSelectAll(resource.resource)}>
+                                  전체 선택
+                                </Button>
+                              </HStack>
+
+                              <Box width='100%'>
+                                <HStack spacing='4' wrap='wrap' justify='flex-start'>
+                                  {resource.actions.map(action => (
+                                    <Checkbox
+                                      key={`${resource.resource}-${action.value}`}
+                                      isChecked={isActionChecked(resource.resource, action.value)}
+                                      onChange={e =>
+                                        handleActionToggle(resource.resource, action.value, e.target.checked)
+                                      }
+                                      minW='fit-content'
+                                    >
+                                      {action.label}
+                                    </Checkbox>
+                                  ))}
+                                </HStack>
+                              </Box>
+                            </VStack>
+                          </Box>
+                        ))}
+
+                        <Box pt={4} borderTop='1px solid' borderColor='gray.200' mt={6}>
+                          <Button colorScheme='brand' size='sm' onClick={handleSavePermissions}>
+                            권한 저장
+                          </Button>
+                        </Box>
+                      </VStack>
+                    </AccordionPanel>
+                  </AccordionItem>
+                </Accordion>
               </>
             )}
           </VStack>
         </ModalBody>
 
         <ModalFooter>
-          <Button variant="ghost" mr={3} onClick={handleClose}>
+          <Button variant='ghost' mr={3} onClick={handleClose}>
             취소
           </Button>
           <Button
-            colorScheme="brand"
+            colorScheme='brand'
             onClick={handleSubmit}
             isLoading={createAdminUser.isPending || updateAdminUser.isPending}
           >

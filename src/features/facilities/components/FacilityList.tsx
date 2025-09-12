@@ -8,45 +8,29 @@ interface FacilityListProps {
   isLoading: boolean
   viewMode: 'card' | 'table'
   onView: (facility: Facility) => void
-  onEdit: (facility: Facility) => void
-  onDelete: (facility: Facility) => void
 }
 
-const FacilityList = ({ 
-  facilities, 
-  isLoading, 
-  viewMode,
-  onView, 
-  onEdit, 
-  onDelete 
-}: FacilityListProps) => {
+const FacilityList = ({ facilities, isLoading, viewMode, onView }: FacilityListProps) => {
   if (viewMode === 'table') {
     return (
       <FacilityTable
         facilities={facilities}
         isLoading={isLoading}
         onView={onView}
-        onEdit={onEdit}
-        onDelete={onDelete}
       />
     )
   }
 
   if (isLoading) {
     return (
-      <Grid templateColumns="repeat(auto-fill, minmax(350px, 1fr))" gap="6">
+      <Grid templateColumns='repeat(auto-fill, minmax(350px, 1fr))' gap='6'>
         {[...Array(6)].map((_, index) => (
           <GridItem key={index}>
-            <Box
-              borderWidth="1px"
-              borderRadius="lg"
-              p="6"
-              h="300px"
-            >
-              <Skeleton height="30px" mb="4" />
-              <Skeleton height="20px" mb="2" />
-              <Skeleton height="20px" mb="2" />
-              <Skeleton height="20px" width="60%" />
+            <Box borderWidth='1px' borderRadius='lg' p='6' h='300px'>
+              <Skeleton height='30px' mb='4' />
+              <Skeleton height='20px' mb='2' />
+              <Skeleton height='20px' mb='2' />
+              <Skeleton height='20px' width='60%' />
             </Box>
           </GridItem>
         ))}
@@ -56,22 +40,17 @@ const FacilityList = ({
 
   if (facilities.length === 0) {
     return (
-      <Box textAlign="center" py="12" color="gray.500">
+      <Box textAlign='center' py='12' color='gray.500'>
         등록된 시설이 없습니다.
       </Box>
     )
   }
 
   return (
-    <Grid templateColumns="repeat(auto-fill, minmax(350px, 1fr))" gap="6">
-      {facilities.map((facility) => (
+    <Grid templateColumns='repeat(auto-fill, minmax(350px, 1fr))' gap='6'>
+      {facilities.map(facility => (
         <GridItem key={facility.admin_code}>
-          <FacilityCard
-            facility={facility}
-            onView={onView}
-            onEdit={onEdit}
-            onDelete={onDelete}
-          />
+          <FacilityCard facility={facility} onView={onView} />
         </GridItem>
       ))}
     </Grid>

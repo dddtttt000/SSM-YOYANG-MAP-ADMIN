@@ -5,6 +5,8 @@ import {
   limit,
   getDocs,
   QueryConstraint,
+  QueryDocumentSnapshot,
+  DocumentData,
 } from 'firebase/firestore'
 import { firestore } from '@/lib/firebase'
 import {
@@ -60,7 +62,7 @@ class MonitoringService {
       const snapshot = await getDocs(q)
       console.log('AI analyses fetched:', snapshot.size, 'documents')
 
-      let results = snapshot.docs.map((doc: any) => ({
+      let results = snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
         id: doc.id,
         ...doc.data(),
       } as AIFacilityAnalysis))
@@ -112,7 +114,7 @@ class MonitoringService {
       const snapshot = await getDocs(q)
       console.log('Assessment results fetched:', snapshot.size, 'documents')
 
-      let results = snapshot.docs.map((doc: any) => ({
+      let results = snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
         id: doc.id,
         ...doc.data(),
       } as AssessmentResult))
@@ -168,7 +170,7 @@ class MonitoringService {
       const snapshot = await getDocs(q)
       console.log('Call events fetched:', snapshot.size, 'documents')
 
-      let results = snapshot.docs.map((doc: any) => ({
+      let results = snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
         id: doc.id,
         ...doc.data(),
       } as CallEvent))
@@ -238,7 +240,7 @@ class MonitoringService {
       const snapshot = await getDocs(q)
       console.log('Favorite facilities fetched:', snapshot.size, 'documents')
 
-      let results = snapshot.docs.map((doc: any) => ({
+      let results = snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
         id: doc.id,
         ...doc.data(),
       } as FavoriteFacility))
@@ -386,7 +388,13 @@ class MonitoringService {
   }
 
   // 시설 정보 조회 (Supabase)
-  async getFacilityInfo(adminCodes: string[]): Promise<Map<string, any>> {
+  async getFacilityInfo(adminCodes: string[]): Promise<Map<string, {
+    admin_code: string;
+    admin_name: string | null;
+    admin_type_code: string | null;
+    address: string | null;
+    phone_number: string | null;
+  }>> {
     if (adminCodes.length === 0) return new Map()
 
     const { data, error } = await supabase
@@ -396,7 +404,13 @@ class MonitoringService {
 
     if (error) throw error
 
-    const facilityMap = new Map<string, any>()
+    const facilityMap = new Map<string, {
+      admin_code: string;
+      admin_name: string | null;
+      admin_type_code: string | null;
+      address: string | null;
+      phone_number: string | null;
+    }>()
     data?.forEach(facility => {
       facilityMap.set(facility.admin_code, facility)
     })

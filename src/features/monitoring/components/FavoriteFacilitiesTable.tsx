@@ -27,15 +27,9 @@ interface FavoriteFacilitiesTableProps {
 
 const FavoriteFacilitiesTable = ({ data, isLoading }: FavoriteFacilitiesTableProps) => {
   // 유니크한 memberId와 facilityId 추출
-  const userIds = useMemo(() => 
-    [...new Set(data.map(item => item.memberId))],
-    [data]
-  )
-  
-  const adminCodes = useMemo(() => 
-    [...new Set(data.map(item => item.facilityId))],
-    [data]
-  )
+  const userIds = useMemo(() => [...new Set(data.map(item => item.memberId))], [data])
+
+  const adminCodes = useMemo(() => [...new Set(data.map(item => item.facilityId))], [data])
 
   // 회원 및 시설 정보 조회
   const { data: memberMap } = useMemberInfo(userIds)
@@ -62,14 +56,14 @@ const FavoriteFacilitiesTable = ({ data, isLoading }: FavoriteFacilitiesTablePro
   // 시간 차이 계산 (등록 후 경과 시간)
   const getTimeDifference = (timestamp: Timestamp) => {
     if (!timestamp || !timestamp.toDate) return '-'
-    
+
     const now = new Date()
     const created = timestamp.toDate()
     const diffMs = now.getTime() - created.getTime()
-    
+
     const days = Math.floor(diffMs / (1000 * 60 * 60 * 24))
     const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-    
+
     if (days > 0) {
       return `${days}일 전`
     } else if (hours > 0) {
@@ -83,22 +77,22 @@ const FavoriteFacilitiesTable = ({ data, isLoading }: FavoriteFacilitiesTablePro
   if (isLoading) {
     return (
       <Box>
-        <Skeleton height="300px" />
+        <Skeleton height='300px' />
       </Box>
     )
   }
 
   if (data.length === 0) {
     return (
-      <Box textAlign="center" py="8">
-        <Text color="gray.500">즐겨찾기 활동이 없습니다.</Text>
+      <Box textAlign='center' py='8'>
+        <Text color='gray.500'>즐겨찾기 활동이 없습니다.</Text>
       </Box>
     )
   }
 
   return (
-    <Box overflowX="auto">
-      <Table variant="simple" size="sm">
+    <Box overflowX='auto'>
+      <Table variant='simple' size='sm'>
         <Thead>
           <Tr>
             <Th>등록일시</Th>
@@ -107,27 +101,23 @@ const FavoriteFacilitiesTable = ({ data, isLoading }: FavoriteFacilitiesTablePro
             <Th>시설 유형</Th>
             <Th>주소</Th>
             <Th>경과 시간</Th>
-            <Th width="60px">동작</Th>
+            <Th width='60px'>동작</Th>
           </Tr>
         </Thead>
         <Tbody>
-          {data.map((favorite) => {
+          {data.map(favorite => {
             const member = memberMap?.get(favorite.memberId)
             const facility = facilityMap?.get(favorite.facilityId)
-            
+
             return (
               <Tr key={favorite.id}>
                 <Td>
-                  <Text fontSize="sm">
-                    {formatTimestamp(favorite.createdAt)}
-                  </Text>
+                  <Text fontSize='sm'>{formatTimestamp(favorite.createdAt)}</Text>
                 </Td>
                 <Td>
                   <Box>
-                    <Text fontWeight="medium">
-                      {member?.nickname || member?.name || '-'}
-                    </Text>
-                    <Text fontSize="xs" color="gray.500">
+                    <Text fontWeight='medium'>{member?.nickname || member?.name || '-'}</Text>
+                    <Text fontSize='xs' color='gray.500'>
                       {member?.email || `ID: ${favorite.memberId}`}
                     </Text>
                   </Box>
@@ -135,44 +125,32 @@ const FavoriteFacilitiesTable = ({ data, isLoading }: FavoriteFacilitiesTablePro
                 <Td>
                   <Box>
                     <HStack spacing={1}>
-                      <FiStar size={14} color="gold" />
-                      <Text fontWeight="medium">
-                        {favorite.facilityName || facility?.admin_name || '-'}
-                      </Text>
+                      <FiStar size={14} color='gold' />
+                      <Text fontWeight='medium'>{favorite.facilityName || facility?.admin_name || '-'}</Text>
                     </HStack>
-                    <Text fontSize="xs" color="gray.500">
+                    <Text fontSize='xs' color='gray.500'>
                       {favorite.facilityId}
                     </Text>
                   </Box>
                 </Td>
                 <Td>
-                  <Text fontSize="sm">
-                    {getFacilityTypeLabel(favorite.facilityType)}
-                  </Text>
+                  <Text fontSize='sm'>{getFacilityTypeLabel(favorite.facilityType)}</Text>
                 </Td>
                 <Td>
-                  <Text fontSize="sm" noOfLines={1} title={favorite.facilityAddress}>
+                  <Text fontSize='sm' noOfLines={1} title={favorite.facilityAddress}>
                     {favorite.facilityAddress || facility?.address || '-'}
                   </Text>
                 </Td>
                 <Td>
-                  <Text fontSize="sm" color="gray.600">
+                  <Text fontSize='sm' color='gray.600'>
                     {getTimeDifference(favorite.createdAt)}
                   </Text>
                 </Td>
                 <Td>
                   <HStack spacing={1}>
-                    <Tooltip label="시설 상세 보기">
-                      <Link
-                        href={`/facilities/${favorite.facilityId}`}
-                        isExternal
-                      >
-                        <IconButton
-                          aria-label="시설 상세"
-                          icon={<FiExternalLink />}
-                          size="sm"
-                          variant="ghost"
-                        />
+                    <Tooltip label='시설 상세 보기'>
+                      <Link href={`/facilities/${favorite.facilityId}`} isExternal>
+                        <IconButton aria-label='시설 상세' icon={<FiExternalLink />} size='sm' variant='ghost' />
                       </Link>
                     </Tooltip>
                   </HStack>
