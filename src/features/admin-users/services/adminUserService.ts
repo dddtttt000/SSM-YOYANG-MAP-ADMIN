@@ -59,31 +59,36 @@ class AdminUserService {
   }
 
   async createAdminUser(dto: CreateAdminUserDto) {
-    // 이메일 중복 확인
-    const { data: existingUser, error: checkError } = await supabase
-      .from('admin_users')
-      .select('id')
-      .eq('email', dto.email)
-      .maybeSingle()
-
-    if (checkError) throw checkError
-    if (existingUser) {
-      throw new Error('이미 존재하는 이메일입니다.')
-    }
-
-    // bcrypt를 사용하여 비밀번호 해시 생성
-    // 주의: 실제로는 서버 사이드에서 처리해야 하지만, 
-    // 현재는 데이터베이스의 crypt 함수를 사용
-    const { data, error } = await supabase
-      .rpc('create_admin_user', {
-        p_email: dto.email,
-        p_name: dto.name,
-        p_role: dto.role,
-        p_password: dto.password
+    try {
+      // Edge Function 호출
+      const { data, error } = await supabase.functions.invoke('create-admin-user', {
+        body: {
+          email: dto.email,
+          name: dto.name,
+          role: dto.role,
+          password: dto.password
+        }
       })
 
-    if (error) throw error
-    return data
+      if (error) {
+        throw new Error(error.message || '관리자 생성 중 오류가 발생했습니다.')
+      }
+
+      if (data?.error) {
+        throw new Error(data.error)
+      }
+
+      if (!data?.success || !data?.data) {
+        throw new Error('관리자 생성에 실패했습니다.')
+      }
+
+      return data.data
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error
+      }
+      throw new Error('알 수 없는 오류가 발생했습니다.')
+    }
   }
 
   async updateAdminUser(id: number, dto: UpdateAdminUserDto) {

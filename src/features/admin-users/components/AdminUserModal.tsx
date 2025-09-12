@@ -252,7 +252,6 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
     // }
 
     // 현재는 권한 시스템이 구현되지 않아 저장하지 않음
-    console.log('권한 저장:', permissions)
   }
 
   const handleClose = () => {
@@ -285,11 +284,6 @@ const AdminUserModal = ({ isOpen, onClose, user }: AdminUserModalProps) => {
                 onChange={e => setFormData({ ...formData, email: e.target.value })}
                 placeholder='admin@anl.kr'
               />
-              {!isEditMode && (
-                <Text marginTop={'1.5'} marginLeft={'1.5'}>
-                  최초 1회 이메일 인증이 필요합니다.
-                </Text>
-              )}
               <FormErrorMessage>{errors.email}</FormErrorMessage>
             </FormControl>
 

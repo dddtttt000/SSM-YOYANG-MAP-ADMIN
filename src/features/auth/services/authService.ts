@@ -112,9 +112,16 @@ export const authService = {
       throw new Error(`로그아웃 실패: ${error.message}`)
     }
 
-    // localStorage 정리 (기존 커스텀 세션 데이터가 있다면)
+    // localStorage에서 모든 Supabase 관련 데이터 완전히 정리
+    const keysToRemove = Object.keys(localStorage).filter(key => 
+      key.startsWith('sb-') || key.includes('supabase') || key.includes('auth-token')
+    )
+    
+    keysToRemove.forEach(key => localStorage.removeItem(key))
+
+    // 기존 커스텀 세션 데이터 정리
     localStorage.removeItem('admin_session_token')
-    localStorage.removeItem('admin_user_data')
+    localStorage.removeItem('admin_user_data')  
     localStorage.removeItem('admin_user_fallback')
   },
 
