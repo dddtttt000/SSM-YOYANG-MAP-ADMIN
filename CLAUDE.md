@@ -129,6 +129,51 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 - 가능하면 함수형 프로그래밍
 - 주석은 최소화, 코드로 설명
 
+## Git 워크플로우
+
+### 브랜치 전략
+
+- **`main`** - 상용환경 (Production)
+- **`dev`** - 개발환경 (Development/Staging)  
+- **`feature/*`** - 기능 개발 브랜치들
+
+### 개발 워크플로우
+
+```bash
+# 1. main에서 새 feature 브랜치 생성
+git checkout main
+git pull origin main
+git checkout -b feature/새기능명
+
+# 2. feature 브랜치에서 개발 작업
+# 코드 작성 및 커밋...
+
+# 3. dev 브랜치에 병합하여 개발환경 테스트
+git checkout dev
+git pull origin dev
+git merge feature/새기능명
+git push origin dev
+# 개발환경에서 테스트 실행
+
+# 4. 테스트 통과 후 main에 병합하여 상용 배포
+git checkout main
+git pull origin main
+git merge feature/새기능명
+git push origin main
+# 상용환경 자동 배포
+```
+
+### 환경별 배포
+
+- **개발환경**: dev 브랜치 푸시 시 자동 배포
+- **상용환경**: main 브랜치 푸시 시 자동 배포
+
+### 주의사항
+
+- 모든 새 작업은 main에서 브랜치 생성
+- dev에서 충분한 테스트 후 main 병합
+- hotfix의 경우 main → hotfix/명 → main 직접 병합 가능
+
 ## Git 커밋 규칙
 
 - feat: 새로운 기능 추가

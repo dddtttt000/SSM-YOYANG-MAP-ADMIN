@@ -14,10 +14,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:ui": "vitest --ui",
-    "migration:check": "tsx src/scripts/run-migration.ts check",
-    "migration:run": "tsx src/scripts/run-migration.ts run",
-    "migration:single": "tsx src/scripts/run-migration.ts single"
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
