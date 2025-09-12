@@ -31,7 +31,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { useNavigate } from 'react-router-dom'
 import { inquiryService } from '../services/inquiryService'
 import { formatDate } from '@/utils/date'
-import type { InquiryFilters, InquirySorting } from '../types/inquiry.types'
+import type { InquiryFilters, InquirySorting, InquirySortField } from '../types/inquiry.types'
 
 const ServiceInquiriesPage = () => {
   const navigate = useNavigate()
@@ -83,7 +83,7 @@ const ServiceInquiriesPage = () => {
 
   const handleSort = (field: string) => {
     setSorting(prev => ({
-      field: field as any,
+      field: field as InquirySortField,
       order: prev.field === field && prev.order === 'desc' ? 'asc' : 'desc'
     }))
   }
@@ -94,7 +94,7 @@ const ServiceInquiriesPage = () => {
 
 
   const getStatusBadge = (status: string) => {
-    return status === 'answered' ? (
+    return status === 'completed' ? (
       <Badge colorScheme="green" variant="solid">답변 완료</Badge>
     ) : (
       <Badge colorScheme="yellow" variant="solid">답변 대기</Badge>
@@ -123,7 +123,7 @@ const ServiceInquiriesPage = () => {
               답변 대기: {stats.pending}개
             </Badge>
             <Badge colorScheme="green" p="2" fontSize="md">
-              답변 완료: {stats.answered}개
+              답변 완료: {stats.completed}개
             </Badge>
           </HStack>
         )}
@@ -141,7 +141,7 @@ const ServiceInquiriesPage = () => {
                 >
                   <option value="all">전체</option>
                   <option value="pending">답변 대기</option>
-                  <option value="answered">답변 완료</option>
+                  <option value="completed">답변 완료</option>
                 </Select>
               </Box>
               

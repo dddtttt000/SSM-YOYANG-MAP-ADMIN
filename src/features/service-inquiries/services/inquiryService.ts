@@ -135,12 +135,12 @@ class InquiryService {
         throw new Error('답변 생성에 실패했습니다.')
       }
 
-      // 문의 상태를 'answered'로 업데이트
-      console.log('💡 상태 업데이트 시도:', { inquiryId, status: 'answered' })
+      // 문의 상태를 'completed'로 업데이트
+      console.log('💡 상태 업데이트 시도:', { inquiryId, status: 'completed' })
       const { error: updateError } = await supabase
         .from('service_inquiries')
         .update({ 
-          status: 'answered',
+          status: 'completed',
           updated_at: new Date().toISOString()
         })
         .eq('id', inquiryId)
@@ -250,7 +250,7 @@ class InquiryService {
       const stats: Record<string, number> = {
         total: data?.length || 0,
         pending: 0,
-        answered: 0
+        completed: 0
       }
 
       data?.forEach(item => {

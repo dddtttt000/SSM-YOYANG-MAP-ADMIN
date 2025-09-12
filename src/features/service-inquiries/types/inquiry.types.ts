@@ -1,7 +1,7 @@
 import type { ServiceInquiry, InquiryResponse, AdminUser } from '@/types/database.types'
 
 export type { ServiceInquiry, InquiryResponse } from '@/types/database.types'
-export type InquiryStatus = 'pending' | 'answered'
+export type InquiryStatus = 'pending' | 'completed'
 
 // 서비스 문의 목록 표시용 확장 타입
 export interface ServiceInquiryWithResponse extends ServiceInquiry {
