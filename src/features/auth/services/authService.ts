@@ -32,7 +32,7 @@ export const authService = {
       // 2. admin_users 테이블에서 관리자 정보 조회
       const { data: adminUser, error: adminError } = await supabase
         .from('admin_users')
-        .select('id, email, name, role, is_active, supabase_user_id, created_at, updated_at')
+        .select('id, email, name, role, is_active, supabase_user_id, last_login_at, created_at, updated_at')
         .eq('supabase_user_id', authData.user.id)
         .single()
 
@@ -90,7 +90,7 @@ export const authService = {
     // admin_users에서 관리자 정보 조회
     const { data: adminUser, error: adminError } = await supabase
       .from('admin_users')
-      .select('id, email, name, role, is_active, supabase_user_id, created_at, updated_at')
+      .select('id, email, name, role, is_active, supabase_user_id, last_login_at, created_at, updated_at')
       .eq('supabase_user_id', session.user.id)
       .single()
 
