@@ -45,25 +45,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             setUser(adminUser)
           }
         } else {
-          // 세션이 없을 때 - 로그인 직후에는 세션이 없을 수 있으므로 사용자 상태 유지
+          // 세션이 없을 때
           if (mounted) {
-            setUser(currentUser => {
-              if (currentUser) {
-                return currentUser
-              } else {
-                // 세션도 없고 사용자도 없을 때만 로그인 페이지로 리다이렉트
-                if (window.location.pathname !== '/login') {
-                  navigate('/login')
-                }
-                return null
-              }
-            })
+            setUser(null)
+            if (window.location.pathname !== '/login') {
+              navigate('/login')
+            }
           }
         }
       } catch (err) {
         if (mounted) {
           setError(err instanceof Error ? err.message : '인증 상태 확인 중 오류가 발생했습니다.')
           setUser(null)
+          if (window.location.pathname !== '/login') {
+            navigate('/login')
+          }
         }
       } finally {
         if (mounted) {
@@ -132,8 +128,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setIsLoading(true)
       setError(null)
 
-      const adminUser = await authService.login(credentials)
-      setUser(adminUser)
+      const result = await authService.login(credentials)
+      setUser(result)
+      
       navigate('/dashboard')
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '로그인 중 오류가 발생했습니다.'
@@ -160,6 +157,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setIsLoading(false)
     }
   }
+
 
   const value: AuthContextType = {
     user,

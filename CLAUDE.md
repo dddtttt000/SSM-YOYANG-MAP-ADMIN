@@ -31,6 +31,12 @@
 - `coverage/index.html`을 브라우저에서 열어 상세한 커버리지 리포트 확인 가능
 - 제외된 파일: `node_modules/`, `src/test/`, `**/*.d.ts`, `src/scripts/`, `**/*.test.*`, `**/*.spec.*`
 
+### Migration Scripts
+
+- `npm run migration:check` - 마이그레이션 상태 확인
+- `npm run migration:run` - 전체 마이그레이션 실행
+- `npm run migration:single` - 단일 마이그레이션 실행
+
 ## Architecture 개요
 
 이것은 Supabase를 backend로 사용하는 React + TypeScript admin system이며, Vite와 Chakra UI v2로 구축되었습니다.
@@ -50,12 +56,15 @@ application은 각 feature가 자체 포함된 feature-based structure를 따릅
 
 ```
 src/features/
-├── auth/           # AuthContext를 가진 Authentication system
-├── admin-users/    # Admin user management (CRUD + permissions)
-├── members/        # CSV export를 가진 Member management
-├── facilities/     # card/table view를 가진 Facility management
-├── monitoring/     # Data monitoring table들
-└── dashboard/      # Main dashboard
+├── auth/              # AuthContext를 가진 Authentication system
+├── admin-users/       # Admin user management (CRUD + permissions)
+├── members/           # CSV export를 가진 Member management
+├── facilities/        # card/table view를 가진 Facility management
+├── monitoring/        # Data monitoring table들
+├── dashboard/         # Main dashboard
+├── announcements/     # 공지사항 관리 시스템
+├── questions/         # 질문 관리 기능
+└── service-inquiries/ # 서비스 문의 처리
 ```
 
 ### Authentication & Authorization

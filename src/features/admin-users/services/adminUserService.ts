@@ -23,7 +23,7 @@ class AdminUserService {
   async getAdminUsers(filters?: AdminUserFilters) {
     let query = supabase
       .from('admin_users')
-      .select('*')
+      .select('id, email, name, role, supabase_user_id, last_login_at, is_active, created_at, updated_at')
       .order('created_at', { ascending: false })
 
     if (filters?.role) {
@@ -47,7 +47,7 @@ class AdminUserService {
   async getAdminUserById(id: number | string) {
     const { data, error } = await supabase
       .from('admin_users')
-      .select('*')
+      .select('id, email, name, role, supabase_user_id, last_login_at, is_active, created_at, updated_at')
       .eq('id', Number(id))
       .maybeSingle()
 
