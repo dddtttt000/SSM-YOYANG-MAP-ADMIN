@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AuthContextType, LoginCredentials } from '@/types/auth.types'
 import { AdminUser } from '@/types/database.types'
@@ -101,7 +101,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, [navigate])
 
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(null)
@@ -121,27 +121,30 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [navigate])
 
-  const login = async (credentials: LoginCredentials) => {
-    try {
-      setIsLoading(true)
-      setError(null)
+  const login = useCallback(
+    async (credentials: LoginCredentials) => {
+      try {
+        setIsLoading(true)
+        setError(null)
 
-      const result = await authService.login(credentials)
-      setUser(result)
-      
-      navigate('/dashboard')
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '로그인 중 오류가 발생했습니다.'
-      setError(errorMessage)
-      throw new Error(errorMessage)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+        const result = await authService.login(credentials)
+        setUser(result)
 
-  const logout = async () => {
+        navigate('/dashboard')
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : '로그인 중 오류가 발생했습니다.'
+        setError(errorMessage)
+        throw new Error(errorMessage)
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [navigate]
+  )
+
+  const logout = useCallback(async () => {
     try {
       setIsLoading(true)
       await authService.logout()
@@ -156,17 +159,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [navigate])
 
-
-  const value: AuthContextType = {
-    user,
-    isLoading,
-    error,
-    login,
-    logout,
-    checkAuth,
-  }
+  const value: AuthContextType = useMemo(
+    () => ({
+      user,
+      isLoading,
+      error,
+      login,
+      logout,
+      checkAuth,
+    }),
+    [user, isLoading, error, login, logout, checkAuth]
+  )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

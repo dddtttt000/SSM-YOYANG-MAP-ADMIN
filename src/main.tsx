@@ -45,7 +45,8 @@ const queryClient = new QueryClient({
 })
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
+  // React.StrictMode 임시 제거 - 개발 중 깜빡임 방지
+  // <React.StrictMode>
     <ChakraProvider theme={theme}>
       <QueryClientProvider client={queryClient}>
         <App />
@@ -56,5 +57,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         )}
       </QueryClientProvider>
     </ChakraProvider>
-  </React.StrictMode>
+  // </React.StrictMode>
 )
