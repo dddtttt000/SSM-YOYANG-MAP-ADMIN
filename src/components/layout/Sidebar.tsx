@@ -77,7 +77,7 @@ const navItems: NavItem[] = [
   },
 ]
 
-const SidebarContent = ({ onClose, isOpen }: { onClose?: () => void; isOpen?: boolean }) => {
+const SidebarContent = ({ onClose, isOpen, isInDrawer }: { onClose?: () => void; isOpen?: boolean; isInDrawer?: boolean }) => {
   const location = useLocation()
   const { user } = useAuth()
   const { hasPermission } = usePermission()
@@ -90,7 +90,7 @@ const SidebarContent = ({ onClose, isOpen }: { onClose?: () => void; isOpen?: bo
   return (
     <Box
       bg='white'
-      w={{ base: 'full', md: isOpen ? '280px' : '80px' }}
+      w={{ base: 'full', md: isInDrawer ? 'full' : (isOpen ? '280px' : '80px') }}
       pos='fixed'
       h='full'
       borderRightWidth='1px'
@@ -112,7 +112,7 @@ const SidebarContent = ({ onClose, isOpen }: { onClose?: () => void; isOpen?: bo
         </Link>
         {onClose && (
           <IconButton
-            display={{ base: 'flex', md: 'none' }}
+            display={{ base: 'flex', lg: 'none' }}
             onClick={onClose}
             variant='ghost'
             aria-label='close menu'
@@ -179,13 +179,13 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       <Drawer isOpen={isOpen} placement='left' onClose={onClose}>
         <DrawerOverlay />
         <DrawerContent>
-          <SidebarContent onClose={onClose} isOpen={true} />
+          <SidebarContent onClose={onClose} isOpen={true} isInDrawer={true} />
         </DrawerContent>
       </Drawer>
     )
   }
 
-  return <SidebarContent isOpen={isOpen} />
+  return <SidebarContent isOpen={isOpen} onClose={onClose} isInDrawer={false} />
 }
 
 export default Sidebar
