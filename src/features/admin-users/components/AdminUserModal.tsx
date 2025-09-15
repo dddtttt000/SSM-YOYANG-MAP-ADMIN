@@ -31,7 +31,7 @@ import { FiEye, FiEyeOff } from 'react-icons/fi'
 import { useState, useEffect } from 'react'
 import { AdminUser, Permission } from '@/types/database.types'
 import { useCreateAdminUser, useUpdateAdminUser } from '../hooks/useAdminUsers'
-import { useAuth } from '@/features/auth/contexts/AuthContext'
+import { useAuth } from "@/features/auth"
 
 interface AdminUserModalProps {
   isOpen: boolean

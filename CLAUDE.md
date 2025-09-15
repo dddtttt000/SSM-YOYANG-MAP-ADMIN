@@ -31,12 +31,6 @@
 - `coverage/index.html`을 브라우저에서 열어 상세한 커버리지 리포트 확인 가능
 - 제외된 파일: `node_modules/`, `src/test/`, `**/*.d.ts`, `src/scripts/`, `**/*.test.*`, `**/*.spec.*`
 
-### Migration Scripts
-
-- `npm run migration:check` - 마이그레이션 상태 확인
-- `npm run migration:run` - 전체 마이그레이션 실행
-- `npm run migration:single` - 단일 마이그레이션 실행
-
 ## Architecture 개요
 
 이것은 Supabase를 backend로 사용하는 React + TypeScript admin system이며, Vite와 Chakra UI v2로 구축되었습니다.
@@ -117,9 +111,9 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 ### Database Schema
 
-- Admin user들은 Supabase auth user들과 별도로 관리됨
-- 초기 admin은 Supabase dashboard에서 수동으로 생성해야 함
-- Permission system은 database에 저장된 JSON array들 사용
+- Admin user들은 Supabase Auth와 통합되어 관리됨 (supabase_user_id로 연결)
+- 관리자 생성은 create-admin-user Edge Function을 통해 웹 UI에서 처리
+- Permission system은 database에 저장된 role 기반 (Master/Operator/Monitor)
 
 ### Code Quality Rule들
 
@@ -183,6 +177,38 @@ git push origin main
 - refactor: 코드 리팩토링 (기능 변경 없음)
 - test: 테스트 추가 또는 수정
 - chore: 빌드 프로세스 또는 보조 도구 변경
+
+## 커밋 전 자동 체크
+
+프로젝트에는 **Git pre-commit hook**이 설정되어 있어 커밋 시 자동으로 다음을 실행합니다:
+
+- `npm run build` - TypeScript 컴파일 및 빌드 테스트
+- `npm run lint` - ESLint 코드 품질 검사
+
+### 동작 방식
+- **빌드 실패 시**: 커밋이 자동으로 중단됩니다
+- **린트 경고 시**: 경고 표시 후 커밋은 진행됩니다
+- **모든 검사 통과 시**: 정상적으로 커밋됩니다
+
+### 수동으로 pre-commit 건너뛰기 (비추천)
+```bash
+git commit --no-verify -m "commit message"
+```
+
+### Hook 비활성화 방법
+```bash
+# pre-commit hook 제거
+rm .git/hooks/pre-commit
+```
+
+## 커밋 전 수동 체크리스트
+
+pre-commit hook이 실행되지 않는 경우 다음을 수동으로 확인하세요:
+
+- [ ] `npm run build` 성공 확인
+- [ ] `npm run lint` 주요 경고 없음 확인
+- [ ] `npm test` 기존 테스트 통과 확인 (해당하는 경우)
+- [ ] 기능 테스트 완료 (브라우저에서 동작 확인)
 
 ## 💡 권장사항
 

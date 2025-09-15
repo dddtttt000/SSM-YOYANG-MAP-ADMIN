@@ -8,7 +8,7 @@ vi.mock('@/features/auth/contexts/AuthContext', () => ({
   useAuth: vi.fn()
 }))
 
-import { useAuth } from '@/features/auth/contexts/AuthContext'
+import { useAuth } from "@/features/auth"
 
 describe('usePermission', () => {
   const mockUseAuth = vi.mocked(useAuth)
