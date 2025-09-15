@@ -16,7 +16,7 @@ import {
   FormErrorMessage,
 } from '@chakra-ui/react'
 import { FiEye, FiEyeOff } from 'react-icons/fi'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../hooks/useAuth'
 
 const LoginPage = () => {
   const toast = useToast()

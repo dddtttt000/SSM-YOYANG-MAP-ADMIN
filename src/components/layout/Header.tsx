@@ -14,7 +14,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import { FiMenu, FiChevronDown, FiLogOut, FiUser } from 'react-icons/fi'
-import { useAuth } from '@/features/auth/contexts/AuthContext'
+import { useAuth } from "@/features/auth"
 
 interface HeaderProps {
   onMenuClick: () => void

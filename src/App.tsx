@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Suspense, lazy } from 'react'
 import { Center, Spinner } from '@chakra-ui/react'
-import { AuthProvider } from '@/features/auth/contexts/AuthContext'
+import { AuthProvider } from "@/features/auth"
 import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import Layout from '@/components/layout/Layout'
 

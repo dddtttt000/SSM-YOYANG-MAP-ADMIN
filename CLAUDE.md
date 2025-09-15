@@ -178,6 +178,38 @@ git push origin main
 - test: 테스트 추가 또는 수정
 - chore: 빌드 프로세스 또는 보조 도구 변경
 
+## 커밋 전 자동 체크
+
+프로젝트에는 **Git pre-commit hook**이 설정되어 있어 커밋 시 자동으로 다음을 실행합니다:
+
+- `npm run build` - TypeScript 컴파일 및 빌드 테스트
+- `npm run lint` - ESLint 코드 품질 검사
+
+### 동작 방식
+- **빌드 실패 시**: 커밋이 자동으로 중단됩니다
+- **린트 경고 시**: 경고 표시 후 커밋은 진행됩니다
+- **모든 검사 통과 시**: 정상적으로 커밋됩니다
+
+### 수동으로 pre-commit 건너뛰기 (비추천)
+```bash
+git commit --no-verify -m "commit message"
+```
+
+### Hook 비활성화 방법
+```bash
+# pre-commit hook 제거
+rm .git/hooks/pre-commit
+```
+
+## 커밋 전 수동 체크리스트
+
+pre-commit hook이 실행되지 않는 경우 다음을 수동으로 확인하세요:
+
+- [ ] `npm run build` 성공 확인
+- [ ] `npm run lint` 주요 경고 없음 확인
+- [ ] `npm test` 기존 테스트 통과 확인 (해당하는 경우)
+- [ ] 기능 테스트 완료 (브라우저에서 동작 확인)
+
 ## 💡 권장사항
 
 - 새로운 라이브러리 도입 전 팀 논의

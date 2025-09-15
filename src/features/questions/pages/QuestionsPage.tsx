@@ -1,6 +1,5 @@
 import {
   Box,
-  Container,
   Heading,
   Text,
   Card,
@@ -23,7 +22,7 @@ import {
 } from '@chakra-ui/react'
 import { AddIcon } from '@chakra-ui/icons'
 import { useState } from 'react'
-import { useAuth } from '@/features/auth/contexts/AuthContext'
+import { useAuth } from "@/features/auth"
 import { useQuestions, useQuestionMutations } from '../hooks/useQuestions'
 import QuestionFormModal from '../components/QuestionFormModal'
 import QuestionTable from '../components/QuestionTable'

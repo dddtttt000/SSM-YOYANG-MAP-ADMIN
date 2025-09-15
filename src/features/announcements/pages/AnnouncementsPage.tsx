@@ -1,6 +1,5 @@
 import {
   Box,
-  Container,
   Heading,
   Text,
   Card,
@@ -31,7 +30,7 @@ import { useState } from 'react'
 import { announcementService } from '../services/announcementService'
 import type { Announcement } from '@/types/database.types'
 import type { CreateAnnouncementData, UpdateAnnouncementData, AnnouncementFilters } from '../types'
-import { useAuth } from '@/features/auth/contexts/AuthContext'
+import { useAuth } from "@/features/auth"
 
 const AnnouncementsPage = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()

@@ -35,7 +35,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { inquiryService } from '../services/inquiryService'
 import type { ServiceInquiryDetail } from '../types/inquiry.types'
-import { useAuth } from '@/features/auth/contexts/AuthContext'
+import { useAuth } from "@/features/auth"
 import { formatDate } from '@/utils/date'
 
 interface ResponseFormData {
