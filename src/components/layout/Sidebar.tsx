@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { Link, useLocation } from 'react-router-dom'
 import { FiHome, FiUsers, FiShield, FiMapPin, FiX, FiActivity, FiBell, FiHelpCircle, FiMessageSquare } from 'react-icons/fi'
-import { useAuth } from '@/features/auth/contexts/AuthContext'
+import { useAuth } from "@/features/auth"
 import { usePermission } from '@/hooks/usePermission'
 
 interface SidebarProps {

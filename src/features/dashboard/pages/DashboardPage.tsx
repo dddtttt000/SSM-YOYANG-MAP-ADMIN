@@ -31,7 +31,7 @@ import {
   FiTrendingUp,
   FiClock,
 } from 'react-icons/fi'
-import { useAuth } from '@/features/auth/contexts/AuthContext'
+import { useAuth } from "@/features/auth"
 import { useDashboardStats, useRecentActivities, useSystemStatus } from '../hooks/useDashboard'
 import { useMemo } from 'react'
 

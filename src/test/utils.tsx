@@ -3,7 +3,7 @@ import { render, RenderOptions } from '@testing-library/react'
 import { ChakraProvider } from '@chakra-ui/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter } from 'react-router-dom'
-import { AuthProvider } from '@/features/auth/contexts/AuthContext'
+import { AuthProvider } from "@/features/auth"
 
 // Create a custom render function that includes providers
 const AllProviders = ({ children }: { children: React.ReactNode }) => {

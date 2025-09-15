@@ -104,30 +104,32 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
           </Thead>
           <Tbody>
             {[...Array(5)].map((_, index) => (
-              <Tr key={index}>
-                <Td>
-                  <Skeleton height='20px' width='60px' />
-                </Td>
-                <Td>
-                  <Skeleton height='20px' width='120px' />
-                </Td>
-                <Td>
-                  <Skeleton height='20px' width='60px' />
-                </Td>
-                <Td>
+              <Tr
+                key={index}
+                cursor='pointer'
+                _hover={{ bg: 'gray.50' }}
+                transition='background-color 0.2s'
+              >
+                <Td whiteSpace='nowrap'>
                   <Skeleton height='20px' />
                 </Td>
-                <Td>
+                <Td whiteSpace='nowrap'>
                   <Skeleton height='20px' />
                 </Td>
-                <Td>
-                  <Skeleton height='20px' width='80px' />
+                <Td whiteSpace='nowrap'>
+                  <Skeleton height='20px' />
                 </Td>
-                <Td>
-                  <Skeleton height='20px' width='100px' />
+                <Td whiteSpace='nowrap'>
+                  <Skeleton height='20px' />
                 </Td>
-                <Td>
-                  <Skeleton height='20px' width='40px' />
+                <Td whiteSpace='nowrap'>
+                  <Skeleton height='20px' />
+                </Td>
+                <Td whiteSpace='nowrap'>
+                  <Skeleton height='20px' />
+                </Td>
+                <Td whiteSpace='nowrap'>
+                  <Skeleton height='20px' />
                 </Td>
               </Tr>
             ))}
@@ -194,8 +196,19 @@ const MemberTable = ({ members, isLoading, onViewDetails }: MemberTableProps) =>
                   {member.id}
                 </Text>
               </Td>
-              <Td whiteSpace='nowrap'>
-                <Text fontSize='sm'>{member.social_id}</Text>
+              <Td
+                whiteSpace='nowrap'
+                maxWidth={{ base: '80px', md: '100px', lg: '120px' }}
+                overflow='hidden'
+                textOverflow='ellipsis'
+              >
+                <Text
+                  fontSize='sm'
+                  isTruncated
+                  title={member.social_id}
+                >
+                  {member.social_id}
+                </Text>
               </Td>
               <Td whiteSpace='nowrap'>
                 <Badge colorScheme={getSocialTypeBadgeColor(member.social_type)} variant='subtle'>

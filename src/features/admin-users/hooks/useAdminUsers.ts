@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@chakra-ui/react'
+import { useAuth } from "@/features/auth"
 import { adminUserService, AdminUserFilters, CreateAdminUserDto, UpdateAdminUserDto } from '../services/adminUserService'
 
 export const useAdminUsers = (filters?: AdminUserFilters) => {
@@ -49,13 +50,25 @@ export const useCreateAdminUser = () => {
 export const useUpdateAdminUser = () => {
   const queryClient = useQueryClient()
   const toast = useToast()
+  const { user, checkAuth } = useAuth()
 
   return useMutation({
-    mutationFn: ({ id, dto }: { id: number; dto: UpdateAdminUserDto }) => 
+    mutationFn: ({ id, dto }: { id: number; dto: UpdateAdminUserDto }) =>
       adminUserService.updateAdminUser(id, dto),
-    onSuccess: () => {
+    onSuccess: async (_, { id }) => {
+      // 기존 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] })
       queryClient.invalidateQueries({ queryKey: ['adminUser'] })
+
+      // 현재 로그인한 사용자가 수정된 경우 AuthContext 새로고침
+      if (user?.id === id) {
+        try {
+          await checkAuth()
+        } catch (error) {
+          console.error('Failed to refresh auth context:', error)
+        }
+      }
+
       toast({
         title: '관리자 정보 수정 완료',
         description: '관리자 정보가 수정되었습니다.',

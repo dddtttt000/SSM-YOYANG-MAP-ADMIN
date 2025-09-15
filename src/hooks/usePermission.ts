@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useAuth } from '@/features/auth/contexts/AuthContext'
+import { useAuth } from "@/features/auth"
 
 export const usePermission = () => {
   const { user } = useAuth()

@@ -23,7 +23,7 @@ import { AdminUser } from '@/types/database.types'
 import { useRef, useState } from 'react'
 import { useDeleteAdminUser, useUpdateAdminUser } from '../hooks/useAdminUsers'
 import { usePermission } from '@/hooks/usePermission'
-import { useAuth } from '@/features/auth/contexts/AuthContext'
+import { useAuth } from "@/features/auth"
 import { formatDateTime } from '@/utils/date'
 
 interface AdminUserTableProps {
