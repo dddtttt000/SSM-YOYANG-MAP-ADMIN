@@ -54,8 +54,8 @@ const FacilityTable = React.memo(({ facilities, isLoading, onView }: FacilityTab
 
   if (isLoading) {
     return (
-      <TableContainer>
-        <Table variant='simple'>
+      <TableContainer overflowX='auto'>
+        <Table variant='simple' size='sm'>
           <Thead>
             <Tr>
               <Th>시설명</Th>
@@ -77,7 +77,7 @@ const FacilityTable = React.memo(({ facilities, isLoading, onView }: FacilityTab
                   <Skeleton height='20px' />
                 </Td>
                 <Td>
-                  <Skeleton height='20px' />
+                  <Skeleton height='40px' />
                 </Td>
                 <Td>
                   <Skeleton height='20px' />
@@ -86,10 +86,10 @@ const FacilityTable = React.memo(({ facilities, isLoading, onView }: FacilityTab
                   <Skeleton height='20px' />
                 </Td>
                 <Td>
-                  <Skeleton height='20px' width='80px' />
+                  <Skeleton height='20px' />
                 </Td>
                 <Td>
-                  <Skeleton height='20px' width='100px' />
+                  <Skeleton height='20px' />
                 </Td>
               </Tr>
             ))}
@@ -129,8 +129,8 @@ const FacilityTable = React.memo(({ facilities, isLoading, onView }: FacilityTab
   }
 
   return (
-    <TableContainer>
-      <Table variant='simple'>
+    <TableContainer overflowX='auto'>
+      <Table variant='simple' size='sm'>
         <Thead>
           <Tr>
             <Th>시설명</Th>
@@ -160,7 +160,14 @@ const FacilityTable = React.memo(({ facilities, isLoading, onView }: FacilityTab
                 )}
               </Td>
               <Td>
-                <Text fontSize='sm'>{facility.address || '-'}</Text>
+                <Text
+                  fontSize='sm'
+                  whiteSpace='normal'
+                  wordBreak='break-all'
+                  lineHeight='1.3'
+                >
+                  {facility.address || '-'}
+                </Text>
               </Td>
               <Td>
                 <Text fontSize='sm'>{facility.capacity || 0}명</Text>

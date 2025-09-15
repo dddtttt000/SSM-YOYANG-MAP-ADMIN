@@ -31,12 +31,6 @@
 - `coverage/index.html`을 브라우저에서 열어 상세한 커버리지 리포트 확인 가능
 - 제외된 파일: `node_modules/`, `src/test/`, `**/*.d.ts`, `src/scripts/`, `**/*.test.*`, `**/*.spec.*`
 
-### Migration Scripts
-
-- `npm run migration:check` - 마이그레이션 상태 확인
-- `npm run migration:run` - 전체 마이그레이션 실행
-- `npm run migration:single` - 단일 마이그레이션 실행
-
 ## Architecture 개요
 
 이것은 Supabase를 backend로 사용하는 React + TypeScript admin system이며, Vite와 Chakra UI v2로 구축되었습니다.
@@ -117,9 +111,9 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 ### Database Schema
 
-- Admin user들은 Supabase auth user들과 별도로 관리됨
-- 초기 admin은 Supabase dashboard에서 수동으로 생성해야 함
-- Permission system은 database에 저장된 JSON array들 사용
+- Admin user들은 Supabase Auth와 통합되어 관리됨 (supabase_user_id로 연결)
+- 관리자 생성은 create-admin-user Edge Function을 통해 웹 UI에서 처리
+- Permission system은 database에 저장된 role 기반 (Master/Operator/Monitor)
 
 ### Code Quality Rule들
 

@@ -102,10 +102,8 @@ const QuestionsPage = () => {
     setFilters(newFilters)
   }
 
-
-
   return (
-    <Container maxW='container.xl' py='8'>
+    <Box>
       <VStack align='stretch' spacing='8'>
         {/* 헤더 */}
         <Flex>
@@ -171,7 +169,6 @@ const QuestionsPage = () => {
         isSubmitting={createMutation.isPending || updateMutation.isPending}
       />
 
-
       {/* 삭제 확인 모달 */}
       <Modal isOpen={isDeleteOpen} onClose={cancelDelete} isCentered>
         <ModalOverlay />
@@ -200,7 +197,7 @@ const QuestionsPage = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </Container>
+    </Box>
   )
 }
 

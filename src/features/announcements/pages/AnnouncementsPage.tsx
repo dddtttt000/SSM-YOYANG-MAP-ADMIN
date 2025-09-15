@@ -182,7 +182,7 @@ const AnnouncementsPage = () => {
   }
 
   return (
-    <Container maxW='container.xl' py='8'>
+    <Box>
       <VStack align='stretch' spacing='8'>
         <Flex>
           <Box>
@@ -202,10 +202,7 @@ const AnnouncementsPage = () => {
         {/* 필터 */}
         <Card>
           <CardBody>
-            <AnnouncementFiltersComponent 
-              onFiltersChange={handleFiltersChange} 
-              initialFilters={filters}
-            />
+            <AnnouncementFiltersComponent onFiltersChange={handleFiltersChange} initialFilters={filters} />
           </CardBody>
         </Card>
 
@@ -233,10 +230,7 @@ const AnnouncementsPage = () => {
                     </Text>
                   </Box>
                 )}
-                <AnnouncementTable
-                  announcements={announcementsData || []}
-                  onEdit={handleEdit}
-                />
+                <AnnouncementTable announcements={announcementsData || []} onEdit={handleEdit} />
               </VStack>
             )}
           </CardBody>
@@ -271,7 +265,7 @@ const AnnouncementsPage = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </Container>
+    </Box>
   )
 }
 

@@ -49,7 +49,7 @@ const MembersPage = () => {
   }
 
   return (
-    <Container maxW='container.xl' py='8'>
+    <Box>
       <VStack align='stretch' spacing='8'>
         <Box>
           <Heading size='lg' mb='2'>
@@ -119,7 +119,7 @@ const MembersPage = () => {
       </VStack>
 
       <MemberDetailModal isOpen={isOpen} onClose={onClose} memberId={selectedMemberId} />
-    </Container>
+    </Box>
   )
 }
 

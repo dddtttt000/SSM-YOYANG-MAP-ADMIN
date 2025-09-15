@@ -112,7 +112,7 @@ const MonitoringPage = () => {
   }
 
   return (
-    <Container maxW='container.xl' py='8'>
+    <Box>
       <VStack spacing='8' align='stretch'>
         {/* 헤더 */}
         <Box>
@@ -305,7 +305,7 @@ const MonitoringPage = () => {
           </CardBody>
         </Card>
       </VStack>
-    </Container>
+    </Box>
   )
 }
 
