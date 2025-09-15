@@ -1,18 +1,19 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { Center, Spinner } from '@chakra-ui/react'
 import { useAuth } from '../contexts/AuthContext'
-import { ReactNode } from 'react'
+import { ReactNode, memo } from 'react'
 
 interface ProtectedRouteProps {
   children: ReactNode
   requiredRole?: 'super_admin' | 'admin'
 }
 
-const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
+const ProtectedRoute = memo(({ children, requiredRole }: ProtectedRouteProps) => {
   const { user, isLoading } = useAuth()
   const location = useLocation()
 
-  if (isLoading) {
+  // 초기 로딩은 빠르게 처리, 라우트 변경 시 로딩 스피너 최소화
+  if (isLoading && !user) {
     return (
       <Center h='100vh'>
         <Spinner size='xl' color='brand.500' thickness='4px' />
@@ -30,6 +31,8 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   }
 
   return <>{children}</>
-}
+})
+
+ProtectedRoute.displayName = 'ProtectedRoute'
 
 export default ProtectedRoute

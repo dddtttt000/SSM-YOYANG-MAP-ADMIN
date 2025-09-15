@@ -5,16 +5,18 @@ import { AuthProvider } from '@/features/auth/contexts/AuthContext'
 import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import Layout from '@/components/layout/Layout'
 
-// Lazy load pages
-const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage'))
-const DashboardPage = lazy(() => import('@/features/dashboard/pages/DashboardPage'))
-const AdminUsersPage = lazy(() => import('@/features/admin-users/pages/AdminUsersPage'))
-const MembersPage = lazy(() => import('@/features/members/pages/MembersPage'))
-const FacilitiesPage = lazy(() => import('@/features/facilities/pages/FacilitiesPage'))
-const AnnouncementsPage = lazy(() => import('@/features/announcements/pages/AnnouncementsPage'))
-const QuestionsPage = lazy(() => import('@/features/questions/pages/QuestionsPage'))
-const ServiceInquiriesPage = lazy(() => import('@/features/service-inquiries/pages/ServiceInquiriesPage'))
-const ServiceInquiryDetailPage = lazy(() => import('@/features/service-inquiries/pages/ServiceInquiryDetailPage'))
+// Core pages - immediate import for smooth navigation
+import LoginPage from '@/features/auth/pages/LoginPage'
+import DashboardPage from '@/features/dashboard/pages/DashboardPage'
+import AdminUsersPage from '@/features/admin-users/pages/AdminUsersPage'
+import MembersPage from '@/features/members/pages/MembersPage'
+import FacilitiesPage from '@/features/facilities/pages/FacilitiesPage'
+import AnnouncementsPage from '@/features/announcements/pages/AnnouncementsPage'
+import QuestionsPage from '@/features/questions/pages/QuestionsPage'
+import ServiceInquiriesPage from '@/features/service-inquiries/pages/ServiceInquiriesPage'
+import ServiceInquiryDetailPage from '@/features/service-inquiries/pages/ServiceInquiryDetailPage'
+
+// Less frequently used pages - keep lazy loading
 const MonitoringPage = lazy(() => import('@/features/monitoring/pages/MonitoringPage'))
 
 const LoadingFallback = () => (
@@ -27,30 +29,36 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Suspense fallback={<LoadingFallback />}>
-          <Routes>
-            <Route path='/login' element={<LoginPage />} />
-            <Route
-              path='/'
+        <Routes>
+          <Route path='/login' element={<LoginPage />} />
+          <Route
+            path='/'
+            element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to='/dashboard' replace />} />
+            <Route path='dashboard' element={<DashboardPage />} />
+            <Route path='admin-users' element={<AdminUsersPage />} />
+            <Route path='members' element={<MembersPage />} />
+            <Route path='facilities' element={<FacilitiesPage />} />
+            <Route path='announcements' element={<AnnouncementsPage />} />
+            <Route path='questions' element={<QuestionsPage />} />
+            <Route path='service-inquiries' element={<ServiceInquiriesPage />} />
+            <Route path='service-inquiries/:id' element={<ServiceInquiryDetailPage />} />
+            {/* Only monitoring page uses Suspense */}
+            <Route 
+              path='monitoring' 
               element={
-                <ProtectedRoute>
-                  <Layout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<Navigate to='/dashboard' replace />} />
-              <Route path='dashboard' element={<DashboardPage />} />
-              <Route path='admin-users' element={<AdminUsersPage />} />
-              <Route path='members' element={<MembersPage />} />
-              <Route path='facilities' element={<FacilitiesPage />} />
-              <Route path='announcements' element={<AnnouncementsPage />} />
-              <Route path='questions' element={<QuestionsPage />} />
-              <Route path='service-inquiries' element={<ServiceInquiriesPage />} />
-              <Route path='service-inquiries/:id' element={<ServiceInquiryDetailPage />} />
-              <Route path='monitoring' element={<MonitoringPage />} />
-            </Route>
-          </Routes>
-        </Suspense>
+                <Suspense fallback={<LoadingFallback />}>
+                  <MonitoringPage />
+                </Suspense>
+              } 
+            />
+          </Route>
+        </Routes>
       </AuthProvider>
     </BrowserRouter>
   )
