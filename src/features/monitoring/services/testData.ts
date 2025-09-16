@@ -92,12 +92,12 @@ export const createTestData = async () => {
 
     // 데이터 추가
     console.log('Adding test data to Firestore...')
-    
+
     await addDoc(collection(firestore, 'ai_facility_analyses'), aiAnalysisData)
     await addDoc(collection(firestore, 'assessment_results'), assessmentData)
     await addDoc(collection(firestore, 'call_events'), callEventData)
     await addDoc(collection(firestore, 'favorite_facilities'), favoriteData)
-    
+
     console.log('Test data added successfully!')
   } catch (error) {
     console.error('Error adding test data:', error)
