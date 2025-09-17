@@ -223,6 +223,89 @@ export interface Database {
         >
         Update: Partial<Database['public']['Tables']['inquiry_responses']['Insert']>
       }
+      community_writing_list: {
+        Row: {
+          id: string
+          author_id: number
+          category_1: string
+          category_2: string
+          title: string
+          content: string
+          images: Json | null
+          youtube_url: Json | null
+          hashtags: Json | null
+          views_count: number
+          likes_count: number
+          comments_count: number
+          popularity_score: number
+          status: string
+          reported_count: number
+          created_at: string
+          updated_at: string
+          admin_code: string
+        }
+        Insert: Omit<
+          Database['public']['Tables']['community_writing_list']['Row'],
+          'id' | 'created_at' | 'updated_at'
+        >
+        Update: Partial<Database['public']['Tables']['community_writing_list']['Insert']>
+      }
+      community_comments_list: {
+        Row: {
+          id: string
+          post_id: string
+          author_id: number
+          parent_comment_id: string | null
+          comment_type: string
+          content: string
+          likes_count: number
+          status: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: Omit<
+          Database['public']['Tables']['community_comments_list']['Row'],
+          'id' | 'created_at' | 'updated_at'
+        >
+        Update: Partial<Database['public']['Tables']['community_comments_list']['Insert']>
+      }
+      community_likes: {
+        Row: {
+          id: string
+          user_id: number
+          post_id: string | null
+          comment_id: string | null
+          type: string // 'post' | 'comment'
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['community_likes']['Row'], 'id' | 'created_at'>
+        Update: Partial<Database['public']['Tables']['community_likes']['Insert']>
+      }
+      community_reports: {
+        Row: {
+          id: string
+          reporter_id: number
+          post_id: string | null
+          comment_id: string | null
+          type: string // 'post' | 'comment'
+          reason: string
+          description: string | null
+          status: string // 'pending' | 'resolved' | 'rejected'
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['community_reports']['Row'], 'id' | 'created_at'>
+        Update: Partial<Database['public']['Tables']['community_reports']['Insert']>
+      }
+      community_saved_posts: {
+        Row: {
+          id: string
+          user_id: number
+          post_id: string
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['community_saved_posts']['Row'], 'id' | 'created_at'>
+        Update: Partial<Database['public']['Tables']['community_saved_posts']['Insert']>
+      }
     }
     Views: {
       [_ in never]: never
@@ -245,6 +328,17 @@ export type Announcement = Database['public']['Tables']['announcements']['Row']
 export type Question = Database['public']['Tables']['questions']['Row']
 export type ServiceInquiry = Database['public']['Tables']['service_inquiries']['Row']
 export type InquiryResponse = Database['public']['Tables']['inquiry_responses']['Row']
+
+// Community 관련 타입들
+export type CommunityPost = Database['public']['Tables']['community_writing_list']['Row'] & {
+  members?: {
+    nickname: string | null
+  } | null
+}
+export type CommunityComment = Database['public']['Tables']['community_comments_list']['Row']
+export type CommunityLike = Database['public']['Tables']['community_likes']['Row']
+export type CommunityReport = Database['public']['Tables']['community_reports']['Row']
+export type CommunitySavedPost = Database['public']['Tables']['community_saved_posts']['Row']
 
 // Permission 인터페이스는 현재 테이블 구조에서 사용되지 않음
 // 향후 권한 시스템 구현 시 사용 가능
