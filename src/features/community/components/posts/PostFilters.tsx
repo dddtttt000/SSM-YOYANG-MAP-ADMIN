@@ -60,7 +60,7 @@ const PostFilters = ({ onFiltersChange, initialFilters = {} }: PostFiltersProps)
   }
 
   const getActiveFiltersCount = () => {
-    const { search, ...otherFilters } = filters
+    const { search: _search, ...otherFilters } = filters
     return Object.values(otherFilters).filter(value => value !== undefined && value !== '' && value !== null).length
   }
 

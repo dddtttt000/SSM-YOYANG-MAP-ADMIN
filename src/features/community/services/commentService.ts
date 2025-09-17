@@ -18,11 +18,13 @@ export interface CommentWithPost extends CommunityComment {
     title: string
     author_id: number
   }
+  reported_count?: number
 }
 
 export interface CommunityCommentWithAuthor extends CommunityComment {
   members?: {
     nickname: string | null
+    profile_image: string | null
   } | null
   children?: CommunityCommentWithAuthor[]
   likes_count: number
@@ -103,7 +105,9 @@ class CommentService {
         throw new Error('댓글 목록을 불러오는데 실패했습니다.')
       }
 
-      return data || []
+      // 신고 카운트 추가
+      const commentsWithReportCount = await this.addReportCounts(data || [])
+      return commentsWithReportCount
     } catch (error) {
       console.error('CommentService.getComments 오류:', error)
       throw error
@@ -120,7 +124,8 @@ class CommentService {
         .select(`
           *,
           members!community_comments_list_author_id_fkey (
-            nickname
+            nickname,
+            profile_image
           )
         `)
         .eq('post_id', postId)
@@ -211,7 +216,8 @@ class CommentService {
         .select(`
           *,
           members!community_comments_list_author_id_fkey (
-            nickname
+            nickname,
+            profile_image
           )
         `)
         .in('id', uniqueCommentIds)
@@ -270,7 +276,8 @@ class CommentService {
         .select(`
           *,
           members!community_comments_list_author_id_fkey (
-            nickname
+            nickname,
+            profile_image
           ),
           community_reports!community_reports_comment_id_fkey (
             id,
@@ -372,6 +379,49 @@ class CommentService {
         total_reports: (comment.community_reports || []).length,
         original_post: null,
       }))
+    }
+  }
+
+  /**
+   * 댓글에 신고 카운트 추가
+   */
+  private async addReportCounts(comments: any[]): Promise<any[]> {
+    if (comments.length === 0) return []
+
+    try {
+      // 댓글 ID 배열
+      const commentIds = comments.map(comment => comment.id)
+
+      // 댓글별 신고 수 조회
+      const { data: reportsData, error: reportsError } = await supabase
+        .from('community_reports')
+        .select('comment_id')
+        .in('comment_id', commentIds)
+        .not('comment_id', 'is', null)
+
+      if (reportsError) {
+        console.error('댓글 신고 조회 오류:', reportsError)
+      }
+
+      // 댓글별 신고 수 계산
+      const reportCounts: Record<string, number> = {}
+      if (reportsData) {
+        reportsData.forEach(report => {
+          if (report.comment_id) {
+            reportCounts[report.comment_id] = (reportCounts[report.comment_id] || 0) + 1
+          }
+        })
+      }
+
+      // 댓글에 신고 카운트 추가
+      return comments.map(comment => ({
+        ...comment,
+        reported_count: reportCounts[comment.id] || 0,
+      }))
+    } catch (error) {
+      console.error('댓글 신고 카운트 조회 오류:', error)
+      // 신고 카운트 조회에 실패해도 기본 댓글 정보는 반환
+      return comments.map(comment => ({ ...comment, reported_count: 0 }))
     }
   }
 

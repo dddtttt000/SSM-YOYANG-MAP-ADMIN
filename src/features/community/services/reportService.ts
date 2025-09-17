@@ -1,9 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import {
-  type ReportReason,
-  type ReportStatus,
-  type PostStatus,
-} from '../types'
+import { type ReportReason, type ReportStatus, type PostStatus } from '../types'
 
 export interface CommunityReport {
   id: string
@@ -58,10 +54,7 @@ class ReportService {
    */
   async getReports(filters?: ReportFilters): Promise<CommunityReportWithDetails[]> {
     try {
-      let query = supabase
-        .from('community_reports')
-        .select('*')
-        .order('created_at', { ascending: false })
+      let query = supabase.from('community_reports').select('*').order('created_at', { ascending: false })
 
       // 필터 적용
       if (filters?.status) {
@@ -90,8 +83,6 @@ class ReportService {
         console.error('신고 목록 조회 오류:', error)
         throw new Error('신고 목록을 불러오는데 실패했습니다.')
       }
-
-      console.log('조회된 신고 목록 ID들:', data?.map(item => item.id) || [])
 
       // 게시글 및 댓글 정보 추가
       return await this.enrichReportsWithContent(data || [])
@@ -157,9 +148,7 @@ class ReportService {
    */
   async getReportStats() {
     try {
-      const { data: stats, error } = await supabase
-        .from('community_reports')
-        .select('status, reason')
+      const { data: stats, error } = await supabase.from('community_reports').select('status, reason')
 
       if (error) {
         console.error('신고 통계 조회 오류:', error)
@@ -211,10 +200,12 @@ class ReportService {
       const commentIds = [...new Set(reports.map(r => r.comment_id).filter(Boolean))]
 
       // 사용자 ID 수집 (신고자, 처리자)
-      const userIds = [...new Set([
-        ...reports.map(r => r.reporter_id).filter(Boolean),
-        ...reports.map(r => r.resolved_by).filter(Boolean)
-      ])]
+      const userIds = [
+        ...new Set([
+          ...reports.map(r => r.reporter_id).filter(Boolean),
+          ...reports.map(r => r.resolved_by).filter(Boolean),
+        ]),
+      ]
 
       // 사용자 정보 조회 (신고자, 처리자)
       let usersMap = new Map()
@@ -236,7 +227,8 @@ class ReportService {
       if (postIds.length > 0) {
         const { data: posts, error: postsError } = await supabase
           .from('community_writing_list')
-          .select(`
+          .select(
+            `
             id,
             title,
             author_id,
@@ -244,7 +236,8 @@ class ReportService {
             members!community_writing_list_author_id_fkey (
               nickname
             )
-          `)
+          `
+          )
           .in('id', postIds)
 
         if (!postsError && posts) {
@@ -265,7 +258,8 @@ class ReportService {
       if (commentIds.length > 0) {
         const { data: comments, error: commentsError } = await supabase
           .from('community_comments_list')
-          .select(`
+          .select(
+            `
             id,
             content,
             author_id,
@@ -278,7 +272,8 @@ class ReportService {
               id,
               title
             )
-          `)
+          `
+          )
           .in('id', commentIds)
 
         if (!commentsError && comments) {

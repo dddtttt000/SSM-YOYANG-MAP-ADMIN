@@ -48,7 +48,8 @@ class PostService {
         .select(`
           *,
           members!community_writing_list_author_id_fkey (
-            nickname
+            nickname,
+            profile_image
           )
         `, { count: 'exact' })
         .order('created_at', { ascending: false })
@@ -125,7 +126,8 @@ class PostService {
         .select(`
           *,
           members!community_writing_list_author_id_fkey (
-            nickname
+            nickname,
+            profile_image
           )
         `)
         .eq('id', id)

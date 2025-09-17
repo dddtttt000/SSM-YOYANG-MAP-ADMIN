@@ -333,6 +333,7 @@ export type InquiryResponse = Database['public']['Tables']['inquiry_responses'][
 export type CommunityPost = Database['public']['Tables']['community_writing_list']['Row'] & {
   members?: {
     nickname: string | null
+    profile_image: string | null
   } | null
 }
 export type CommunityComment = Database['public']['Tables']['community_comments_list']['Row']
