@@ -14,6 +14,7 @@ import {
 } from '@chakra-ui/react'
 import { FiMoreHorizontal, FiHeart, FiMessageCircle } from 'react-icons/fi'
 import { formatDate } from '@/utils/date'
+import { getContentStatusBadge } from '@/utils/statusBadge'
 import type { CommunityCommentWithAuthor } from '../../services/commentService'
 
 interface CommentItemProps {
@@ -28,21 +29,6 @@ const CommentItem = ({ comment, depth = 0, onStatusChange, isLoading }: CommentI
   const bgColor = useColorModeValue('white', 'gray.800')
   const replyBg = useColorModeValue('gray.50', 'gray.700')
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      active: { colorScheme: 'green', label: '활성' },
-      hidden: { colorScheme: 'yellow', label: '숨김' },
-      deleted: { colorScheme: 'red', label: '삭제' },
-      pending: { colorScheme: 'gray', label: '대기' },
-    }
-
-    const config = statusConfig[status as keyof typeof statusConfig] || {
-      colorScheme: 'gray',
-      label: status,
-    }
-
-    return <Badge size="sm" colorScheme={config.colorScheme}>{config.label}</Badge>
-  }
 
   const handleStatusChange = (newStatus: string) => {
     if (onStatusChange) {
@@ -93,7 +79,7 @@ const CommentItem = ({ comment, depth = 0, onStatusChange, isLoading }: CommentI
             </HStack>
 
             <HStack spacing={2}>
-              {getStatusBadge(comment.status)}
+              {getContentStatusBadge(comment.status as any)}
               <Menu>
                 <MenuButton
                   as={IconButton}
@@ -104,15 +90,24 @@ const CommentItem = ({ comment, depth = 0, onStatusChange, isLoading }: CommentI
                   isLoading={isLoading}
                 />
                 <MenuList>
-                  <MenuItem onClick={() => handleStatusChange('active')}>
-                    활성화
-                  </MenuItem>
-                  <MenuItem onClick={() => handleStatusChange('hidden')}>
-                    숨기기
-                  </MenuItem>
-                  <MenuItem onClick={() => handleStatusChange('deleted')}>
-                    삭제
-                  </MenuItem>
+                  {comment.status === 'deleted' ? (
+                    <MenuItem isDisabled>
+                      관리자는 수정할 수 없습니다
+                    </MenuItem>
+                  ) : (
+                    <>
+                      {comment.status === 'hidden' && (
+                        <MenuItem onClick={() => handleStatusChange('active')}>
+                          활성화
+                        </MenuItem>
+                      )}
+                      {comment.status === 'active' && (
+                        <MenuItem onClick={() => handleStatusChange('hidden')}>
+                          숨기기
+                        </MenuItem>
+                      )}
+                    </>
+                  )}
                 </MenuList>
               </Menu>
             </HStack>

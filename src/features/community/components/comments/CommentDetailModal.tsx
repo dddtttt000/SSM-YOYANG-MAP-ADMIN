@@ -32,6 +32,7 @@ import { FiExternalLink } from 'react-icons/fi'
 import { useState, useEffect } from 'react'
 import { commentService } from '../../services/commentService'
 import { formatDate } from '@/utils/date'
+import { getContentStatusBadge } from '@/utils/statusBadge'
 import { REPORT_REASON_LABELS, type ReportReason } from '../../types'
 import type { CommentReportWithDetails } from '../../services/commentReportService'
 
@@ -174,21 +175,6 @@ const CommentDetailModal = ({
     }
   }
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      active: { colorScheme: 'green', label: '활성' },
-      hidden: { colorScheme: 'yellow', label: '숨김' },
-      deleted: { colorScheme: 'red', label: '삭제' },
-      pending: { colorScheme: 'gray', label: '대기' },
-    }
-
-    const config = statusConfig[status as keyof typeof statusConfig] || {
-      colorScheme: 'gray',
-      label: status,
-    }
-
-    return <Badge colorScheme={config.colorScheme}>{config.label}</Badge>
-  }
 
 
   if (!isOpen || (!commentId && !existingCommentData)) return null
@@ -255,7 +241,7 @@ const CommentDetailModal = ({
                           )}
                         </VStack>
                       </HStack>
-                      {getStatusBadge(comment.status)}
+                      {getContentStatusBadge(comment.status as any)}
                     </HStack>
 
                     <Divider />
@@ -410,16 +396,6 @@ const CommentDetailModal = ({
 
         <ModalFooter>
           <HStack spacing={2}>
-            {currentStatus === 'hidden' && (
-              <Button
-                size='sm'
-                colorScheme='green'
-                onClick={() => handleStatusChange('active')}
-                isLoading={updateStatusMutation.isPending}
-              >
-                활성화
-              </Button>
-            )}
             {currentStatus === 'active' && (
               <Button
                 size='sm'
@@ -430,15 +406,21 @@ const CommentDetailModal = ({
                 숨기기
               </Button>
             )}
-            <Button
-              size='sm'
-              colorScheme='red'
-              onClick={() => handleStatusChange('deleted')}
-              isLoading={updateStatusMutation.isPending}
-              isDisabled={currentStatus === 'deleted'}
-            >
-              삭제
-            </Button>
+            {currentStatus === 'hidden' && (
+              <Button
+                size='sm'
+                colorScheme='green'
+                onClick={() => handleStatusChange('active')}
+                isLoading={updateStatusMutation.isPending}
+              >
+                활성화
+              </Button>
+            )}
+            {currentStatus === 'deleted' && (
+              <Text color='gray.500' fontSize='sm'>
+                사용자가 삭제한 댓글입니다. 관리자는 수정할 수 없습니다.
+              </Text>
+            )}
             <Button variant='outline' onClick={onClose} ml={3}>
               닫기
             </Button>

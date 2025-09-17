@@ -148,10 +148,36 @@ class CommentService {
   }
 
   /**
-   * 댓글 상태 업데이트
+   * 댓글 상태 업데이트 (관리자 권한 검증 포함)
    */
   async updateCommentStatus(id: string, status: string): Promise<void> {
     try {
+      // 현재 댓글 상태 확인
+      const { data: currentComment, error: fetchError } = await supabase
+        .from('community_comments_list')
+        .select('status')
+        .eq('id', id)
+        .single()
+
+      if (fetchError) {
+        console.error('댓글 조회 오류:', fetchError)
+        throw new Error('댓글을 찾을 수 없습니다.')
+      }
+
+      // 관리자 권한 검증
+      if (currentComment.status === 'deleted') {
+        throw new Error('사용자가 삭제한 댓글은 관리자가 수정할 수 없습니다.')
+      }
+
+      if (status === 'deleted') {
+        throw new Error('관리자는 댓글을 삭제할 수 없습니다. 숨김 처리를 사용하세요.')
+      }
+
+      // active ↔ hidden만 허용
+      if (!['active', 'hidden'].includes(status)) {
+        throw new Error('허용되지 않는 상태 변경입니다.')
+      }
+
       const { error } = await supabase
         .from('community_comments_list')
         .update({ status, updated_at: new Date().toISOString() })

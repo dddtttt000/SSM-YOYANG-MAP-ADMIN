@@ -31,7 +31,7 @@ import {
   REPORT_REASON_LABELS,
 } from '../../types'
 import { formatDate } from '@/utils/date'
-import { getPostStatusBadge } from '@/utils/statusBadge'
+import { getContentStatusBadge } from '@/utils/statusBadge'
 import { truncateText } from '@/utils/textUtils'
 
 interface CommunityReportListProps {
@@ -313,8 +313,8 @@ const CommunityReportList = ({ initialFilters = {} }: CommunityReportListProps) 
                   </VStack>
                 </Td>
                 <Td>
-                  {report.post?.status && getPostStatusBadge(report.post.status)}
-                  {report.comment?.status && getPostStatusBadge(report.comment.status)}
+                  {report.post?.status && getContentStatusBadge(report.post.status)}
+                  {report.comment?.status && getContentStatusBadge(report.comment.status)}
                   {!report.post && !report.comment && (
                     <Text fontSize='sm' color='gray.500'>
                       -
