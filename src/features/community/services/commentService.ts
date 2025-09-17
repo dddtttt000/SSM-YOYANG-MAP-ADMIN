@@ -23,6 +23,7 @@ export interface CommentWithPost extends CommunityComment {
 export interface CommunityCommentWithAuthor extends CommunityComment {
   members?: {
     nickname: string | null
+    profile_image: string | null
   } | null
   children?: CommunityCommentWithAuthor[]
   likes_count: number
@@ -120,7 +121,8 @@ class CommentService {
         .select(`
           *,
           members!community_comments_list_author_id_fkey (
-            nickname
+            nickname,
+            profile_image
           )
         `)
         .eq('post_id', postId)
@@ -211,7 +213,8 @@ class CommentService {
         .select(`
           *,
           members!community_comments_list_author_id_fkey (
-            nickname
+            nickname,
+            profile_image
           )
         `)
         .in('id', uniqueCommentIds)
@@ -270,7 +273,8 @@ class CommentService {
         .select(`
           *,
           members!community_comments_list_author_id_fkey (
-            nickname
+            nickname,
+            profile_image
           ),
           community_reports!community_reports_comment_id_fkey (
             id,

@@ -70,7 +70,11 @@ const CommentItem = ({ comment, depth = 0, onStatusChange, isLoading }: CommentI
           {/* 댓글 헤더 */}
           <HStack justify="space-between" align="flex-start">
             <HStack spacing={3}>
-              <Avatar size="sm" name={comment.members?.nickname || `User ${comment.author_id}`} />
+              <Avatar
+                size="sm"
+                src={comment.members?.profile_image || undefined}
+                name={comment.members?.nickname || `User ${comment.author_id}`}
+              />
               <VStack align="flex-start" spacing={0}>
                 <Text fontSize="sm" fontWeight="medium">
                   {comment.members?.nickname || `사용자 ${comment.author_id}`}

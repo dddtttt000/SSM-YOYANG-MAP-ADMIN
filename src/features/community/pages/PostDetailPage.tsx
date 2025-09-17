@@ -24,6 +24,7 @@ import {
   Tbody,
   Tr,
   Td,
+  Avatar,
 } from '@chakra-ui/react'
 import { FiArrowLeft } from 'react-icons/fi'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -145,58 +146,31 @@ const PostDetailPage = () => {
 
           <HStack spacing={2}>
             {post.status === 'active' && (
-              <>
-                <Button
-                  size='sm'
-                  colorScheme='yellow'
-                  variant='solid'
-                  onClick={() => handleStatusChange('hidden')}
-                  isLoading={updateStatusMutation.isPending}
-                >
-                  숨기기
-                </Button>
-                <Button
-                  size='sm'
-                  colorScheme='red'
-                  variant='solid'
-                  onClick={() => handleStatusChange('deleted')}
-                  isLoading={updateStatusMutation.isPending}
-                >
-                  삭제
-                </Button>
-              </>
+              <Button
+                size='sm'
+                colorScheme='yellow'
+                variant='solid'
+                onClick={() => handleStatusChange('hidden')}
+                isLoading={updateStatusMutation.isPending}
+              >
+                숨기기
+              </Button>
             )}
             {post.status === 'hidden' && (
-              <>
-                <Button
-                  size='sm'
-                  colorScheme='green'
-                  variant='solid'
-                  onClick={() => handleStatusChange('active')}
-                  isLoading={updateStatusMutation.isPending}
-                >
-                  활성화
-                </Button>
-                <Button
-                  size='sm'
-                  colorScheme='red'
-                  variant='solid'
-                  onClick={() => handleStatusChange('deleted')}
-                  isLoading={updateStatusMutation.isPending}
-                >
-                  삭제
-                </Button>
-              </>
+              <Button
+                size='sm'
+                colorScheme='green'
+                variant='solid'
+                onClick={() => handleStatusChange('active')}
+                isLoading={updateStatusMutation.isPending}
+              >
+                복원
+              </Button>
             )}
             {post.status === 'deleted' && (
-              <>
-                <Button size='sm' colorScheme='yellow' variant='solid' isDisabled cursor='not-allowed'>
-                  숨기기
-                </Button>
-                <Button size='sm' colorScheme='red' variant='solid' isDisabled cursor='not-allowed'>
-                  삭제
-                </Button>
-              </>
+              <Button size='sm' colorScheme='gray' variant='solid' isDisabled cursor='not-allowed'>
+                삭제된 게시글
+              </Button>
             )}
             {post.status === 'pending' && (
               <Button
@@ -285,7 +259,16 @@ const PostDetailPage = () => {
                     <Td fontWeight='semibold' bg={headerBg}>
                       작성자
                     </Td>
-                    <Td>{post.members?.nickname || post.author_id}</Td>
+                    <Td>
+                      <HStack spacing={3}>
+                        <Avatar
+                          size="sm"
+                          src={post.members?.profile_image || undefined}
+                          name={post.members?.nickname || `User ${post.author_id}`}
+                        />
+                        <Text>{post.members?.nickname || post.author_id}</Text>
+                      </HStack>
+                    </Td>
                   </Tr>
                   <Tr>
                     <Td fontWeight='semibold' bg={headerBg}>

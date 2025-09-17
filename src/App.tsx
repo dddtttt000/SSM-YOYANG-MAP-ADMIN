@@ -50,7 +50,11 @@ function App() {
             <Route path='service-inquiries' element={<ServiceInquiriesPage />} />
             <Route path='service-inquiries/:id' element={<ServiceInquiryDetailPage />} />
             <Route path='community' element={<CommunityManagementPage />} />
+            <Route path='community/posts' element={<CommunityManagementPage />} />
             <Route path='community/posts/:id' element={<PostDetailPage />} />
+            <Route path='community/reports/posts' element={<CommunityManagementPage />} />
+            <Route path='community/reports/comments' element={<CommunityManagementPage />} />
+            <Route path='community/stats' element={<CommunityManagementPage />} />
             {/* Only monitoring page uses Suspense */}
             <Route 
               path='monitoring' 
