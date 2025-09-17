@@ -29,7 +29,7 @@ import {
 } from '../../services/commentReportService'
 import { REPORT_REASON_LABELS } from '../../types'
 import { formatDate } from '@/utils/date'
-import { getPostStatusBadge } from '@/utils/statusBadge'
+import { getContentStatusBadge } from '@/utils/statusBadge'
 import { truncateText } from '@/utils/textUtils'
 import CommentDetailModal from '../comments/CommentDetailModal'
 
@@ -247,7 +247,7 @@ const CommentReportList = ({ initialFilters = {} }: CommentReportListProps) => {
                 </Td>
                 <Td>
                   {report.comment?.status ? (
-                    getPostStatusBadge(report.comment.status)
+                    getContentStatusBadge(report.comment.status)
                   ) : (
                     <Badge colorScheme='gray' size='sm'>
                       알 수 없음

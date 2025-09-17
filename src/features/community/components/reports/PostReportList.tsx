@@ -31,7 +31,7 @@ import {
   REPORT_REASON_LABELS,
 } from '../../types'
 import { formatDate } from '@/utils/date'
-import { getPostStatusBadge } from '@/utils/statusBadge'
+import { getContentStatusBadge } from '@/utils/statusBadge'
 import { truncateText } from '@/utils/textUtils'
 
 interface PostReportListProps {
@@ -247,7 +247,7 @@ const PostReportList = ({ initialFilters = {} }: PostReportListProps) => {
                 </Td>
                 <Td>
                   {report.post?.status ? (
-                    getPostStatusBadge(report.post.status)
+                    getContentStatusBadge(report.post.status)
                   ) : (
                     <Badge colorScheme='gray' size='sm'>
                       알 수 없음
