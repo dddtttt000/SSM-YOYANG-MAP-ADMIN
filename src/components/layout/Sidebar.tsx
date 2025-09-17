@@ -18,7 +18,7 @@ import {
   Portal,
 } from '@chakra-ui/react'
 import { Link, useLocation } from 'react-router-dom'
-import { FiHome, FiUsers, FiShield, FiMapPin, FiX, FiActivity, FiBell, FiHelpCircle, FiMessageSquare, FiMessageCircle, FiChevronDown, FiChevronRight, FiBarChart, FiEdit3, FiAlertTriangle } from 'react-icons/fi'
+import { FiHome, FiUsers, FiShield, FiMapPin, FiX, FiActivity, FiBell, FiHelpCircle, FiMessageSquare, FiMessageCircle, FiChevronDown, FiChevronRight, FiBarChart, FiEdit3, FiAlertTriangle, FiFlag } from 'react-icons/fi'
 import { useAuth } from "@/features/auth"
 import { usePermission } from '@/hooks/usePermission'
 import { useState, useEffect } from 'react'
@@ -114,13 +114,7 @@ const navItems: NavItem[] = [
       {
         name: '댓글 신고',
         path: '/community/reports/comments',
-        icon: FiMessageSquare,
-        requiredPermission: { resource: 'community', action: 'read' },
-      },
-      {
-        name: '통계',
-        path: '/community/stats',
-        icon: FiBarChart,
+        icon: FiFlag,
         requiredPermission: { resource: 'community', action: 'read' },
       },
     ],

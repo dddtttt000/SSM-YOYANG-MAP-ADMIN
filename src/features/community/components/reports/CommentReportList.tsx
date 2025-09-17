@@ -18,9 +18,9 @@ import {
   useColorModeValue,
   Button,
   Select,
+  useDisclosure,
 } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   commentReportService,
@@ -31,15 +31,17 @@ import { REPORT_REASON_LABELS } from '../../types'
 import { formatDate } from '@/utils/date'
 import { getPostStatusBadge } from '@/utils/statusBadge'
 import { truncateText } from '@/utils/textUtils'
+import CommentDetailModal from '../comments/CommentDetailModal'
 
 interface CommentReportListProps {
   initialFilters?: CommentReportFilters
 }
 
 const CommentReportList = ({ initialFilters = {} }: CommentReportListProps) => {
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [filters, setFilters] = useState<CommentReportFilters>({})
+  const [selectedReport, setSelectedReport] = useState<CommentReportWithDetails | null>(null)
+  const { isOpen: isDetailModalOpen, onOpen: onDetailModalOpen, onClose: onDetailModalClose } = useDisclosure()
 
   const borderColor = useColorModeValue('gray.200', 'gray.600')
   const hoverBg = useColorModeValue('gray.50', 'gray.700')
@@ -91,17 +93,14 @@ const CommentReportList = ({ initialFilters = {} }: CommentReportListProps) => {
   }
 
   const handleReportClick = (report: CommentReportWithDetails) => {
-    // 댓글이 속한 게시글로 이동하며 댓글 하이라이트
-    if (report.comment?.post_id) {
-      navigate(`/community/posts/${report.comment.post_id}`, {
-        state: {
-          from: 'comment-reports',
-          filters,
-          returnPath: '/community/reports/comments',
-          highlightCommentId: report.comment.id, // 댓글 하이라이트용
-        },
-      })
-    }
+    // 상세 모달 열기로 변경
+    setSelectedReport(report)
+    onDetailModalOpen()
+  }
+
+  const handleDetailModalClose = () => {
+    setSelectedReport(null)
+    onDetailModalClose()
   }
 
   if (isLoading) {
@@ -198,7 +197,6 @@ const CommentReportList = ({ initialFilters = {} }: CommentReportListProps) => {
         <Table variant='simple' size='sm'>
           <Thead>
             <Tr>
-              <Th>원본 게시글</Th>
               <Th>댓글 내용</Th>
               <Th>신고자</Th>
               <Th>신고 사유</Th>
@@ -216,26 +214,12 @@ const CommentReportList = ({ initialFilters = {} }: CommentReportListProps) => {
                 borderColor={borderColor}
                 onClick={() => handleReportClick(report)}
               >
-                {/* 원본 게시글 컬럼 */}
-                <Td maxW='250px'>
-                  {report.comment?.post_title ? (
-                    <Tooltip label={report.comment.post_title}>
-                      <Text fontSize='sm' color='blue.600' fontWeight='medium' lineHeight='1.4'>
-                        {truncateText(report.comment.post_title, 35)}
-                      </Text>
-                    </Tooltip>
-                  ) : (
-                    <Text fontSize='sm' color='gray.500'>
-                      삭제된 게시글
-                    </Text>
-                  )}
-                </Td>
                 {/* 댓글 내용 컬럼 */}
-                <Td maxW='250px'>
+                <Td maxW='300px'>
                   {report.comment ? (
                     <Tooltip label={report.comment.content}>
                       <Text fontSize='sm' lineHeight='1.4' color='gray.700'>
-                        {truncateText(report.comment.content, 40)}
+                        {truncateText(report.comment.content, 50)}
                       </Text>
                     </Tooltip>
                   ) : (
@@ -304,6 +288,15 @@ const CommentReportList = ({ initialFilters = {} }: CommentReportListProps) => {
           </VStack>
         </Box>
       )}
+
+      {/* 댓글 상세 모달 */}
+      <CommentDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={handleDetailModalClose}
+        commentId={selectedReport?.comment?.id || null}
+        mode="report"
+        existingCommentData={selectedReport}
+      />
     </Box>
   )
 }

@@ -52,6 +52,7 @@ function App() {
             <Route path='community' element={<CommunityManagementPage />} />
             <Route path='community/posts' element={<CommunityManagementPage />} />
             <Route path='community/posts/:id' element={<PostDetailPage />} />
+            <Route path='community/comments' element={<CommunityManagementPage />} />
             <Route path='community/reports/posts' element={<CommunityManagementPage />} />
             <Route path='community/reports/comments' element={<CommunityManagementPage />} />
             <Route path='community/stats' element={<CommunityManagementPage />} />

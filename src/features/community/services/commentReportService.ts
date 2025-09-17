@@ -22,6 +22,7 @@ export interface CommentReportWithDetails extends CommentReport {
     content: string
     author_id: number
     author_nickname: string | null
+    author_profile_image: string | null
     post_id: string
     post_title: string | null
     status: PostStatus
@@ -197,7 +198,8 @@ class CommentReportService {
             post_id,
             status,
             members!community_comments_list_author_id_fkey (
-              nickname
+              nickname,
+              profile_image
             ),
             community_writing_list!community_comments_list_post_id_fkey (
               id,
@@ -213,6 +215,7 @@ class CommentReportService {
               content: comment.content,
               author_id: comment.author_id,
               author_nickname: (comment as any).members?.nickname || null,
+              author_profile_image: (comment as any).members?.profile_image || null,
               post_id: comment.post_id,
               post_title: (comment as any).community_writing_list?.title || null,
               status: comment.status,
