@@ -1,6 +1,5 @@
 export { postService } from './postService'
 export { commentService } from './commentService'
-export { reportService } from './reportService'
 export { statsService } from './statsService'
 
 export type {
@@ -13,11 +12,6 @@ export type {
   CommentWithPost,
 } from './commentService'
 
-export type {
-  ReportFilters,
-  CommunityReport,
-  CommunityReportWithDetails,
-} from './reportService'
 
 export type {
   CommunityStats,
