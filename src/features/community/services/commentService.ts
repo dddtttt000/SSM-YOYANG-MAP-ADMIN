@@ -180,7 +180,7 @@ class CommentService {
 
       const { error } = await supabase
         .from('community_comments_list')
-        .update({ status, updated_at: new Date().toISOString() })
+        .update({ status })
         .eq('id', id)
 
       if (error) {

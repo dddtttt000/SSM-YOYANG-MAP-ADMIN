@@ -178,7 +178,7 @@ class PostService {
 
       const { error } = await supabase
         .from('community_writing_list')
-        .update({ status, updated_at: new Date().toISOString() })
+        .update({ status })
         .eq('id', id)
 
       if (error) {
