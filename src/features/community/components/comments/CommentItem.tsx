@@ -98,7 +98,7 @@ const CommentItem = ({ comment, depth = 0, onStatusChange, isLoading }: CommentI
                     <>
                       {comment.status === 'hidden' && (
                         <MenuItem onClick={() => handleStatusChange('active')}>
-                          활성화
+                          복원
                         </MenuItem>
                       )}
                       {comment.status === 'active' && (
