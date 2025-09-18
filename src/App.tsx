@@ -15,6 +15,7 @@ import AnnouncementsPage from '@/features/announcements/pages/AnnouncementsPage'
 import QuestionsPage from '@/features/questions/pages/QuestionsPage'
 import ServiceInquiriesPage from '@/features/service-inquiries/pages/ServiceInquiriesPage'
 import ServiceInquiryDetailPage from '@/features/service-inquiries/pages/ServiceInquiryDetailPage'
+import { CommunityManagementPage, PostDetailPage } from '@/features/community'
 
 // Less frequently used pages - keep lazy loading
 const MonitoringPage = lazy(() => import('@/features/monitoring/pages/MonitoringPage'))
@@ -48,6 +49,11 @@ function App() {
             <Route path='questions' element={<QuestionsPage />} />
             <Route path='service-inquiries' element={<ServiceInquiriesPage />} />
             <Route path='service-inquiries/:id' element={<ServiceInquiryDetailPage />} />
+            <Route path='community' element={<CommunityManagementPage />} />
+            <Route path='community/posts' element={<CommunityManagementPage />} />
+            <Route path='community/posts/:id' element={<PostDetailPage />} />
+            <Route path='community/reports/posts' element={<CommunityManagementPage />} />
+            <Route path='community/reports/comments' element={<CommunityManagementPage />} />
             {/* Only monitoring page uses Suspense */}
             <Route 
               path='monitoring' 
