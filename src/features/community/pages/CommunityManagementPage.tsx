@@ -3,11 +3,6 @@ import { useLocation } from 'react-router-dom'
 import {
   Box,
   Heading,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
   Flex,
   Spacer,
   useColorModeValue,
@@ -21,19 +16,16 @@ import {
 } from '@chakra-ui/react'
 import PostManagementTable from '../components/posts/PostManagementTable'
 import PostFilters from '../components/posts/PostFilters'
-import CommunityReportList from '../components/reports/CommunityReportList'
 import PostReportList from '../components/reports/PostReportList'
 import CommentReportList from '../components/reports/CommentReportList'
 import CommunityStats from '../components/stats/CommunityStats'
 import { dashboardService } from '../services/dashboardService'
-import type { PostFilters as PostFiltersType, ReportFilters } from '../services'
+import type { PostFilters as PostFiltersType } from '../services'
 import { useQuery } from '@tanstack/react-query'
 
 const CommunityManagementPage = () => {
   const location = useLocation()
-  const [selectedTab, setSelectedTab] = useState(0)
   const [postFilters, setPostFilters] = useState<PostFiltersType>({})
-  const [reportFilters, setReportFilters] = useState<ReportFilters>({})
   const bgColor = useColorModeValue('gray.50', 'gray.900')
   const cardBg = useColorModeValue('white', 'gray.800')
 
@@ -48,20 +40,6 @@ const CommunityManagementPage = () => {
     refetchInterval: 10 * 60 * 1000, // 10분마다 자동 갱신
   })
 
-  // 뒤로가기에서 전달받은 state 처리
-  useEffect(() => {
-    const state = location.state
-    if (state?.activeTab !== undefined) {
-      setSelectedTab(state.activeTab)
-    }
-    if (state?.reportFilters) {
-      setReportFilters(state.reportFilters)
-    }
-    // location state를 처리한 후 정리
-    if (state) {
-      window.history.replaceState({}, document.title)
-    }
-  }, [location.state])
 
   // 경로 변경 시 스크롤을 맨 위로 이동
   useEffect(() => {
@@ -193,36 +171,11 @@ const CommunityManagementPage = () => {
         )
 
       default:
-        // 기존 탭 기반 UI (fallback)
         return (
-          <Tabs index={selectedTab} onChange={setSelectedTab} colorScheme='blue'>
-            <TabList>
-              <Tab>게시글 관리</Tab>
-              <Tab>신고 관리</Tab>
-              <Tab>통계</Tab>
-            </TabList>
-
-            <TabPanels>
-              <TabPanel>
-                <Box>
-                  <PostFilters onFiltersChange={setPostFilters} initialFilters={postFilters} />
-                  <PostManagementTable filters={postFilters} onFiltersChange={setPostFilters} />
-                </Box>
-              </TabPanel>
-
-              <TabPanel>
-                <Box>
-                  <CommunityReportList initialFilters={reportFilters} />
-                </Box>
-              </TabPanel>
-
-              <TabPanel>
-                <Box>
-                  <CommunityStats />
-                </Box>
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
+          <Box>
+            <PostFilters onFiltersChange={setPostFilters} initialFilters={postFilters} />
+            <PostManagementTable filters={postFilters} onFiltersChange={setPostFilters} />
+          </Box>
         )
     }
   }
