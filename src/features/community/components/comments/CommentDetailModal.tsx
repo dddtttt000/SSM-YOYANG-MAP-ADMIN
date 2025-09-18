@@ -413,7 +413,7 @@ const CommentDetailModal = ({
                 onClick={() => handleStatusChange('active')}
                 isLoading={updateStatusMutation.isPending}
               >
-                활성화
+                복원
               </Button>
             )}
             {currentStatus === 'deleted' && (
