@@ -1,13 +1,16 @@
 import { supabase } from '@/lib/supabase'
-import type { 
-  ServiceInquiryWithResponse, 
+import type {
+  ServiceInquiryWithResponse,
   ServiceInquiryDetail,
   CreateInquiryResponse,
   InquiryFilters,
-  InquirySorting,
-  InquiryPagination
+  InquirySorting
 } from '../types/inquiry.types'
 import type { InquiryResponse } from '@/types/database.types'
+import {
+  type PaginatedResponse,
+  calculatePagination
+} from '@/types/pagination'
 
 class InquiryService {
   /**
@@ -18,7 +21,7 @@ class InquiryService {
     limit: number = 20,
     filters?: InquiryFilters,
     sorting?: InquirySorting
-  ): Promise<{ data: ServiceInquiryWithResponse[]; pagination: InquiryPagination }> {
+  ): Promise<PaginatedResponse<ServiceInquiryWithResponse>> {
     try {
       let query = supabase
         .from('service_inquiries')
@@ -66,14 +69,13 @@ class InquiryService {
         })
       )
 
-      const pagination: InquiryPagination = {
-        page,
-        limit,
-        total: count || 0,
-        totalPages: Math.ceil((count || 0) / limit)
-      }
+      const totalCount = count || 0
+      const pagination = calculatePagination(page, limit, totalCount)
 
-      return { data: dataWithResponseCount, pagination }
+      return {
+        data: dataWithResponseCount,
+        pagination,
+      }
     } catch (error) {
       console.error('서비스 문의 목록 조회 중 오류 발생:', error)
       throw error

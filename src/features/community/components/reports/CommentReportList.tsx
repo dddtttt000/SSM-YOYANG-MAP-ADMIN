@@ -25,6 +25,8 @@ import {
   type CommentReportWithDetails,
   type CommentReportFilters,
 } from '../../services/commentReportService'
+import { DEFAULT_PAGE_SIZE } from '@/types/pagination'
+import Pagination from '@/components/common/Pagination'
 import { REPORT_REASON_LABELS } from '../../types'
 import { formatDate } from '@/utils/date'
 import { getContentStatusBadge } from '@/utils/statusBadge'
@@ -123,7 +125,10 @@ const CommentReportRow = memo(({
 
 const CommentReportList = ({ initialFilters = {} }: CommentReportListProps) => {
   const queryClient = useQueryClient()
-  const [filters, setFilters] = useState<CommentReportFilters>({})
+  const [filters, setFilters] = useState<CommentReportFilters>({
+    page: 1,
+    pageSize: DEFAULT_PAGE_SIZE,
+  })
   const [selectedReport, setSelectedReport] = useState<CommentReportWithDetails | null>(null)
   const { isOpen: isDetailModalOpen, onOpen: onDetailModalOpen, onClose: onDetailModalClose } = useDisclosure()
 
@@ -133,12 +138,15 @@ const CommentReportList = ({ initialFilters = {} }: CommentReportListProps) => {
   // 초기 필터 적용
   useEffect(() => {
     if (initialFilters && Object.keys(initialFilters).length > 0) {
-      setFilters(initialFilters)
+      setFilters(prev => ({
+        ...prev,
+        ...initialFilters,
+      }))
     }
   }, [initialFilters])
 
   const {
-    data: reports,
+    data: reportsResponse,
     isLoading,
     error,
   } = useQuery({
@@ -147,6 +155,9 @@ const CommentReportList = ({ initialFilters = {} }: CommentReportListProps) => {
     retry: 1,
     staleTime: 5000,
   })
+
+  const reports = reportsResponse?.data || []
+  const pagination = reportsResponse?.pagination
 
   const { data: stats } = useQuery({
     queryKey: ['commentReportStats'],
@@ -172,6 +183,22 @@ const CommentReportList = ({ initialFilters = {} }: CommentReportListProps) => {
     setFilters(prev => ({
       ...prev,
       [key]: value === '' ? undefined : value,
+      page: 1, // 필터 변경 시 첫 페이지로 이동
+    }))
+  }, [])
+
+  const handlePageChange = useCallback((page: number) => {
+    setFilters(prev => ({
+      ...prev,
+      page,
+    }))
+  }, [])
+
+  const handlePageSizeChange = useCallback((pageSize: number) => {
+    setFilters(prev => ({
+      ...prev,
+      pageSize,
+      page: 1, // 페이지 크기 변경 시 첫 페이지로 이동
     }))
   }, [])
 
@@ -193,7 +220,7 @@ const CommentReportList = ({ initialFilters = {} }: CommentReportListProps) => {
       <ReportFilters<CommentReportFilters>
         filters={filters}
         onFiltersChange={handleFilterChange}
-        onClearFilters={() => setFilters({})}
+        onClearFilters={() => setFilters({ page: 1, pageSize: DEFAULT_PAGE_SIZE })}
       />
 
       {/* 댓글 신고 목록 테이블 */}
@@ -243,7 +270,7 @@ const CommentReportList = ({ initialFilters = {} }: CommentReportListProps) => {
                 </Td>
               </Tr>
             ) : (
-              reports?.map((report: CommentReportWithDetails) => (
+              reports.map((report: CommentReportWithDetails) => (
                 <CommentReportRow
                   key={report.id}
                   report={report}
@@ -259,6 +286,15 @@ const CommentReportList = ({ initialFilters = {} }: CommentReportListProps) => {
         </Table>
       </Box>
 
+      {/* 페이지네이션 */}
+      {pagination && (
+        <Pagination
+          pagination={pagination}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          isLoading={isLoading}
+        />
+      )}
 
       {/* 댓글 상세 모달 */}
       <CommentDetailModal

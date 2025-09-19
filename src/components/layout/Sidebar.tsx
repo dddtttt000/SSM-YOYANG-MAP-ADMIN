@@ -165,17 +165,34 @@ const SidebarContent = ({ onClose, isOpen, isInDrawer }: { onClose?: () => void;
     }))
   }
 
+  // 게시글 상세 페이지 진입 경로 감지 함수
+  const getActiveMenuPath = (location: any) => {
+    const currentPath = location.pathname
+    const state = location.state as any
+
+    // 게시글 상세 페이지인 경우 진입 경로 고려
+    if (currentPath.startsWith('/community/posts/')) {
+      if (state?.from === 'post-reports') {
+        return '/community/reports/posts'
+      }
+      return '/community/posts'
+    }
+
+    return currentPath
+  }
+
   // 현재 경로에 해당하는 메뉴 자동 확장
   useEffect(() => {
+    const activePath = getActiveMenuPath(location)
     navItems.forEach(item => {
-      if (item.subItems && location.pathname.startsWith(item.path)) {
+      if (item.subItems && activePath.startsWith(item.path)) {
         setExpandedMenus(prev => ({
           ...prev,
           [item.path]: true
         }))
       }
     })
-  }, [location.pathname])
+  }, [location])
 
   const filteredNavItems = navItems.filter(item => {
     if (!item.requiredPermission) return true
@@ -269,7 +286,8 @@ const SidebarContent = ({ onClose, isOpen, isInDrawer }: { onClose?: () => void;
                               return null
                             }
 
-                            const isSubActive = location.pathname === subItem.path
+                            const activePath = getActiveMenuPath(location)
+                            const isSubActive = activePath === subItem.path
                             return (
                               <Link key={subItem.path} to={subItem.path}>
                                 <Flex
@@ -340,7 +358,8 @@ const SidebarContent = ({ onClose, isOpen, isInDrawer }: { onClose?: () => void;
                         return null
                       }
 
-                      const isSubActive = location.pathname === subItem.path
+                      const activePath = getActiveMenuPath(location)
+                      const isSubActive = activePath === subItem.path
                       return (
                         <Link key={subItem.path} to={subItem.path}>
                           <Flex

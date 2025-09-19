@@ -6,17 +6,29 @@ import { usePermission } from '@/hooks/usePermission'
 import AdminUserTable from '../components/AdminUserTable'
 import AdminUserModal from '../components/AdminUserModal'
 import AdminUserFilters from '../components/AdminUserFilters'
+import Pagination from '@/components/common/Pagination'
 import { AdminUser } from '@/types/database.types'
 import { AdminUserFilters as Filters } from '../services/adminUserService'
 
 const AdminUsersPage = () => {
   const { canCreate } = usePermission()
-  const [filters, setFilters] = useState<Filters>({})
-  const { data: adminUsers, isLoading } = useAdminUsers(filters)
+  const [filters, setFilters] = useState<Filters>({
+    page: 1,
+    pageSize: 20,
+  })
+  const { data: adminUsersData, isLoading } = useAdminUsers(filters)
 
   const { isOpen: isUserModalOpen, onOpen: onUserModalOpen, onClose: onUserModalClose } = useDisclosure()
 
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null)
+
+  const handlePageChange = (page: number) => {
+    setFilters({ ...filters, page })
+  }
+
+  const handlePageSizeChange = (pageSize: number) => {
+    setFilters({ ...filters, page: 1, pageSize })
+  }
 
   const handleAddUser = () => {
     setSelectedUser(null)
@@ -51,10 +63,25 @@ const AdminUsersPage = () => {
               <AdminUserFilters filters={filters} onFiltersChange={setFilters} />
 
               <AdminUserTable
-                adminUsers={adminUsers || []}
+                adminUsers={adminUsersData?.data || []}
                 isLoading={isLoading}
                 onEdit={handleEditUser}
               />
+
+              {adminUsersData && (
+                <Pagination
+                  pagination={{
+                    currentPage: adminUsersData.pagination.currentPage,
+                    pageSize: adminUsersData.pagination.pageSize,
+                    totalCount: adminUsersData.pagination.totalCount,
+                    totalPages: adminUsersData.pagination.totalPages,
+                    hasNext: adminUsersData.pagination.hasNext,
+                    hasPrevious: adminUsersData.pagination.hasPrevious,
+                  }}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                />
+              )}
             </VStack>
           </CardBody>
         </Card>

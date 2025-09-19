@@ -180,12 +180,16 @@ const PostManagementTable = ({ filters, onFiltersChange }: PostManagementTablePr
 
       {postsResponse && postsResponse.totalCount > 0 && (
         <Pagination
-          currentPage={filters?.page || 1}
-          totalPages={postsResponse.totalPages}
+          pagination={{
+            currentPage: filters?.page || 1,
+            pageSize: filters?.pageSize || 10,
+            totalCount: postsResponse.totalCount,
+            totalPages: postsResponse.totalPages,
+            hasNext: (filters?.page || 1) < postsResponse.totalPages,
+            hasPrevious: (filters?.page || 1) > 1,
+          }}
           onPageChange={handlePageChange}
-          pageSize={filters?.pageSize || 10}
           onPageSizeChange={handlePageSizeChange}
-          totalItems={postsResponse.totalCount}
         />
       )}
     </Box>

@@ -36,6 +36,8 @@ export interface AnnouncementFilters {
   isImportant?: boolean
   search?: string
   category?: AnnouncementCategory
+  page?: number
+  pageSize?: number
 }
 
 // 공지사항 폼 상태 타입
