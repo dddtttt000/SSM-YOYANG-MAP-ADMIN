@@ -7,6 +7,12 @@ import type {
   AnnouncementError,
   AnnouncementCategory,
 } from '../types'
+import {
+  type PaginatedResponse,
+  calculatePagination,
+  calculateRange,
+  DEFAULT_PAGE_SIZE
+} from '@/types/pagination'
 
 type AnnouncementInsert = Database['public']['Tables']['announcements']['Insert']
 type AnnouncementUpdate = Database['public']['Tables']['announcements']['Update']
@@ -15,9 +21,16 @@ class AnnouncementService {
   /**
    * 공지사항 목록 조회
    */
-  async getAnnouncements(filters?: AnnouncementFilters): Promise<Announcement[]> {
+  async getAnnouncements(filters?: AnnouncementFilters): Promise<PaginatedResponse<Announcement>> {
     try {
-      let query = supabase.from('announcements').select('*').order('created_at', { ascending: false })
+      const page = filters?.page || 1
+      const pageSize = filters?.pageSize || DEFAULT_PAGE_SIZE
+      const { from, to } = calculateRange(page, pageSize)
+
+      let query = supabase
+        .from('announcements')
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false })
 
       // 필터 적용
       if (filters?.isActive !== undefined) {
@@ -36,7 +49,9 @@ class AnnouncementService {
         query = query.eq('category', filters.category)
       }
 
-      const { data, error } = await query
+      query = query.range(from, to)
+
+      const { data, error, count } = await query
 
       if (error) {
         console.error('공지사항 목록 조회 오류:', error)
@@ -47,7 +62,13 @@ class AnnouncementService {
         throw announcementError
       }
 
-      return data || []
+      const totalCount = count || 0
+      const pagination = calculatePagination(page, pageSize, totalCount)
+
+      return {
+        data: data || [],
+        pagination,
+      }
     } catch (error) {
       console.error('공지사항 목록 조회 중 오류 발생:', error)
       throw error

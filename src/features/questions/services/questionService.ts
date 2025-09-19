@@ -1,15 +1,25 @@
 import { supabase } from '@/lib/supabase'
 import type { Question, CreateQuestionData, UpdateQuestionData, QuestionFilters } from '../types'
+import {
+  type PaginatedResponse,
+  calculatePagination,
+  calculateRange,
+  DEFAULT_PAGE_SIZE
+} from '@/types/pagination'
 
 class QuestionService {
   /**
    * FAQ 목록 조회
    */
-  async getQuestions(filters?: QuestionFilters): Promise<Question[]> {
+  async getQuestions(filters?: QuestionFilters): Promise<PaginatedResponse<Question>> {
     try {
+      const page = filters?.page || 1
+      const pageSize = filters?.pageSize || DEFAULT_PAGE_SIZE
+      const { from, to } = calculateRange(page, pageSize)
+
       let query = supabase
         .from('questions')
-        .select('*')
+        .select('*', { count: 'exact' })
         .order('created_at', { ascending: false })
 
       // 카테고리 필터
@@ -22,14 +32,22 @@ class QuestionService {
         query = query.or(`title.ilike.%${filters.search}%,content.ilike.%${filters.search}%`)
       }
 
-      const { data, error } = await query
+      query = query.range(from, to)
+
+      const { data, error, count } = await query
 
       if (error) {
         console.error('FAQ 목록 조회 오류:', error)
         throw new Error('FAQ 목록을 불러오는데 실패했습니다.')
       }
 
-      return data || []
+      const totalCount = count || 0
+      const pagination = calculatePagination(page, pageSize, totalCount)
+
+      return {
+        data: data || [],
+        pagination,
+      }
     } catch (error) {
       console.error('FAQ 목록 조회 중 오류 발생:', error)
       throw error

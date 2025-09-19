@@ -26,6 +26,7 @@ import { AddIcon } from '@chakra-ui/icons'
 import AnnouncementFormModal from '../components/AnnouncementFormModal'
 import AnnouncementTable from '../components/AnnouncementTable'
 import AnnouncementFiltersComponent from '../components/AnnouncementFilters'
+import Pagination from '@/components/common/Pagination'
 import { useState } from 'react'
 import { announcementService } from '../services/announcementService'
 import type { Announcement } from '@/types/database.types'
@@ -38,7 +39,10 @@ const AnnouncementsPage = () => {
   const toast = useToast()
   const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null)
   const [deletingAnnouncementId, setDeletingAnnouncementId] = useState<number | null>(null)
-  const [filters, setFilters] = useState<AnnouncementFilters>({})
+  const [filters, setFilters] = useState<AnnouncementFilters>({
+    page: 1,
+    pageSize: 20,
+  })
   const { user } = useAuth()
   const queryClient = useQueryClient()
 
@@ -176,8 +180,16 @@ const AnnouncementsPage = () => {
     setDeletingAnnouncementId(null)
   }
 
+  const handlePageChange = (page: number) => {
+    setFilters({ ...filters, page })
+  }
+
+  const handlePageSizeChange = (pageSize: number) => {
+    setFilters({ ...filters, page: 1, pageSize })
+  }
+
   const handleFiltersChange = (newFilters: AnnouncementFilters) => {
-    setFilters(newFilters)
+    setFilters({ ...newFilters, page: 1, pageSize: filters.pageSize })
   }
 
   return (
@@ -222,14 +234,29 @@ const AnnouncementsPage = () => {
               </Alert>
             ) : (
               <VStack align='stretch' spacing='4'>
-                {announcementsData && announcementsData.length > 0 && (
+                {announcementsData && announcementsData.data.length > 0 && (
                   <Box>
                     <Text fontSize='sm' color='gray.600' mb='4'>
-                      총 {announcementsData.length}개의 공지사항
+                      총 {announcementsData.pagination.totalCount}개의 공지사항
                     </Text>
                   </Box>
                 )}
-                <AnnouncementTable announcements={announcementsData || []} onEdit={handleEdit} />
+                <AnnouncementTable announcements={announcementsData?.data || []} onEdit={handleEdit} />
+
+                {announcementsData && (
+                  <Pagination
+                    pagination={{
+                      currentPage: announcementsData.pagination.currentPage,
+                      pageSize: announcementsData.pagination.pageSize,
+                      totalCount: announcementsData.pagination.totalCount,
+                      totalPages: announcementsData.pagination.totalPages,
+                      hasNext: announcementsData.pagination.hasNext,
+                      hasPrevious: announcementsData.pagination.hasPrevious,
+                    }}
+                    onPageChange={handlePageChange}
+                    onPageSizeChange={handlePageSizeChange}
+                  />
+                )}
               </VStack>
             )}
           </CardBody>

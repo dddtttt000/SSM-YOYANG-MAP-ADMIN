@@ -1,5 +1,11 @@
 import { supabase } from '@/lib/supabase'
 import { type ReportReason, type ReportStatus, type PostStatus } from '../types'
+import {
+  type PaginatedResponse,
+  calculatePagination,
+  calculateRange,
+  DEFAULT_PAGE_SIZE
+} from '@/types/pagination'
 
 export interface PostReport {
   id: string
@@ -35,17 +41,24 @@ export interface PostReportFilters {
   startDate?: string
   endDate?: string
   search?: string
+  page?: number
+  pageSize?: number
 }
 
 class PostReportService {
   /**
-   * 게시글 신고 목록 조회
+   * 게시글 신고 목록 조회 (페이지네이션 지원)
    */
-  async getPostReports(filters?: PostReportFilters): Promise<PostReportWithDetails[]> {
+  async getPostReports(filters?: PostReportFilters): Promise<PaginatedResponse<PostReportWithDetails>> {
     try {
+      const page = filters?.page || 1
+      const pageSize = filters?.pageSize || DEFAULT_PAGE_SIZE
+      const { from, to } = calculateRange(page, pageSize)
+
+      // 기본 쿼리 설정 (count 포함)
       let query = supabase
         .from('community_reports')
-        .select('*')
+        .select('*', { count: 'exact' })
         .not('post_id', 'is', null) // 게시글 신고만
         .order('created_at', { ascending: false })
 
@@ -62,7 +75,10 @@ class PostReportService {
         query = query.gte('created_at', filters.startDate).lte('created_at', filters.endDate)
       }
 
-      const { data, error } = await query
+      // 페이지네이션 적용
+      query = query.range(from, to)
+
+      const { data, error, count } = await query
 
       if (error) {
         console.error('게시글 신고 목록 조회 오류:', error)
@@ -70,7 +86,16 @@ class PostReportService {
       }
 
       // 게시글 정보 추가
-      return await this.enrichPostReportsWithContent(data || [])
+      const enrichedData = await this.enrichPostReportsWithContent(data || [])
+
+      // 페이지네이션 정보 계산
+      const totalCount = count || 0
+      const pagination = calculatePagination(page, pageSize, totalCount)
+
+      return {
+        data: enrichedData,
+        pagination,
+      }
     } catch (error) {
       console.error('PostReportService.getPostReports 오류:', error)
       throw error

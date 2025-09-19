@@ -25,6 +25,8 @@ import {
   type PostReportWithDetails,
   type PostReportFilters,
 } from '../../services/postReportService'
+import { DEFAULT_PAGE_SIZE } from '@/types/pagination'
+import Pagination from '@/components/common/Pagination'
 import {
   REPORT_REASON_LABELS,
 } from '../../types'
@@ -124,7 +126,10 @@ const PostReportRow = memo(({
 const PostReportList = ({ initialFilters = {} }: PostReportListProps) => {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const [filters, setFilters] = useState<PostReportFilters>({})
+  const [filters, setFilters] = useState<PostReportFilters>({
+    page: 1,
+    pageSize: DEFAULT_PAGE_SIZE,
+  })
 
   const borderColor = useColorModeValue('gray.200', 'gray.600')
   const hoverBg = useColorModeValue('gray.50', 'gray.700')
@@ -132,12 +137,15 @@ const PostReportList = ({ initialFilters = {} }: PostReportListProps) => {
   // 초기 필터 적용
   useEffect(() => {
     if (initialFilters && Object.keys(initialFilters).length > 0) {
-      setFilters(initialFilters)
+      setFilters(prev => ({
+        ...prev,
+        ...initialFilters,
+      }))
     }
   }, [initialFilters])
 
   const {
-    data: reports,
+    data: reportsResponse,
     isLoading,
     error,
   } = useQuery({
@@ -146,6 +154,9 @@ const PostReportList = ({ initialFilters = {} }: PostReportListProps) => {
     retry: 1,
     staleTime: 5000,
   })
+
+  const reports = reportsResponse?.data || []
+  const pagination = reportsResponse?.pagination
 
   const { data: stats } = useQuery({
     queryKey: ['postReportStats'],
@@ -171,6 +182,22 @@ const PostReportList = ({ initialFilters = {} }: PostReportListProps) => {
     setFilters(prev => ({
       ...prev,
       [key]: value === '' ? undefined : value,
+      page: 1, // 필터 변경 시 첫 페이지로 이동
+    }))
+  }, [])
+
+  const handlePageChange = useCallback((page: number) => {
+    setFilters(prev => ({
+      ...prev,
+      page,
+    }))
+  }, [])
+
+  const handlePageSizeChange = useCallback((pageSize: number) => {
+    setFilters(prev => ({
+      ...prev,
+      pageSize,
+      page: 1, // 페이지 크기 변경 시 첫 페이지로 이동
     }))
   }, [])
 
@@ -193,7 +220,7 @@ const PostReportList = ({ initialFilters = {} }: PostReportListProps) => {
       <ReportFilters<PostReportFilters>
         filters={filters}
         onFiltersChange={handleFilterChange}
-        onClearFilters={() => setFilters({})}
+        onClearFilters={() => setFilters({ page: 1, pageSize: DEFAULT_PAGE_SIZE })}
       />
 
       {/* 게시글 신고 목록 테이블 */}
@@ -227,7 +254,7 @@ const PostReportList = ({ initialFilters = {} }: PostReportListProps) => {
                   </Alert>
                 </Td>
               </Tr>
-            ) : reports?.length === 0 ? (
+            ) : reports.length === 0 ? (
               <Tr>
                 <Td colSpan={6}>
                   <Box textAlign='center' py={10}>
@@ -243,7 +270,7 @@ const PostReportList = ({ initialFilters = {} }: PostReportListProps) => {
                 </Td>
               </Tr>
             ) : (
-              reports?.map((report: PostReportWithDetails) => (
+              reports.map((report: PostReportWithDetails) => (
                 <PostReportRow
                   key={report.id}
                   report={report}
@@ -258,6 +285,16 @@ const PostReportList = ({ initialFilters = {} }: PostReportListProps) => {
           </Tbody>
         </Table>
       </Box>
+
+      {/* 페이지네이션 */}
+      {pagination && (
+        <Pagination
+          pagination={pagination}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          isLoading={isLoading}
+        />
+      )}
     </Box>
   )
 }

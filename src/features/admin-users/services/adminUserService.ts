@@ -1,9 +1,17 @@
 import { supabase } from '@/lib/supabase'
+import {
+  type PaginatedResponse,
+  calculatePagination,
+  calculateRange,
+  DEFAULT_PAGE_SIZE
+} from '@/types/pagination'
 
 export interface AdminUserFilters {
   role?: 'super_admin' | 'admin'
   isActive?: boolean
   search?: string
+  page?: number
+  pageSize?: number
 }
 
 export interface CreateAdminUserDto {
@@ -20,28 +28,46 @@ export interface UpdateAdminUserDto {
 }
 
 class AdminUserService {
-  async getAdminUsers(filters?: AdminUserFilters) {
-    let query = supabase
-      .from('admin_users')
-      .select('id, email, name, role, supabase_user_id, last_login_at, is_active, created_at, updated_at')
-      .order('created_at', { ascending: false })
+  async getAdminUsers(filters?: AdminUserFilters): Promise<PaginatedResponse<any>> {
+    try {
+      const page = filters?.page || 1
+      const pageSize = filters?.pageSize || DEFAULT_PAGE_SIZE
+      const { from, to } = calculateRange(page, pageSize)
 
-    if (filters?.role) {
-      query = query.eq('role', filters.role)
+      let query = supabase
+        .from('admin_users')
+        .select('id, email, name, role, supabase_user_id, last_login_at, is_active, created_at, updated_at', { count: 'exact' })
+        .order('created_at', { ascending: false })
+
+      if (filters?.role) {
+        query = query.eq('role', filters.role)
+      }
+
+      if (filters?.isActive !== undefined) {
+        query = query.eq('is_active', filters.isActive)
+      }
+
+      if (filters?.search) {
+        query = query.or(`name.ilike.%${filters.search}%,email.ilike.%${filters.search}%`)
+      }
+
+      query = query.range(from, to)
+
+      const { data, error, count } = await query
+
+      if (error) throw error
+
+      const totalCount = count || 0
+      const pagination = calculatePagination(page, pageSize, totalCount)
+
+      return {
+        data: data || [],
+        pagination,
+      }
+    } catch (error) {
+      console.error('AdminUserService.getAdminUsers 오류:', error)
+      throw error
     }
-
-    if (filters?.isActive !== undefined) {
-      query = query.eq('is_active', filters.isActive)
-    }
-
-    if (filters?.search) {
-      query = query.or(`name.ilike.%${filters.search}%,email.ilike.%${filters.search}%`)
-    }
-
-    const { data, error } = await query
-
-    if (error) throw error
-    return data
   }
 
   async getAdminUserById(id: number | string) {

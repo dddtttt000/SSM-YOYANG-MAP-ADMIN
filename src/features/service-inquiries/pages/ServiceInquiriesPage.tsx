@@ -19,17 +19,16 @@ import {
   Button,
   Input,
   Select,
-  IconButton,
   useBreakpointValue,
   Card,
   CardBody,
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { useNavigate } from 'react-router-dom'
 import { inquiryService } from '../services/inquiryService'
 import { formatDate } from '@/utils/date'
+import Pagination from '@/components/common/Pagination'
 import type { InquiryFilters, InquirySorting, InquirySortField } from '../types/inquiry.types'
 
 const ServiceInquiriesPage = () => {
@@ -82,6 +81,14 @@ const ServiceInquiriesPage = () => {
       field: field as InquirySortField,
       order: prev.field === field && prev.order === 'desc' ? 'asc' : 'desc',
     }))
+  }
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage)
+  }
+
+  const handlePageSizeChange = (_newLimit: number) => {
+    setPage(1) // 페이지 크기 변경 시 첫 페이지로 이동
   }
 
   const handleViewDetail = (inquiryId: number) => {
@@ -181,7 +188,7 @@ const ServiceInquiriesPage = () => {
                 {inquiriesData?.data && inquiriesData.data.length > 0 && (
                   <Box>
                     <Text fontSize='sm' color='gray.600' mb='4'>
-                      총 {inquiriesData.pagination.total}개의 서비스 문의
+                      총 {inquiriesData.pagination.totalCount}개의 서비스 문의
                     </Text>
                   </Box>
                 )}
@@ -236,49 +243,27 @@ const ServiceInquiriesPage = () => {
                     </Tbody>
                   </Table>
                 </TableContainer>
+
+                {/* 페이지네이션을 Card 내부로 이동 */}
+                {inquiriesData && (
+                  <Pagination
+                    pagination={{
+                      currentPage: inquiriesData.pagination.currentPage,
+                      pageSize: inquiriesData.pagination.pageSize,
+                      totalCount: inquiriesData.pagination.totalCount,
+                      totalPages: inquiriesData.pagination.totalPages,
+                      hasNext: inquiriesData.pagination.hasNext,
+                      hasPrevious: inquiriesData.pagination.hasPrevious,
+                    }}
+                    onPageChange={handlePageChange}
+                    onPageSizeChange={handlePageSizeChange}
+                  />
+                )}
               </VStack>
             )}
           </CardBody>
         </Card>
 
-        {/* 페이지네이션 */}
-        {inquiriesData?.pagination && inquiriesData.pagination.totalPages > 1 && (
-          <Flex justify='center' align='center' gap='4'>
-            <IconButton
-              aria-label='이전 페이지'
-              icon={<ChevronLeftIcon />}
-              isDisabled={page <= 1}
-              onClick={() => setPage(prev => prev - 1)}
-            />
-
-            <HStack spacing='1'>
-              {Array.from({ length: Math.min(5, inquiriesData.pagination.totalPages) }, (_, i) => {
-                const pageNumber = i + 1
-                return (
-                  <Button
-                    key={pageNumber}
-                    size='sm'
-                    variant={page === pageNumber ? 'solid' : 'ghost'}
-                    onClick={() => setPage(pageNumber)}
-                  >
-                    {pageNumber}
-                  </Button>
-                )
-              })}
-            </HStack>
-
-            <IconButton
-              aria-label='다음 페이지'
-              icon={<ChevronRightIcon />}
-              isDisabled={page >= inquiriesData.pagination.totalPages}
-              onClick={() => setPage(prev => prev + 1)}
-            />
-
-            <Text fontSize='sm' color='gray.600'>
-              {page} / {inquiriesData.pagination.totalPages} 페이지
-            </Text>
-          </Flex>
-        )}
       </VStack>
     </Box>
   )
