@@ -26,4 +26,6 @@ export interface UpdateQuestionData {
 export interface QuestionFilters {
   category?: FAQCategory
   search?: string
+  page?: number
+  pageSize?: number
 }

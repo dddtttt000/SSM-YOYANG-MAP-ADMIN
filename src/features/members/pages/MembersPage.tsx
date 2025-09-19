@@ -104,12 +104,16 @@ const MembersPage = () => {
 
               {membersData && (
                 <Pagination
-                  currentPage={membersData.page}
-                  totalPages={membersData.totalPages}
+                  pagination={{
+                    currentPage: membersData.page,
+                    pageSize: filters.limit || 10,
+                    totalCount: membersData.count,
+                    totalPages: membersData.totalPages,
+                    hasNext: membersData.page < membersData.totalPages,
+                    hasPrevious: membersData.page > 1,
+                  }}
                   onPageChange={handlePageChange}
-                  pageSize={filters.limit || 10}
                   onPageSizeChange={handlePageSizeChange}
-                  totalItems={membersData.count}
                 />
               )}
             </VStack>

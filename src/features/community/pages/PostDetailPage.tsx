@@ -25,18 +25,23 @@ import {
   Tr,
   Td,
   Avatar,
+  useDisclosure,
+  Icon,
+  Tooltip,
 } from '@chakra-ui/react'
-import { FiArrowLeft } from 'react-icons/fi'
+import { FiArrowLeft, FiAlertTriangle } from 'react-icons/fi'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { postService } from '../services'
 import { formatDate } from '@/utils/date'
 import CommentList from '../components/comments/CommentList'
+import PostReportDetailsModal from '../components/posts/PostReportDetailsModal'
 
 const PostDetailPage = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const location = useLocation()
   const queryClient = useQueryClient()
+  const { isOpen: isReportModalOpen, onOpen: onReportModalOpen, onClose: onReportModalClose } = useDisclosure()
 
   const cardBg = useColorModeValue('white', 'gray.800')
   const bgColor = useColorModeValue('gray.50', 'gray.900')
@@ -82,6 +87,14 @@ const PostDetailPage = () => {
       // 기본 뒤로가기
       navigate(-1)
     }
+  }
+
+  // 신고 건수에 따른 심각도 계산
+  const getReportSeverity = (count: number) => {
+    if (count === 0) return { colorScheme: 'gray', label: '없음', icon: null }
+    if (count <= 2) return { colorScheme: 'yellow', label: '경고', icon: FiAlertTriangle }
+    if (count <= 4) return { colorScheme: 'orange', label: '주의', icon: FiAlertTriangle }
+    return { colorScheme: 'red', label: '심각', icon: FiAlertTriangle }
   }
 
   // Helper functions removed - logic moved inline for simplicity
@@ -298,7 +311,42 @@ const PostDetailPage = () => {
                     <Td fontWeight='semibold' bg={headerBg}>
                       신고횟수
                     </Td>
-                    <Td color={post.reported_count > 0 ? 'red.600' : 'inherit'}>{post.reported_count}</Td>
+                    <Td>
+                      {post.reported_count > 0 ? (
+                        <Tooltip
+                          label="클릭하여 신고 내역 상세보기"
+                          hasArrow
+                          placement="top"
+                        >
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            colorScheme={getReportSeverity(post.reported_count).colorScheme}
+                            leftIcon={getReportSeverity(post.reported_count).icon ? (
+                              <Icon as={getReportSeverity(post.reported_count).icon!} />
+                            ) : undefined}
+                            onClick={onReportModalOpen}
+                            _hover={{
+                              transform: 'translateY(-1px)',
+                              boxShadow: 'md',
+                              borderColor: `${getReportSeverity(post.reported_count).colorScheme}.400`
+                            }}
+                            _active={{
+                              transform: 'translateY(0px)',
+                              boxShadow: 'sm'
+                            }}
+                            transition="all 0.2s"
+                            cursor="pointer"
+                          >
+                            {post.reported_count}건
+                          </Button>
+                        </Tooltip>
+                      ) : (
+                        <Text fontSize="sm" color="gray.500">
+                          0건
+                        </Text>
+                      )}
+                    </Td>
                   </Tr>
                   <Tr>
                     <Td fontWeight='semibold' bg={headerBg}>
@@ -376,6 +424,14 @@ const PostDetailPage = () => {
         <Box mt={6} maxW='6xl' mx='auto'>
           <CommentList postId={post.id} />
         </Box>
+
+        {/* 신고 내역 상세보기 모달 */}
+        <PostReportDetailsModal
+          isOpen={isReportModalOpen}
+          onClose={onReportModalClose}
+          postId={post.id}
+          postTitle={post.title}
+        />
       </Container>
     </Box>
   )

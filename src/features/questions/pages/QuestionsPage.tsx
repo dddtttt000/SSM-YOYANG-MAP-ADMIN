@@ -27,6 +27,7 @@ import { useQuestions, useQuestionMutations } from '../hooks/useQuestions'
 import QuestionFormModal from '../components/QuestionFormModal'
 import QuestionTable from '../components/QuestionTable'
 import QuestionFilters from '../components/QuestionFilters'
+import Pagination from '@/components/common/Pagination'
 import type { Question, CreateQuestionData, QuestionFilters as QuestionFiltersType } from '../types'
 
 const QuestionsPage = () => {
@@ -36,7 +37,10 @@ const QuestionsPage = () => {
 
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null)
   const [deletingQuestionId, setDeletingQuestionId] = useState<number | null>(null)
-  const [filters, setFilters] = useState<QuestionFiltersType>({})
+  const [filters, setFilters] = useState<QuestionFiltersType>({
+    page: 1,
+    pageSize: 20,
+  })
 
   // FAQ 목록 조회
   const { data: questionsData, isLoading, error } = useQuestions(filters)
@@ -97,8 +101,16 @@ const QuestionsPage = () => {
     setDeletingQuestionId(null)
   }
 
+  const handlePageChange = (page: number) => {
+    setFilters({ ...filters, page })
+  }
+
+  const handlePageSizeChange = (pageSize: number) => {
+    setFilters({ ...filters, page: 1, pageSize })
+  }
+
   const handleFiltersChange = (newFilters: QuestionFiltersType) => {
-    setFilters(newFilters)
+    setFilters({ ...newFilters, page: 1, pageSize: filters.pageSize })
   }
 
   return (
@@ -144,14 +156,29 @@ const QuestionsPage = () => {
               </Alert>
             ) : (
               <VStack align='stretch' spacing='4'>
-                {questionsData && questionsData.length > 0 && (
+                {questionsData && questionsData.data.length > 0 && (
                   <Box>
                     <Text fontSize='sm' color='gray.600' mb='4'>
-                      총 {questionsData.length}개의 FAQ
+                      총 {questionsData.pagination.totalCount}개의 FAQ
                     </Text>
                   </Box>
                 )}
-                <QuestionTable questions={questionsData || []} onEdit={handleEdit} />
+                <QuestionTable questions={questionsData?.data || []} onEdit={handleEdit} />
+
+                {questionsData && (
+                  <Pagination
+                    pagination={{
+                      currentPage: questionsData.pagination.currentPage,
+                      pageSize: questionsData.pagination.pageSize,
+                      totalCount: questionsData.pagination.totalCount,
+                      totalPages: questionsData.pagination.totalPages,
+                      hasNext: questionsData.pagination.hasNext,
+                      hasPrevious: questionsData.pagination.hasPrevious,
+                    }}
+                    onPageChange={handlePageChange}
+                    onPageSizeChange={handlePageSizeChange}
+                  />
+                )}
               </VStack>
             )}
           </CardBody>

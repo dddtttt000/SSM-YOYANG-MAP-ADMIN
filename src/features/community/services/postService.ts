@@ -105,8 +105,40 @@ class PostService {
       const totalCount = count || 0
       const totalPages = Math.ceil(totalCount / pageSize)
 
+      // 각 게시글의 실제 신고 건수 조회
+      let postsWithReportCount = data || []
+
+      if (postsWithReportCount.length > 0) {
+        try {
+          const postIds = postsWithReportCount.map(p => p.id)
+
+          const { data: reports, error: reportError } = await supabase
+            .from('community_reports')
+            .select('post_id')
+            .in('post_id', postIds)
+            .not('post_id', 'is', null)
+
+          if (!reportError && reports) {
+            // 각 게시글별 신고 건수 계산
+            const reportCounts = reports.reduce((acc, report) => {
+              acc[report.post_id] = (acc[report.post_id] || 0) + 1
+              return acc
+            }, {} as Record<string, number>)
+
+            // 실제 신고 건수로 업데이트
+            postsWithReportCount = postsWithReportCount.map(post => ({
+              ...post,
+              reported_count: reportCounts[post.id] || 0
+            }))
+          }
+        } catch (reportError) {
+          console.error('신고 건수 조회 오류:', reportError)
+          // 신고 건수 조회 실패 시에도 기본 게시글 목록은 반환
+        }
+      }
+
       return {
-        data: data || [],
+        data: postsWithReportCount,
         totalCount,
         totalPages,
       }
@@ -121,6 +153,7 @@ class PostService {
    */
   async getPostById(id: string): Promise<CommunityPost | null> {
     try {
+      // 게시글 기본 정보 조회
       const { data, error } = await supabase
         .from('community_writing_list')
         .select(`
@@ -138,7 +171,25 @@ class PostService {
         throw new Error('게시글을 불러오는데 실패했습니다.')
       }
 
-      return data
+      // 실제 신고 건수 조회
+      const { count: reportCount, error: reportError } = await supabase
+        .from('community_reports')
+        .select('*', { count: 'exact', head: true })
+        .eq('post_id', id)
+        .not('post_id', 'is', null)
+
+      if (reportError) {
+        console.error('신고 건수 조회 오류:', reportError)
+        // 신고 건수 조회 실패 시에도 기본 게시글 정보는 반환
+      }
+
+      // 실제 신고 건수로 업데이트
+      const actualReportCount = reportCount || 0
+
+      return {
+        ...data,
+        reported_count: actualReportCount
+      }
     } catch (error) {
       console.error('PostService.getPostById 오류:', error)
       throw error
@@ -217,6 +268,40 @@ class PostService {
       }
     } catch (error) {
       console.error('PostService.getPostStats 오류:', error)
+      throw error
+    }
+  }
+
+  /**
+   * 특정 게시글의 신고 내역 상세 조회
+   */
+  async getPostReportDetails(postId: string) {
+    try {
+      const { data: reports, error } = await supabase
+        .from('community_reports')
+        .select(`
+          id,
+          reporter_id,
+          reason,
+          description,
+          status,
+          created_at,
+          members!community_reports_reporter_id_fkey (
+            nickname
+          )
+        `)
+        .eq('post_id', postId)
+        .not('post_id', 'is', null)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('게시글 신고 내역 조회 오류:', error)
+        throw new Error('신고 내역을 불러오는데 실패했습니다.')
+      }
+
+      return reports || []
+    } catch (error) {
+      console.error('PostService.getPostReportDetails 오류:', error)
       throw error
     }
   }

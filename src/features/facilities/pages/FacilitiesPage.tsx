@@ -177,12 +177,16 @@ const FacilitiesPage = () => {
 
               {facilitiesData && (
                 <Pagination
-                  currentPage={facilitiesData.page}
-                  totalPages={facilitiesData.totalPages}
+                  pagination={{
+                    currentPage: facilitiesData.page,
+                    pageSize: filters.limit || 12,
+                    totalCount: facilitiesData.count,
+                    totalPages: facilitiesData.totalPages,
+                    hasNext: facilitiesData.page < facilitiesData.totalPages,
+                    hasPrevious: facilitiesData.page > 1,
+                  }}
                   onPageChange={handlePageChange}
-                  pageSize={filters.limit || 12}
                   onPageSizeChange={handlePageSizeChange}
-                  totalItems={facilitiesData.count}
                 />
               )}
             </VStack>
