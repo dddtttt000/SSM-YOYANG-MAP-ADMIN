@@ -31,10 +31,10 @@ import { useNavigate } from 'react-router-dom'
 import { FiExternalLink } from 'react-icons/fi'
 import { useState, useEffect } from 'react'
 import { commentService } from '../../services/commentService'
+import { commentReportService, type CommentReportWithDetails } from '../../services/commentReportService'
 import { formatDate } from '@/utils/date'
 import { getContentStatusBadge } from '@/utils/statusBadge'
 import { REPORT_REASON_LABELS, type ReportReason } from '../../types'
-import type { CommentReportWithDetails } from '../../services/commentReportService'
 
 interface CommentDetailModalProps {
   isOpen: boolean
@@ -56,12 +56,20 @@ const CommentDetailModal = ({
   const navigate = useNavigate()
   const bgColor = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.600')
+  const statsBgColor = useColorModeValue('red.50', 'red.900')
+  const statsBorderColor = useColorModeValue('red.200', 'red.600')
+  const statsItemBg = useColorModeValue('white', 'gray.800')
+  const statsItemBorder = useColorModeValue('red.100', 'red.700')
 
   // 댓글 상태를 로컬에서 추적하여 즉시 UI 업데이트
   const [currentStatus, setCurrentStatus] = useState<string>('active')
 
   // 기존 댓글 데이터가 있으면 사용, 없으면 새로 조회
   const shouldFetchComment = !existingCommentData && !!commentId && isOpen
+
+  // 기존 데이터가 있을 때 해당 댓글의 모든 신고 내역 조회
+  const commentIdForReports = existingCommentData?.comment?.id || commentId
+  const shouldFetchReports = !!existingCommentData && !!commentIdForReports && isOpen
 
   const {
     data: fetchedComment,
@@ -71,6 +79,17 @@ const CommentDetailModal = ({
     queryKey: ['commentDetail', commentId],
     queryFn: () => (commentId ? commentService.getCommentWithReports(commentId) : null),
     enabled: shouldFetchComment,
+  })
+
+  // 기존 데이터가 있을 때 해당 댓글의 모든 신고 내역 조회
+  const {
+    data: allCommentReports,
+    isLoading: isLoadingReports,
+    error: reportsError,
+  } = useQuery({
+    queryKey: ['commentReports', commentIdForReports],
+    queryFn: () => (commentIdForReports ? commentReportService.getCommentReportsByCommentId(commentIdForReports) : null),
+    enabled: shouldFetchReports,
   })
 
   // 기존 데이터가 있으면 사용, 없으면 조회된 데이터 사용
@@ -85,8 +104,8 @@ const CommentDetailModal = ({
         updated_at: existingCommentData.created_at,
         post_id: existingCommentData.comment?.post_id || '',
         likes_count: 0,
-        reported_count: 1, // 신고된 댓글이므로 최소 1개
-        total_reports: 1,
+        reported_count: allCommentReports?.length || 0,
+        total_reports: allCommentReports?.length || 0,
         members: {
           nickname: existingCommentData.comment?.author_nickname,
           profile_image: existingCommentData.comment?.author_profile_image || null,
@@ -96,20 +115,19 @@ const CommentDetailModal = ({
           title: existingCommentData.comment?.post_title || '',
           author_nickname: existingCommentData.comment?.author_nickname || null,
         },
-        reports: [
-          {
-            id: existingCommentData.id,
-            reporter_id: existingCommentData.reporter_id,
-            reason: existingCommentData.reason,
-            description: existingCommentData.description,
-            status: existingCommentData.status,
-            created_at: existingCommentData.created_at,
-            reporter: existingCommentData.reporter,
-          },
-        ],
-        reports_by_reason: {
-          [existingCommentData.reason]: 1,
-        },
+        reports: allCommentReports?.map(report => ({
+          id: report.id,
+          reporter_id: report.reporter_id,
+          reason: report.reason,
+          description: report.description,
+          status: report.status,
+          created_at: report.created_at,
+          reporter: report.reporter,
+        })) || [],
+        reports_by_reason: allCommentReports?.reduce((acc, report) => {
+          acc[report.reason] = (acc[report.reason] || 0) + 1
+          return acc
+        }, {} as Record<string, number>) || {},
       }
     : fetchedComment
 
@@ -183,7 +201,7 @@ const CommentDetailModal = ({
   const modalTitle = mode === 'report' ? '신고된 댓글 상세' : '댓글 상세 정보'
 
   // 로딩 상태는 새로 조회하는 경우에만 표시
-  const showLoading = shouldFetchComment && isLoading
+  const showLoading = (shouldFetchComment && isLoading) || (shouldFetchReports && isLoadingReports)
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size='xl'>
@@ -202,10 +220,10 @@ const CommentDetailModal = ({
             </Center>
           )}
 
-          {error && (
+          {(error || reportsError) && (
             <Alert status='error'>
               <AlertIcon />
-              댓글 정보를 불러오는데 실패했습니다.
+              {error ? '댓글 정보를 불러오는데 실패했습니다.' : '신고 내역을 불러오는데 실패했습니다.'}
             </Alert>
           )}
 
@@ -287,17 +305,25 @@ const CommentDetailModal = ({
                       <>
                         {/* 신고 통계 */}
                         {comment.reports_by_reason && Object.keys(comment.reports_by_reason).length > 0 && (
-                          <Box>
-                            <Text fontSize='sm' color='gray.600' mb={2}>
-                              신고 사유별 통계
+                          <Box p={4} bg={statsBgColor} borderRadius='lg' border='1px' borderColor={statsBorderColor}>
+                            <Text fontSize='md' fontWeight='semibold' color='red.700' mb={3}>
+                              📊 신고 사유별 통계 (총 {comment.total_reports}건)
                             </Text>
-                            <HStack wrap='wrap' spacing={2}>
+                            <VStack align='stretch' spacing={2}>
                               {Object.entries(comment.reports_by_reason).map(([reason, count]) => (
-                                <Badge key={reason} colorScheme='red' variant='outline'>
-                                  {REPORT_REASON_LABELS[reason as ReportReason] || reason}: {count}건
-                                </Badge>
+                                <HStack key={reason} justify='space-between' p={2} bg={statsItemBg} borderRadius='md' border='1px' borderColor={statsItemBorder}>
+                                  <HStack spacing={2}>
+                                    <Box w={3} h={3} bg='red.500' borderRadius='full' />
+                                    <Text fontSize='sm' fontWeight='medium'>
+                                      {REPORT_REASON_LABELS[reason as ReportReason] || reason}
+                                    </Text>
+                                  </HStack>
+                                  <Badge colorScheme='red' variant='solid' fontSize='xs' px={2}>
+                                    {count}건
+                                  </Badge>
+                                </HStack>
                               ))}
-                            </HStack>
+                            </VStack>
                           </Box>
                         )}
 
