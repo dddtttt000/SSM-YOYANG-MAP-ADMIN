@@ -133,6 +133,31 @@ class CommentReportService {
   }
 
   /**
+   * 특정 댓글의 모든 신고 내역 조회
+   */
+  async getCommentReportsByCommentId(commentId: string): Promise<CommentReportWithDetails[]> {
+    try {
+      const { data, error } = await supabase
+        .from('community_reports')
+        .select('*')
+        .eq('comment_id', commentId)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('댓글 신고 내역 조회 오류:', error)
+        throw new Error('댓글 신고 내역을 불러오는데 실패했습니다.')
+      }
+
+      // 댓글 정보 추가
+      const enrichedData = await this.enrichCommentReportsWithContent(data || [])
+      return enrichedData
+    } catch (error) {
+      console.error('CommentReportService.getCommentReportsByCommentId 오류:', error)
+      throw error
+    }
+  }
+
+  /**
    * 댓글 신고 통계 조회
    */
   async getCommentReportStats() {

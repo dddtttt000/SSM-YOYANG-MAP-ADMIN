@@ -297,38 +297,55 @@ class CommentService {
    */
   async getCommentWithReports(commentId: string): Promise<CommentWithReports | null> {
     try {
-      const { data, error } = await supabase
+      // 댓글 기본 정보 조회
+      const { data: comment, error: commentError } = await supabase
         .from('community_comments_list')
         .select(`
           *,
           members!community_comments_list_author_id_fkey (
             nickname,
             profile_image
-          ),
-          community_reports!community_reports_comment_id_fkey (
-            id,
-            reporter_id,
-            reason,
-            description,
-            status,
-            created_at,
-            members!community_reports_reporter_id_fkey (
-              nickname
-            )
           )
         `)
         .eq('id', commentId)
         .single()
 
-      if (error) {
-        console.error('댓글 상세 조회 오류:', error)
+      if (commentError) {
+        console.error('댓글 상세 조회 오류:', commentError)
         throw new Error('댓글 정보를 불러오는데 실패했습니다.')
       }
 
-      if (!data) return null
+      if (!comment) return null
+
+      // 해당 댓글의 모든 신고 내역 조회
+      const { data: reports, error: reportsError } = await supabase
+        .from('community_reports')
+        .select(`
+          id,
+          reporter_id,
+          reason,
+          description,
+          status,
+          created_at,
+          members!community_reports_reporter_id_fkey (
+            nickname
+          )
+        `)
+        .eq('comment_id', commentId)
+        .order('created_at', { ascending: false })
+
+      if (reportsError) {
+        console.error('댓글 신고 내역 조회 오류:', reportsError)
+      }
+
+      // 댓글 데이터에 신고 정보 추가
+      const commentWithReports = {
+        ...comment,
+        community_reports: reports || []
+      }
 
       // 신고 통계 계산 및 원글 정보 추가
-      const processedComments = await this.processReportedComments([data])
+      const processedComments = await this.processReportedComments([commentWithReports])
       return processedComments[0] || null
     } catch (error) {
       console.error('CommentService.getCommentWithReports 오류:', error)
